@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <utility>
+#include <set>
 
 enum Direction {
 	NORTH = 0,
@@ -12,6 +14,9 @@ enum Direction {
 Direction facing = NORTH;
 
 int xCoord = 0, yCoord = 0;
+std::set<std::pair<int, int>> visitedPos;
+bool stopExec = false;
+bool part1 = false;
 
 void ParseWithDelim(const std::string input, const std::string& delim, std::vector<std::string>& parts)
 {
@@ -29,19 +34,50 @@ void ParseWithDelim(const std::string input, const std::string& delim, std::vect
 
 void ExecuteCommand(const std::string& cmd)
 {
+	if (stopExec)
+	{
+		return;
+	}
+
 	const int dir = (cmd.front() == 'R') ? 1 : -1;
 	const int calcDir = (static_cast<int>(facing) + dir) % 4;
 	facing = (calcDir == -1) ? WEST : static_cast<Direction>(calcDir);
 
 	int steps = std::stoi(cmd.substr(1));
 
-	switch (facing)
+	if (part1)
 	{
-	case NORTH: yCoord += steps; break;
-	case EAST:  xCoord += steps; break;
-	case SOUTH: yCoord -= steps; break;
-	case WEST:  xCoord -= steps; break;
-	default: std::cout << "Invalid facing\n"; break;
+		switch (facing)
+		{
+		case NORTH: yCoord += steps; break;
+		case EAST:  xCoord += steps; break;
+		case SOUTH: yCoord -= steps; break;
+		case WEST:  xCoord -= steps; break;
+		default: std::cout << "Invalid facing\n"; break;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < steps; ++i)
+		{
+			switch (facing)
+			{
+			case NORTH: yCoord += 1; break;
+			case EAST:  xCoord += 1; break;
+			case SOUTH: yCoord -= 1; break;
+			case WEST:  xCoord -= 1; break;
+			default: std::cout << "Invalid facing\n"; break;
+			}
+
+			std::pair<int, int> newPos = std::make_pair(xCoord, yCoord);
+			if (visitedPos.find(newPos) != visitedPos.end())
+			{
+				std::cout << "Double visited pos is " << newPos.first << ' ' << newPos.second << " -> " << abs(newPos.first) + abs(newPos.second) << " blocks away" << std::endl;
+				stopExec = true;
+				return;
+			}
+			visitedPos.insert(newPos);
+		}
 	}
 }
 
@@ -65,7 +101,11 @@ int main()
 	{
 		ExecuteCommand(cmd);
 	}
-	std::cout << "Blocks away: " << abs(xCoord) + abs(yCoord) << std::endl;
+
+	if (part1)
+	{
+		std::cout << "Blocks away: " << abs(xCoord) + abs(yCoord) << std::endl;
+	}
 
 	return 0;
 }

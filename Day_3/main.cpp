@@ -26,24 +26,35 @@ int main()
 
 	//std::regex re("\s+(\d*)\s+(\d*)\s+(\d*)");
 	std::regex re("\\s+(\\d*)\\s+(\\d*)\\s+(\\d*)");
-	std::smatch match;
 
 	int ctr = 0;
-	for (const std::string& str : lines)
+	for (int i = 0; i < lines.size(); i += 3)
 	{
-		if (std::regex_match(str, match, re))
-		{
-			if (match.size() != 4)
-			{
-				return -1;
-			}
+		std::smatch match;// , match2, match3;
+		std::vector<int> tri, tri2, tri3;
 
-			std::vector<int> sides{ std::stoi(match[1].str()) , std::stoi(match[2].str()) , std::stoi(match[3].str()) };
-			if (CheckIfTriangle(sides))
-			{
-				++ctr;
-			}
+		if (std::regex_match(lines[i], match, re))
+		{
+			tri.push_back(std::stoi(match[1].str()));
+			tri2.push_back(std::stoi(match[2].str()));
+			tri3.push_back(std::stoi(match[3].str()));
 		}
+		if (std::regex_match(lines[i + 1], match, re))
+		{
+			tri.push_back(std::stoi(match[1].str()));
+			tri2.push_back(std::stoi(match[2].str()));
+			tri3.push_back(std::stoi(match[3].str()));
+		}
+		if (std::regex_match(lines[i + 2], match, re))
+		{
+			tri.push_back(std::stoi(match[1].str()));
+			tri2.push_back(std::stoi(match[2].str()));
+			tri3.push_back(std::stoi(match[3].str()));
+		}
+
+		if (CheckIfTriangle(tri)) ++ctr;
+		if (CheckIfTriangle(tri2)) ++ctr;
+		if (CheckIfTriangle(tri3)) ++ctr;
 	}
 
 	std::cout << "Answer is: " << ctr << std::endl;

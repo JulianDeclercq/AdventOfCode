@@ -32,6 +32,13 @@ bool Checksum(const std::map<char, int>& m, const std::string& checkSum)
 	return (sortedCheckSum.compare(checkSum) == 0);
 }
 
+void ShiftCipher(char c, int steps)
+{
+	std::cout << c << std::endl;
+	c += (steps % 26);
+	std::cout << c << std::endl;
+}
+
 int main()
 {
 	std::ifstream file("input.txt");
@@ -49,6 +56,7 @@ int main()
 	std::smatch match;
 
 	int sectorIDSum = 0;
+	std::ofstream outputFile("output.txt");
 	for (std::string& str : lines)
 	{
 		int sectorID = 0;
@@ -74,8 +82,32 @@ int main()
 			{
 				sectorIDSum += sectorID;
 			}
+
+			std::string cpy(str);
+			std::for_each(cpy.begin(), cpy.end(), [sectorID](char& c)
+			{
+				if (c == '-')
+				{
+					c = ' ';
+				}
+				else
+				{
+					int sectorIDA = sectorID % 26;
+					if (static_cast<int>(c) + sectorIDA > static_cast<int>('z'))
+					{
+						int offsetFromEnd = ('z' - c) + 1;
+						c = 'a' + (sectorIDA - offsetFromEnd);
+					}
+					else
+					{
+						c += sectorIDA;
+					}
+				}
+			});
+			outputFile << cpy << " sectorID: " << sectorID << std::endl;
 		}
 	}
+	outputFile.close();
 
 	std::cout << "Sum of sectorIDs is: " << sectorIDSum << std::endl;
 	return 0;

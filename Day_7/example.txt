@@ -1,4 +1,3 @@
-abcd[efgh]ijkl[mnop]qrst
 abba[mnop]qrst
 abcd[bddb]xyyx
 aaaa[qwer]tyui

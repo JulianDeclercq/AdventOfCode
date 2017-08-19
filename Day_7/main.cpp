@@ -16,6 +16,7 @@ bool CheckABBA(const std::string& str, bool encl)
 	{
 		cpy = (str.substr(1, str.size() - 2));
 	}
+
 	// Break whole string in 4sized strings
 	std::vector<std::string> parts;
 	for (size_t i = 0; i < cpy.size() - 3; ++i)
@@ -31,6 +32,56 @@ bool CheckABBA(const std::string& str, bool encl)
 		if (sub.compare(rev) == 0 && !OneCharString(sub))
 		{
 			return true;
+		}
+	}
+	return false;
+}
+
+void GetABAs(const std::string& str, std::vector<std::string>& abas)
+{
+	std::string cpy(str);
+
+	// Break whole string in 3sized strings
+	std::vector<std::string> parts;
+	for (size_t i = 0; i < cpy.size() - 2; ++i)
+	{
+		parts.push_back(cpy.substr(i, 3));
+	}
+
+	for (const std::string& part : parts)
+	{
+		if ((part[0] == part[2]) && (part[0] != part[1]))
+		{
+			abas.push_back(part);
+		}
+	}
+}
+
+bool CheckBABs(const std::string& str, const std::vector<std::string>& abas)
+{
+	// Remove brackets
+	std::string cpy = (str.substr(1, str.size() - 2));
+
+	std::vector<std::string> parts;
+	for (size_t i = 0; i < cpy.size() - 2; ++i)
+	{
+		parts.push_back(cpy.substr(i, 3));
+	}
+
+	// For all existing aba's, check if a bab exists
+	for (const std::string& part : parts)
+	{
+		// Optimisation: if the part is not a possible aba then don't even check it
+		if (part[0] != part[2])
+		{
+			continue;
+		}
+		for (const std::string& aba : abas)
+		{
+			if ((cpy[0] == aba[1]) && (cpy[2] == aba[1]) && (cpy[1] == aba[0]))
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -80,9 +131,27 @@ bool ValidIPv7(const std::vector<std::string>& parts, const std::vector<std::str
 	return(hasABBA && (!failedABBA));
 }
 
+bool ValidIPv7Part2(const std::vector<std::string>& parts, const std::vector<std::string>& enclParts)
+{
+	std::vector<std::string> abas;
+	for (const std::string& part : parts)
+	{
+		GetABAs(part, abas);
+	}
+
+	for (const std::string& part : enclParts)
+	{
+		if (CheckBABs(part, abas))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 int main()
 {
-	std::ifstream file("input.txt");
+	std::ifstream file("input2.txt");
 	//std::ifstream file("example.txt");
 
 	if (file.fail())
@@ -100,7 +169,8 @@ int main()
 
 		ExtractParts(cpy, parts, enclParts);
 
-		if (ValidIPv7(parts, enclParts))
+		//if (ValidIPv7(parts, enclParts))
+		if (ValidIPv7Part2(parts, enclParts))
 		{
 			//std::cout << "Valid line: " << cpy << std::endl;
 			++validCtr;

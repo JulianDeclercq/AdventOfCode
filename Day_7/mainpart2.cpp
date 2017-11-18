@@ -107,7 +107,7 @@ int main()
 	}
 
 	int validCtr = 0;
-	std::string line, answer;
+	std::string line;
 	std::vector<std::string> parts, enclParts;
 
 	while (std::getline(file, line))

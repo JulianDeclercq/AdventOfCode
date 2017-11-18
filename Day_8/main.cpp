@@ -7,11 +7,11 @@
 using namespace std;
 
 const int GRID_WIDTH = 50, GRID_HEIGHT = 6;
-//const int GRID_WIDTH = 7, GRID_HEIGHT = 3;
 array<bool, GRID_WIDTH * GRID_HEIGHT> Lights = array<bool, GRID_WIDTH * GRID_HEIGHT>();
 
 enum CommandType
 {
+	INVALID,
 	RECT,
 	ROTATE_COLUMN,
 	ROTATE_ROW
@@ -94,27 +94,25 @@ void RotateRow(int rowNumber, int amount)
 
 CommandType DetermineCommandType(const string& command)
 {
-	/*
-		/ Command examples /
-		rect 3x2
-		rotate column x=1 by 1
-		rotate row y=0 by 4
-	*/
+	// "r[e]ct"
 	if (command[1] == 'e')
 	{
 		return RECT;
 	}
+	// "rotate [c]olumn"
 	else if (command[7] == 'c')
 	{
 		return ROTATE_COLUMN;
 	}
+	// "rotate [r]ow"
 	else if (command[7] == 'r')
 	{
 		return ROTATE_ROW;
 	}
 	else
 	{
-		cout << "INVALID COMMANDTYPE!!" << endl;
+		cout << "Invalid command type for command " << command << endl;
+		return INVALID;
 	}
 }
 
@@ -126,7 +124,7 @@ void ProcessCommand(const string& command)
 	// Define the expression and a string match object
 	// If the command is a rect type, use a different regex than the rotate types
 	// Expression using Raw string literals
-	regex expression = (commandType == RECT) ? regex(R"(rect (\d+)x(\d+))") : regex(R"(.+=(\d+).+(\d+))");
+	regex expression = (commandType == RECT) ? regex(R"(rect (\d+)x(\d+))") : regex(R"(.+=(\d+).+?(\d+))");
 	smatch match;
 
 	// Check for regex match
@@ -156,7 +154,7 @@ void ProcessCommand(const string& command)
 void PrintMonitor()
 {
 	// Print the current state of the lights
-	for (int i = 0; i < Lights.size(); ++i)
+	for (size_t i = 0; i < Lights.size(); ++i)
 	{
 		// Take a new line for each row
 		if (i != 0 && i % GRID_WIDTH == 0)
@@ -164,6 +162,7 @@ void PrintMonitor()
 			cout << endl;
 		}
 
+		// Print the lights on (#) or off (.)
 		cout << ((Lights[i]) ? '#' : '.');
 	}
 	cout << endl << endl;
@@ -171,21 +170,6 @@ void PrintMonitor()
 
 int main()
 {
-	// Example
-/*
-	ProcessCommand("rect 3x2");
-	PrintMonitor();
-	ProcessCommand("rotate column x=1 by 1");
-	PrintMonitor();
-	ProcessCommand("rotate row y=0 by 4");
-	PrintMonitor();
-	ProcessCommand("rotate column x=1 by 1");
-	PrintMonitor();
-	ProcessCommand("rotate column x=1 by 4");
-	PrintMonitor();
-	cin.get();
-	return 0;*/
-
 	// Open the inputfile
 	ifstream input("input.txt");
 
@@ -205,13 +189,12 @@ int main()
 		PrintMonitor();
 	}
 
+	// Count how many lights are active
 	int activeCtr = 0;
 	for (bool b : Lights)
 		if (b) ++activeCtr;
 
 	cout << "There are " << activeCtr << " lights active.\n";
-
-	cin.get();
 
 	return 0;
 }

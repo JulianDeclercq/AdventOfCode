@@ -3,6 +3,6 @@
 
 int main()
 {
-	Day2::Part1();
+	Day2::Part2();
 	return 0;
 }

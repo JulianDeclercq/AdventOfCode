@@ -15,15 +15,5 @@ namespace Helpers
 			*(result++) = item;
 	}
 
-	template<typename T>
-	std::vector<T> Split(const std::string &s, char delim)
-	{
-		std::vector<int> elems;
-		split(s, delim, std::back_inserter(elems));
-		return elems;
-	}
-
-	// Integer specific methods
-	void SplitToInteger(const std::string &s, char delim, std::back_insert_iterator<std::vector<int>> result);
-	std::vector<int> SplitToInteger(const std::string &s, char delim);
+	std::vector<std::string> Split(const std::string &s, char delim);
 }

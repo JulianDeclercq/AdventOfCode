@@ -16,10 +16,25 @@ void Day2::ParseInput()
 		Rows.push_back(line);
 }
 
+vector<int> ParseRowToIntegerVector(const string& row)
+{
+	// Split the numbers by space
+	vector<string> numberStrings = Helpers::Split(row, ' ');
+
+	// Convert the string vector to an integer vector
+	vector<int> numbers = vector<int>();
+
+	for (const string& numberString : numberStrings)
+		numbers.push_back(stoi(numberString));
+
+	return numbers;
+}
+
 int Day2::RowDifference(const string& row)
 {
-	// Parse the row string to a vector of integers
-	vector<int> numbers = Helpers::SplitInteger(row, ' ');
+	// Parse the row string
+	vector<int> numbers = ParseRowToIntegerVector(row);
+
 	int maxElement = *max_element(numbers.begin(), numbers.end());
 	int minElement = *min_element(numbers.begin(), numbers.end());
 	return maxElement - minElement;
@@ -41,8 +56,8 @@ int Day2::EvenlyDivided(const string& row)
 	/*		Find the only two numbers in each row where one evenly divides the other
 	so where the result of the division operation is a whole number.		*/
 
-	// Parse the row string to a vector of integers
-	vector<int> numbers = Helpers::SplitInteger(row, ' ');
+	// Parse the row string
+	vector<int> numbers = ParseRowToIntegerVector(row);
 	for (int number : numbers)
 	{
 		for (int number2 : numbers)

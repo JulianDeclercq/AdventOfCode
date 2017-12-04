@@ -1,12 +1,5 @@
 #include "Day2.h"
 
-std::vector<int> Day2::split(const string &s, char delim)
-{
-	vector<int> elems;
-	split(s, delim, std::back_inserter(elems));
-	return elems;
-}
-
 void Day2::ParseInput()
 {
 	//ifstream input("Example/Day2Part1.txt");
@@ -26,7 +19,7 @@ void Day2::ParseInput()
 int Day2::RowDifference(const string& row)
 {
 	// Parse the row string to a vector of integers
-	vector<int> numbers = split(row, ' ');
+	vector<int> numbers = Helpers::split(row, ' ');
 	int maxElement = *max_element(numbers.begin(), numbers.end());
 	int minElement = *min_element(numbers.begin(), numbers.end());
 	return maxElement - minElement;
@@ -49,7 +42,7 @@ int Day2::EvenlyDivided(const string& row)
 	so where the result of the division operation is a whole number.		*/
 
 	// Parse the row string to a vector of integers
-	vector<int> numbers = split(row, ' ');
+	vector<int> numbers = Helpers::split(row, ' ');
 	for (int number : numbers)
 	{
 		for (int number2 : numbers)

@@ -3,8 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <iterator>
-#include <sstream>
+#include "Helpers.h"
 
 using namespace std;
 
@@ -12,17 +11,6 @@ class Day2
 {
 private:
 	vector<string> Rows = vector<string>();
-
-	template<typename T>
-	void split(const string &s, char delim, T result)
-	{
-		stringstream ss(s);
-		string item;
-		while (getline(ss, item, delim))
-			*(result++) = stoi(item);
-	}
-
-	vector<int> split(const string &s, char delim);
 
 	// Part 1
 	void ParseInput();

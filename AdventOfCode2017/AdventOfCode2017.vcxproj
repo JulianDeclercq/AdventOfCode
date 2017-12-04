@@ -150,10 +150,12 @@
     <ClCompile Include="Day1.cpp" />
     <ClCompile Include="Day2.cpp" />
     <ClCompile Include="Day3.cpp" />
+    <ClCompile Include="Day4.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
     <ClInclude Include="Day2.h" />
     <ClInclude Include="Day3.h" />
+    <ClInclude Include="Day4.h" />
     <ClInclude Include="Helpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

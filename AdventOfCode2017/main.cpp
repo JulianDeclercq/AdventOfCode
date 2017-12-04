@@ -6,5 +6,6 @@
 int main()
 {
 	Day4().Part1();
+	Day4().Part2();
 	return 0;
 }

@@ -1,13 +1,12 @@
 #include "Day4.h"
 
-void Day4::Part1()
+int Day4::Solve(bool part2)
 {
 	ifstream input("Input/Day4.txt");
-	//ifstream input("Example/Day4Part1.txt");
 	if (input.fail())
 	{
 		cout << "Failed to open input file\n";
-		return;
+		return -1;
 	}
 
 	string line;
@@ -16,6 +15,13 @@ void Day4::Part1()
 	{
 		// Retrieve the words that are split by a space
 		vector<string> words = Helpers::Split(line, ' ');
+
+		// If part 2, sort the characters of the word to find anagrams
+		if (part2)
+		{
+			for (string& word : words)
+				sort(word.begin(), word.end());
+		}
 
 		// Sort the words
 		sort(words.begin(), words.end());
@@ -28,9 +34,17 @@ void Day4::Part1()
 			++validPasswords;
 	}
 
-	cout << "Day 4 Part 2 answer is: " << validPasswords << endl;
+	return validPasswords;
+}
+
+void Day4::Part1()
+{
+	int validPasswords = Solve();
+	cout << "Day 4 Part 1 answer is: " << validPasswords << endl;
 }
 
 void Day4::Part2()
 {
+	int validPasswords = Solve(true);
+	cout << "Day 4 Part 2 answer is: " << validPasswords << endl;
 }

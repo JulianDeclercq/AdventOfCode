@@ -9,14 +9,14 @@ std::string Day6::State(const vector<int>& memoryBanks)
 	return state;
 }
 
-void Day6::Part1()
+int Day6::Solve(bool part2 /*= false*/)
 {
 	//	ifstream input("Example/Day6Part1.txt");
 	ifstream input("Input/Day6.txt");
 	if (input.fail())
 	{
 		cout << "Failed to open inputfile.\n";
-		return;
+		return -1;
 	}
 
 	string line;
@@ -29,6 +29,9 @@ void Day6::Part1()
 
 	// Create a vector of all states that will be achieved
 	vector<string> states = vector<string>{ State(memoryBanks) };
+
+	// Bool for part 2
+	bool hasReset = false;
 
 	// As long as the newState has never been reached before, loop
 	string newState = "";
@@ -69,10 +72,17 @@ void Day6::Part1()
 		// If the new state already existed, answer has been found
 		if (find(states.begin(), states.end(), newState) != states.end())
 		{
-			//for (const auto& lel : states) cout << lel << endl;
+			// For part 1, just return the cycle counter
+			if (!part2)
+				return cycleCounter;
 
-			cout << "Day 6 Part 1 Answer: " << cycleCounter << endl;
-			return;
+			if (hasReset)
+				return cycleCounter;
+
+			// Reset the cycle counter and the states to calculate when it is going to reproduce itself
+			cycleCounter = 0;
+			states.clear();
+			hasReset = true;
 		}
 
 		// Add the new state to the list
@@ -80,6 +90,12 @@ void Day6::Part1()
 	}
 }
 
+void Day6::Part1()
+{
+	cout << "Day 6 Part 1 Answer: " << Solve() << endl;
+}
+
 void Day6::Part2()
 {
+	cout << "Day 6 Part 2 Answer: " << Solve(true) << endl;
 }

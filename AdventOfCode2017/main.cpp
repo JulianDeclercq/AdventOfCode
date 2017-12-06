@@ -8,5 +8,6 @@
 int main()
 {
 	Day6().Part1();
+	Day6().Part2();
 	return 0;
 }

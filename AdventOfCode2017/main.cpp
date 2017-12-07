@@ -4,10 +4,10 @@
 #include "Day4.h"
 #include "Day5.h"
 #include "Day6.h"
+#include "Day7.h"
 
 int main()
 {
-	Day6().Part1();
-	Day6().Part2();
+	Day7().Part1();
 	return 0;
 }

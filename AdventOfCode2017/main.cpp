@@ -9,5 +9,6 @@
 int main()
 {
 	Day7().Part1();
+	Day7().Part2();
 	return 0;
 }

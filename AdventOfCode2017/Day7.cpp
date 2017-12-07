@@ -1,6 +1,6 @@
 #include "Day7.h"
 
-void Day7::Part1()
+void Day7::ParseTree()
 {
 	//ifstream input("Example/Day7Part1.txt");
 	ifstream input("Input/Day7.txt");
@@ -10,7 +10,6 @@ void Day7::Part1()
 		return;
 	}
 
-	map<string, Program*> tree = map<string, Program*>();
 	// Vector to save the branches.
 	// Pair: first = name, second = children's string
 	vector < pair<string, string>> branches = vector < pair<string, string>>();
@@ -31,7 +30,7 @@ void Day7::Part1()
 				branches.push_back(make_pair(programName, childrenString));
 
 			// Insert this program in the tree
-			tree.insert(make_pair(programName, new Program(programName, stoi(match[2]), {})));
+			_tree.insert(make_pair(programName, new Program(programName, stoi(match[2]), {})));
 		}
 	}
 
@@ -42,14 +41,17 @@ void Day7::Part1()
 
 		// Parse the children
 		for (const string& child : Helpers::Split(branch.second, ','))
-			children.push_back(tree[child]);
+			children.push_back(_tree[child]);
 
 		// Set the children
-		tree[branch.first]->Children = children;
+		_tree[branch.first]->Children = children;
 	}
+}
 
+Program* Day7::FindRoot()
+{
 	// Bottom program is the program having children but it is no ones child
-	for (const auto& element : tree)
+	for (const auto& element : _tree)
 	{
 		Program* program = element.second;
 
@@ -59,7 +61,7 @@ void Day7::Part1()
 
 		// If the program is someones child, it's impossible to be the root
 		bool isRoot = true;
-		for (const auto& element2 : tree)
+		for (const auto& element2 : _tree)
 		{
 			Program* program2 = element2.second;
 			if (find(program2->Children.begin(), program2->Children.end(), program) != program2->Children.end())
@@ -70,10 +72,71 @@ void Day7::Part1()
 		}
 
 		if (isRoot)
-			cout << "Day 7 Part 1 Answer: " << program->Name << endl;
+			return program;
 	}
+
+	return nullptr;
+}
+
+int Day7::FindWeightCorrection(Program* wrongWeightProgram)
+{
+	// Clear the tower weights
+	vector<int> towerWeights = vector<int>();
+
+	// All the children's sums must match
+	for (Program* child : wrongWeightProgram->Children)
+		towerWeights.push_back(child->CalculateTowerWeight());
+
+	// Count the occurences
+	map<int, int> occurences = map<int, int>();
+	for_each(towerWeights.begin(), towerWeights.end(), [&occurences](int weight) {occurences[weight]++; });
+
+	for (auto it = occurences.begin(); it != occurences.end(); ++it)
+	{
+		// Find the odd one
+		if (it->second != 1)
+			continue;
+
+		// Calculate the weight difference that is needed to balance
+		int wrongWeight = it->first;
+
+		// Check the first element except if the wrong one is the first element, then check the second
+		int rightWeight = (it == occurences.begin()) ? (++occurences.begin())->first : occurences.begin()->first;
+
+		// Calculate the difference (doesn't matter if positive or negative, it's going to be added anyways)
+		int difference = rightWeight - wrongWeight;
+
+		// Find the child with the wrong weight and return the corrected weight
+		for (const Program* child : wrongWeightProgram->Children)
+		{
+			if (child->TowerWeight == wrongWeight)
+				return child->Weight + difference;
+		}
+	}
+
+	return 0;
+}
+
+void Day7::Part1()
+{
+	ParseTree();
+	cout << "Day 7 Part 1 Answer: " << FindRoot()->Name << endl;
 }
 
 void Day7::Part2()
 {
+	ParseTree();
+
+	// Traverse the tree
+	Program* program = nullptr;
+	for (const auto& element : _tree)
+	{
+		// Loop until the unbalanced program is found
+		program = element.second;
+		if (!program->IsBalanced())
+			break;
+	}
+
+	// Once the unbalanced program is found, calculate the weight correction for it
+	cout << "Day 7 Part 2 Answer: " << FindWeightCorrection(program) << endl;
 }

@@ -14,7 +14,9 @@ class Day8
 {
 private:
 	map<string, int> _registers = map<string, int>();
+	int _highestValue = 0;
 
+	void ParseInput();
 	void ParseCommand(const string& command);
 	bool EvaluateCondition(const string& op, const string& arg1, const string& arg2);
 

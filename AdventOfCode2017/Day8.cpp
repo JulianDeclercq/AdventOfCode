@@ -1,5 +1,20 @@
 #include "Day8.h"
 
+void Day8::ParseInput()
+{
+	//	ifstream input("Example/Day8Part1.txt");
+	ifstream input("Input/Day8.txt");
+	if (input.fail())
+	{
+		cout << "Failed to open inputfile." << endl;
+		return;
+	}
+
+	string line;
+	while (getline(input, line))
+		ParseCommand(line);
+}
+
 bool Day8::EvaluateCondition(const string& operatorString, const string& arg1, const string& arg2)
 {
 	if (operatorString.compare("==") == 0) return _registers[arg1] == stoi(arg2);
@@ -28,21 +43,15 @@ void Day8::ParseCommand(const string& command)
 
 	// Execute the increment or decrement
 	(match[2].compare("inc") == 0) ? _registers[match[1]] += stoi(match[3]) : _registers[match[1]] -= stoi(match[3]);
+
+	// Part2: Save the highest value ever in a register
+	if (_registers[match[1]] > _highestValue)
+		_highestValue = _registers[match[1]];
 }
 
 void Day8::Part1()
 {
-	//	ifstream input("Example/Day8Part1.txt");
-	ifstream input("Input/Day8.txt");
-	if (input.fail())
-	{
-		cout << "Failed to open inputfile." << endl;
-		return;
-	}
-
-	string line;
-	while (getline(input, line))
-		ParseCommand(line);
+	ParseInput();
 
 	// Find the register with the largest value by sorting descending on value
 	int highest = 0;
@@ -57,4 +66,6 @@ void Day8::Part1()
 
 void Day8::Part2()
 {
+	ParseInput();
+	cout << "Day 8 Part 2 Answer: " << _highestValue << endl;
 }

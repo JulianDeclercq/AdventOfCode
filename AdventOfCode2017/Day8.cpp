@@ -53,7 +53,7 @@ void Day8::Part1()
 {
 	ParseInput();
 
-	// Find the register with the largest value by sorting descending on value
+	// Find the largest value in any current register
 	int highest = 0;
 	for (const auto& reg : _registers)
 	{

@@ -57,8 +57,13 @@ private:
 
 	string ParseInput();
 	Point FollowPath(const string& input);
-	void CalculateNextStep(vector<Point>& route, const Point& destination, Point currentPosition);
+	void CalculateShortestRoute(vector<Point>& route, const Point& destination, Point currentPosition);
 
+	size_t _furthestStepsAway = 0;
+
+	// optimization: if only part 1 is run, don't do the calculations for part 2
+	bool _part1 = true;
 public:
 	void Part1();
+	void Part2();
 };

@@ -16,21 +16,36 @@ string Day11::ParseInput()
 
 Point Day11::FollowPath(const string& input)
 {
+	// Create a vector of directions to follow
 	vector<Point> directionsToFollow = vector<Point>();
-	vector<string> parsed = Helpers::Split(input, ',');
-	for (size_t i = 0; i < parsed.size(); ++i)
-		directionsToFollow.push_back(_directions[parsed[i]]);
+	for (const string& direction : Helpers::Split(input, ','))
+		directionsToFollow.push_back(_directions[direction]);
 
+	// Follow that path
 	Point origin = Point(0, 0);
 	for (size_t i = 0; i < directionsToFollow.size(); ++i)
+	{
 		origin += directionsToFollow[i];
+
+		// optimization: if only part 1 is run, don't do the calculations for part 2
+		if (_part1)
+			continue;
+
+		// Part 2: calculate the furthest steps away
+		vector<Point> route = vector<Point>();
+		CalculateShortestRoute(route, origin, Point(0, 0));
+
+		// Update the furthest steps away if this one was further
+		if (route.size() > _furthestStepsAway)
+			_furthestStepsAway = route.size();
+	}
 
 	return origin;
 }
 
-void Day11::CalculateNextStep(vector<Point>& route, const Point& destination, Point currentPosition)
+void Day11::CalculateShortestRoute(vector<Point>& route, const Point& destination, Point currentPosition)
 {
-	// Start setp as the total needed difference (how much X and how much Y still has to be moved to reach the destination)
+	// Start step as the total needed difference (how much X and how much Y still has to be moved to reach the destination)
 	Point step = destination - currentPosition;
 
 	// Calculate which direction gets most result in 1 step
@@ -47,17 +62,28 @@ void Day11::CalculateNextStep(vector<Point>& route, const Point& destination, Po
 	if (currentPosition.X == destination.X && currentPosition.Y == destination.Y)
 		return;
 
-	// Calculate the next step if the destination hasn't been reached yet
-	CalculateNextStep(route, destination, currentPosition);
+	// Calculate the next step of the route if the destination hasn't been reached yet
+	CalculateShortestRoute(route, destination, currentPosition);
 }
 
 void Day11::Part1()
 {
-	// Follow the path to the destination
-	const string input = ParseInput();
-	Point destination = FollowPath(input);
+	_part1 = true;
 
+	// Follow the path to determine the destination
+	Point destination = FollowPath(ParseInput());
+
+	// Calculate the shortest route to the destination
 	vector<Point> route = vector<Point>();
-	CalculateNextStep(route, destination, Point(0, 0));
+	CalculateShortestRoute(route, destination, Point(0, 0));
 	cout << "Day 11 Part 1 answer: " << route.size() << endl;
+}
+
+void Day11::Part2()
+{
+	_part1 = false;
+
+	// Follow the path
+	Point destination = FollowPath(ParseInput());
+	cout << "Day 11 Part 2 answer: " << _furthestStepsAway << endl;
 }

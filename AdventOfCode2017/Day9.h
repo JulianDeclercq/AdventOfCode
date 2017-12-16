@@ -39,6 +39,10 @@ private:
 	string ParseInput();
 	void RemoveIgnores(string& str);
 	void RemoveJunk(string& str);
+	void ParseGroups(string& input);
+
+	vector<CharacterGroup*> _groups = vector<CharacterGroup*>();
+	int _nonCanceledGarbageCharacters = 0;
 
 public:
 	void Part1();

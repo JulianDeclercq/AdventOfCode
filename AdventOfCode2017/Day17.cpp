@@ -27,7 +27,6 @@ void Day17::Part2()
 {
 	const int input = 366;
 
-	vector<int> buffer = vector<int>{ 0 };
 	int answer = 0;
 	int currentPosition = 0;
 	for (int i = 1; i <= 50000000; ++i)

@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Day1.h" />
     <ClCompile Include="Day1.cpp" />
+    <ClCompile Include="Day10.cpp" />
     <ClCompile Include="Day11.cpp" />
     <ClCompile Include="Day12.cpp" />
     <ClCompile Include="Day17.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Day9.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClInclude Include="Day10.h" />
     <ClInclude Include="Day11.h" />
     <ClInclude Include="Day12.h" />
     <ClInclude Include="Day17.h" />

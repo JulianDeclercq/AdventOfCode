@@ -5,6 +5,7 @@
 #include <regex>
 #include <map>
 #include <set>
+#include <vector>
 #include <algorithm>
 #include "Helpers.h"
 
@@ -17,7 +18,9 @@ private:
 	void ExploreConnections(set<int>& connections, int pipeID);
 
 	map<int, set<int>> _pipeNetwork = map<int, set<int>>();
+	vector<set<int>> _groups = vector<set<int>>();
 
 public:
 	void Part1();
+	void Part2();
 };

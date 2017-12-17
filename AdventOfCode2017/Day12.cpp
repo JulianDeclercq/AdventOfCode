@@ -69,3 +69,38 @@ void Day12::Part1()
 
 	cout << "Day 12 Part 1 answer: " << connections.size() << endl;
 }
+
+void Day12::Part2()
+{
+	// Parse the input, creates a map with all the direct connections as can be read from the inputfile
+	ParseInput();
+
+	// Loop through the network to form all the groups
+	for (size_t i = 0; i < _pipeNetwork.size(); ++i)
+	{
+		// Check if the group that contains this pipe has been formed before
+		bool groupFormed = false;
+		for (set<int> group : _groups)
+		{
+			// If the group contains this element, its group has been formed before
+			if (group.find(i) != group.end())
+			{
+				groupFormed = true;
+				break;
+			}
+		}
+
+		// Skip this group if it has been formed before
+		if (groupFormed)
+			continue;
+
+		// Explore the connections of this pipe/form its group
+		set<int> connections = set<int>();
+		ExploreConnections(connections, i);
+
+		// Add the formed group to the list of groups
+		_groups.push_back(connections);
+	}
+
+	cout << "Day 12 Part 2 answer: " << _groups.size() << endl;
+}

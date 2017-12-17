@@ -94,15 +94,13 @@ void Day9::Part1()
 		for (CharacterGroup* group2 : _groups)
 		{
 			if (group1->StartIdx < group2->StartIdx && group2->EndIdx < group1->EndIdx)
-			{
 				group1->Children.push_back(group2);
-			}
 		}
 	}
 
 	// Find the main/outer group, which is the group with the most children
 	CharacterGroup* mainGroup = _groups[0];
-	for (int i = 1; i < _groups.size(); ++i)
+	for (size_t i = 1; i < _groups.size(); ++i)
 	{
 		if (_groups[i]->Children.size() > mainGroup->Children.size())
 			mainGroup = _groups[i];

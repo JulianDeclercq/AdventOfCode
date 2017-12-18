@@ -2,88 +2,48 @@
 
 void Day10::ReverseLength(vector<int>& sequence, int length)
 {
-	// Reversing with length 1 has no effect
-	if (length == 1)
-		return;
+	vector<int> selection = vector<int>();
 
-	// Offset the begin iterator with the current position
-	auto curPosIt = sequence.begin() + _currentPosition;
+	// Add the selection
+	for (int i = 0; i < length; ++i)
+		selection.push_back(sequence[(i + _currentPosition) % sequence.size()]);
 
-	// Check if this is a wrap-case
-	int beforeWrap = sequence.size() - _currentPosition;
+	// Reverse the selection
+	reverse(selection.begin(), selection.end());
 
-	// In case it does not wrap
-	if (length <= beforeWrap)
+	// Re-insert the reversed selection
+	for (int i = 0; i < length; ++i)
+		sequence[(i + _currentPosition) % sequence.size()] = selection[i];
+}
+
+void Day10::KnotHashRound(vector<int>& sequence, const string& input)
+{
+	for (const string& lengthString : Helpers::Split(input, ','))
 	{
-		// Fill the vector with the to be reversed elements
-		vector<int> reversed = vector<int>(curPosIt, curPosIt + length);
+		int length = stoi(lengthString);
 
-		// Reverse the vector
-		reverse(reversed.begin(), reversed.end());
+		// Reverse the length
+		ReverseLength(sequence, length);
 
-		// Reconstruct the numbers vector
-		for (int i = _currentPosition; i < _currentPosition + length; ++i)
-		{
-			// Calculate the true loop index by extracting the starting value of i
-			sequence[i] = reversed[i - _currentPosition];
-		}
+		// The current position moves forward by the length plus the skip size
+		_currentPosition = (_currentPosition + length + _skipSize) % _listSize;
 
-		// Exit the method
-		return;
-	}
-
-	// In case it wraps
-	int afterWrap = length - beforeWrap;
-
-	// Add the elements before the wrap (end of sequence)
-	vector<int> reversed = vector<int>(curPosIt, curPosIt + beforeWrap);
-
-	// Add the elements after the wrap (beginning of sequence)
-	reversed.insert(reversed.end(), sequence.begin(), sequence.begin() + afterWrap);
-
-	// Reverse the reverse vector
-	reverse(reversed.begin(), reversed.end());
-
-	// Reconstruct the numbers vector
-	// Unwrapped part (end of sequence)
-	for (size_t i = _currentPosition; i < sequence.size(); ++i)
-	{
-		// Calculate the true loop index by extracting the starting value of i
-		sequence[i] = reversed[i - _currentPosition];
-	}
-
-	// Wrapped part (beginning of sequence)
-	for (int i = 0; i < afterWrap; ++i)
-	{
-		// Offset the position for reversed with the number of numbers that have been used in the previous loop
-		sequence[i] = reversed[i + beforeWrap];
+		// Increment the skip size
+		++_skipSize;
 	}
 }
 
 void Day10::Part1()
 {
 	const string input = "14,58,0,116,179,16,1,104,2,254,167,86,255,55,122,244";
-	const int listSize = 256;
 
 	// Fill the list
-	vector<int> numbers = vector<int>(listSize);
+	vector<int> numbers = vector<int>(_listSize);
 	for (size_t i = 0; i < numbers.size(); ++i)
 		numbers[i] = i;
 
 	// Parse the lengths
-	for (const string& lengthString : Helpers::Split(input, ','))
-	{
-		int length = stoi(lengthString);
-
-		// Reverse the length
-		ReverseLength(numbers, length);
-
-		// The current position moves forward by the length plus the skip size
-		_currentPosition = (_currentPosition + length + _skipSize) % listSize;
-
-		// Increment the skip size
-		++_skipSize;
-	}
+	KnotHashRound(numbers, input);
 
 	// Calculate the answer
 	cout << "Day 10 Part 1 answer: " << numbers[0] * numbers[1] << endl;
@@ -91,12 +51,11 @@ void Day10::Part1()
 
 void Day10::Part2()
 {
-	const int listSize = 256;
 	string input = "14,58,0,116,179,16,1,104,2,254,167,86,255,55,122,244";
 	const string standardLengthSuffix = "17,31,73,47,23";
 
 	// Fill the list
-	vector<int> numbers = vector<int>(listSize);
+	vector<int> numbers = vector<int>(_listSize);
 	for (size_t i = 0; i < numbers.size(); ++i)
 		numbers[i] = i;
 
@@ -112,49 +71,22 @@ void Day10::Part2()
 	asciiInput.append(standardLengthSuffix);
 
 	// Run 64 rounds using the same length sequence in each round
-	// The current position and skip size should be preserved between rounds
 	for (int i = 0; i < 64; ++i)
-	{
-		for (const string& lengthString : Helpers::Split(asciiInput, ','))
-		{
-			int length = stoi(lengthString);
-
-			// Reverse the length
-			ReverseLength(numbers, length);
-
-			// The current position moves forward by the length plus the skip size
-			_currentPosition = (_currentPosition + length + _skipSize) % listSize;
-
-			// Increment the skip size
-			++_skipSize;
-		}
-	}
+		KnotHashRound(numbers, asciiInput);
 
 	// Now that the sparse hash has been calculated, calculate the dense hash
 	vector<int> denseHash = vector<int>();
-
-	int element = numbers[0];
-	for (size_t i = 1; i < numbers.size(); ++i)
+	for (int i = 0; i < 16; ++i)
 	{
-		// XOR the element with the next one
-		element ^= numbers[i];
+		// Set the new element as the first int of the new chunck
+		int element = numbers[i * 16];
 
-		// Start a new chunk of 16
-		if ((i + 1) % 16 == 0)
-		{
-			// Add the element to the dense hash
-			denseHash.push_back(element);
+		// XOR with each element of the next chunck (except for itself so start at 1)
+		for (int j = 1; j < 16; ++j)
+			element ^= numbers[i * 16 + j];
 
-			// Increment loop counter
-			++i;
-
-			// Bounds check
-			if (i == numbers.size())
-				break;
-
-			// Reset the element to the first of the new chunk
-			element = numbers[i];
-		}
+		// Add the element to the dense hash
+		denseHash.push_back(element);
 	}
 
 	// Convert the dense hash to hex notation

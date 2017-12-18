@@ -133,13 +133,6 @@ void Day10::Part2()
 	// Now that the sparse hash has been calculated, calculate the dense hash
 	vector<int> denseHash = vector<int>();
 
-	/*
-		// TEMP TEMP TEMP DEBUG
-		vector<int> lel = vector<int>{ 65, 27, 9, 1, 4, 3, 40, 50, 91, 7, 6, 0, 2, 5, 68, 22 };
-		numbers.clear();
-		for (int i = 0; i < 16; ++i)
-			numbers.insert(numbers.end(), lel.begin(), lel.end());*/
-
 	int element = numbers[0];
 	for (size_t i = 1; i < numbers.size(); ++i)
 	{

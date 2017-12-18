@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include "Helpers.h"
 
 using namespace std;
@@ -17,4 +18,5 @@ private:
 
 public:
 	void Part1();
+	void Part2();
 };

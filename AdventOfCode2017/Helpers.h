@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <iterator>
+#include <tuple>
 
 namespace Helpers
 {
@@ -42,6 +43,17 @@ namespace Helpers
 			Y -= rhs.Y;
 			Z -= rhs.Z;
 			return *this; // return the result by reference
+		}
+
+		bool operator==(const Point3D& rhs) const
+		{
+			return (X == rhs.X) && (Y == rhs.Y) && (Z == rhs.Z);
+		}
+
+		// Naive implementation for map to work
+		bool operator<(const Point3D& rhs) const
+		{
+			return std::tie(X, Y, Z) < std::tie(rhs.X, rhs.Y, rhs.Z);
 		}
 
 		friend Point3D operator+(Point3D lhs, const Point3D& rhs)

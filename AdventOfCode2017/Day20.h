@@ -5,8 +5,9 @@
 #include <regex>
 #include <vector>
 #include <algorithm>
-#include "Helpers.h"
 #include <tuple> // for std::tie
+#include <map>
+#include "Helpers.h"
 
 using namespace std;
 
@@ -32,7 +33,7 @@ struct Particle
 		int rhsVManhattan = rhs.Velocity.Manhattan();
 		int rhsPManhattan = rhs.Position.Manhattan();
 
-		// Compares acceleration first, then initial velocity and finally position
+		// Compares absolute acceleration first, then initial velocity and finally position
 		return tie(aManhattan, vManhattan, pManhattan) < tie(rhsAManhattan, rhsVManhattan, rhsPManhattan);
 	}
 
@@ -60,6 +61,9 @@ public:
 
 class Day20
 {
+private:
+	void ParseInput(vector<Particle>& particles);
 public:
 	void Part1();
+	void Part2();
 };

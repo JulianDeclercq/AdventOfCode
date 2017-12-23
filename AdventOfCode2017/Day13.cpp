@@ -1,6 +1,6 @@
 #include "Day13.h"
 
-void Day13::Part1()
+void Day13::ParseInput(vector<Layer>& fireWall)
 {
 	//ifstream input("Example/Day13Part1.txt");
 	ifstream input("Input/Day13.txt");
@@ -12,7 +12,7 @@ void Day13::Part1()
 
 	string line;
 	smatch match;
-	vector<Layer> fireWall{}, layers{};
+	vector<Layer> layers{};
 	while (getline(input, line))
 	{
 		if (!regex_match(line, match, regex(R"((\d+): (\d+))")))
@@ -46,6 +46,13 @@ void Day13::Part1()
 			fireWall.push_back(Layer(i, 0));
 		}
 	}
+}
+
+void Day13::Part1()
+{
+	// Parse the input
+	vector<Layer> fireWall{};
+	ParseInput(fireWall);
 
 	// Travel with the packet through all layers of the firewall
 	int packet = -1;
@@ -65,4 +72,36 @@ void Day13::Part1()
 	}
 
 	cout << "Day 13 Part 1 answer: " << tripSeverity << endl;
+}
+
+void Day13::Part2()
+{
+	// Parse the input
+	vector<Layer> fireWall{};
+	ParseInput(fireWall);
+
+	// Infinite loop
+	for (int delay = 0; ; ++delay)
+	{
+		bool foundSolution = true;
+
+		// Traverse the firewall
+		for (Layer layer : fireWall)
+		{
+			// steps*2 - 2 is when the scanner is on 0
+			int stepsNeeded = delay + layer.Depth;
+			int scannerZero = (layer.Range * 2 - 2);
+			bool detected = stepsNeeded % scannerZero == 0;
+
+			// If the layer is a scanning layer and it detects the package, invalidate this solution
+			if (layer.HasScanner && detected)
+				foundSolution = false;
+		}
+
+		if (foundSolution)
+		{
+			cout << "Day 13 Part 2 answer: " << delay << endl;
+			return;
+		}
+	}
 }

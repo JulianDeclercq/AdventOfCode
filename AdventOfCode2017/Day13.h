@@ -10,24 +10,21 @@ using namespace std;
 
 struct Layer
 {
-	Layer() : Depth(0), ScannerIdx(0)
-	{
-	}
-
-	Layer(int depth, int range) : Depth(depth), Range(range), ScannerIdx(0)
+	Layer(int depth, int range) : Depth(depth), Range(range), HasScanner(range > 0), ScannerIdx(0)
 	{
 	}
 
 	void MoveScanner()
 	{
-		if (Depth == 6)
-			int brkpt = 5;
+		// There is no scanner of the Range is 0
+		if (!HasScanner)
+			return;
 
 		// Progress the scanner
 		(scannerForward) ? ++ScannerIdx : --ScannerIdx;
 
 		// Check if a boundary has been reached and turn around if it has
-		if (ScannerIdx == 0 || ScannerIdx == Range - 1)
+		if (ScannerIdx == 0 || ScannerIdx == (Range - 1))
 			scannerForward = !scannerForward;
 	}
 
@@ -40,6 +37,7 @@ struct Layer
 	int Depth;
 	int Range;
 	int ScannerIdx;
+	bool HasScanner;
 
 private:
 	bool scannerForward = true;
@@ -47,6 +45,9 @@ private:
 
 class Day13
 {
+private:
+	void ParseInput(vector<Layer>& fireWall);
 public:
 	void Part1();
+	void Part2();
 };

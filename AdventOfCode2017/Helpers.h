@@ -18,6 +18,49 @@ namespace Helpers
 
 	std::vector<std::string> Split(const std::string &s, char delim);
 
+	// Point struct
+	struct Point
+	{
+	public:
+		Point() : X(0), Y(0) {}
+		Point(int x, int y) : X(x), Y(y)
+		{
+		}
+		int X;
+		int Y;
+
+	public:
+		Point& operator+=(const Point& rhs)
+		{
+			X += rhs.X;
+			Y += rhs.Y;
+			return *this; // return the result by reference
+		}
+
+		Point& operator-=(const Point& rhs)
+		{
+			X -= rhs.X;
+			Y -= rhs.Y;
+			return *this; // return the result by reference
+		}
+
+		friend Point operator+(Point lhs, const Point& rhs)
+		{
+			return lhs += rhs;
+		}
+
+		friend Point operator-(Point lhs, const Point& rhs)
+		{
+			return lhs -= rhs;
+		}
+
+		// Naive implementation for map
+		bool operator<(const Point& rhs) const
+		{
+			return std::tie(X, Y) < std::tie(rhs.X, rhs.Y);
+		}
+	};
+
 	// Point3D struct
 	struct Point3D
 	{

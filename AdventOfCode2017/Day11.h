@@ -11,53 +11,17 @@
 
 using namespace std;
 
-struct Point
-{
-public:
-	Point() : X(0), Y(0) {}
-	Point(int x, int y) : X(x), Y(y)
-	{
-	}
-	int X;
-	int Y;
-
-public:
-	Point& operator+=(const Point& rhs)
-	{
-		X += rhs.X;
-		Y += rhs.Y;
-		return *this; // return the result by reference
-	}
-
-	Point& operator-=(const Point& rhs)
-	{
-		X -= rhs.X;
-		Y -= rhs.Y;
-		return *this; // return the result by reference
-	}
-
-	friend Point operator+(Point lhs, const Point& rhs)
-	{
-		return lhs += rhs;
-	}
-
-	friend Point operator-(Point lhs, const Point& rhs)
-	{
-		return lhs -= rhs;
-	}
-};
-
 class Day11
 {
 private:
-	map<string, Point> _directions = map<string, Point>
+	map<string, Helpers::Point> _directions = map<string, Helpers::Point>
 	{
-		{ "n", Point(0, -1) },{ "ne", Point(1, -1) },{ "se", Point(1, 0) },{ "s", Point(0, 1) },{ "sw", Point(-1, 1) },{ "nw", Point(-1, 0) }
+		{ "n", Helpers::Point(0, -1) },{ "ne", Helpers::Point(1, -1) },{ "se", Helpers::Point(1, 0) },{ "s", Helpers::Point(0, 1) },{ "sw", Helpers::Point(-1, 1) },{ "nw", Helpers::Point(-1, 0) }
 	};
 
 	string ParseInput();
-	Point FollowPath(const string& input);
-	void CalculateShortestRoute(vector<Point>& route, const Point& destination, Point currentPosition);
+	Helpers::Point FollowPath(const string& input);
+	void CalculateShortestRoute(vector<Helpers::Point>& route, const Helpers::Point& destination, Helpers::Point currentPosition);
 
 	size_t _furthestStepsAway = 0;
 

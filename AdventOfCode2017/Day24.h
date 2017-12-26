@@ -48,4 +48,5 @@ private:
 	set<Bridge> _bridges{};
 public:
 	void Part1();
+	void Part2();
 };

@@ -122,3 +122,70 @@ void Day24::Part1()
 
 	cout << "Day 24 Part 1 answer: " << highestStrength << endl;
 }
+
+void Day24::Part2()
+{
+	//ifstream input("Example/Day24Part1.txt");
+	ifstream input("Input/Day24.txt");
+	if (input.fail())
+	{
+		cout << "Failed to open inputfile." << endl;
+		return;
+	}
+
+	vector<Gate> gates{};
+	vector<Gate> startingGates{};
+	string line;
+	smatch match;
+	while (getline(input, line))
+	{
+		if (!regex_match(line, match, regex(R"((\d+)\/(\d+))")))
+			continue;
+
+		// Add the gate to the corresponding vector
+		Gate gate = Gate({ stoi(match[1]), stoi(match[2]) });
+		(stoi(match[1]) == 0) ? startingGates.push_back(gate) : gates.push_back(gate);
+	}
+
+	// Find all bridges
+	for (Gate startingGate : startingGates)
+	{
+		// Disable the starting '0' port
+		startingGate.PortAvailable.first = false;
+
+		// One port counts as a bridge itself too
+		_bridges.insert({ startingGate });
+
+		// Add the startingGate itself
+		Bridge bridge{};
+		bridge.push_back(startingGate);
+
+		// Find connections
+		FindConnection(gates, bridge);
+	}
+
+	// Find the longest bridge
+	const auto longestBridgeElement = max_element(_bridges.begin(), _bridges.end(), [](const Bridge& lhs, const Bridge& rhs)
+	{
+		return lhs.size() < rhs.size();
+	});
+
+	// Extract all longest bridges
+	vector<Bridge> longestBridges{};
+	int longestBridgeSize = (*longestBridgeElement).size();
+	copy_if(_bridges.begin(), _bridges.end(), back_inserter(longestBridges), [longestBridgeSize](const Bridge& bridge)
+	{
+		return bridge.size() == longestBridgeSize;
+	});
+
+	// Pick the longest bridge with the highest strength
+	int highestStrength = -1;
+	for (const Bridge& bridge : longestBridges)
+	{
+		int bridgeStrength = BridgeStrength(bridge);
+		if (bridgeStrength > highestStrength)
+			highestStrength = bridgeStrength;
+	}
+
+	cout << "Day 24 Part 2 answer: " << highestStrength << endl;
+}

@@ -1,8 +1,7 @@
-#include "Day13.h"
+#include "Day24.h"
 
 int main()
 {
-	Day13().Part1();
-	Day13().Part2();
+	Day24().Part1();
 	return 0;
 }

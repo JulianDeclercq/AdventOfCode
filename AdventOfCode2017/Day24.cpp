@@ -1,5 +1,4 @@
 #include "Day24.h"
-
 int Day24::BridgeStrength(const Bridge& bridge)
 {
 	int bridgeStrength = 0;
@@ -10,7 +9,7 @@ int Day24::BridgeStrength(const Bridge& bridge)
 	return bridgeStrength;
 }
 
-void Day24::FindConnection(vector<Gate> availableGates, Bridge bridge)
+void Day24::FindConnection(const vector<Gate>& availableGates, const Bridge& bridge)
 {
 	// Find a connection
 	for (auto it = availableGates.begin(); it != availableGates.end(); ++it)
@@ -64,7 +63,7 @@ void Day24::FindConnection(vector<Gate> availableGates, Bridge bridge)
 	_bridges.insert(bridge);
 }
 
-void Day24::Part1()
+void Day24::ParseInput(vector<Gate>& gates, vector<Gate>& startingGates)
 {
 	//ifstream input("Example/Day24Part1.txt");
 	ifstream input("Input/Day24.txt");
@@ -74,8 +73,6 @@ void Day24::Part1()
 		return;
 	}
 
-	vector<Gate> gates{};
-	vector<Gate> startingGates{};
 	string line;
 	smatch match;
 	while (getline(input, line))
@@ -87,7 +84,10 @@ void Day24::Part1()
 		Gate gate = Gate({ stoi(match[1]), stoi(match[2]) });
 		(stoi(match[1]) == 0) ? startingGates.push_back(gate) : gates.push_back(gate);
 	}
+}
 
+void Day24::CalculateBridges(vector<Gate>& gates, vector<Gate>& startingGates)
+{
 	// Find all bridges
 	for (Gate startingGate : startingGates)
 	{
@@ -104,65 +104,38 @@ void Day24::Part1()
 		// Find connections
 		FindConnection(gates, bridge);
 	}
+}
 
-	int highestStrength = -1;
-	for (const Bridge& bridge : _bridges)
+void Day24::Part1()
+{
+	vector<Gate> gates{};
+	vector<Gate> startingGates{};
+
+	// Parse the input
+	ParseInput(gates, startingGates);
+
+	// Find all bridges
+	CalculateBridges(gates, startingGates);
+
+	// Find the bridge with the highest strength
+	const auto highestStrengthBridge = max_element(_bridges.begin(), _bridges.end(), [this](const Bridge& lhs, const Bridge& rhs)
 	{
-		int bridgeStrength = BridgeStrength(bridge);
-		if (bridgeStrength > highestStrength)
-			highestStrength = bridgeStrength;
+		return BridgeStrength(lhs) < BridgeStrength(rhs);
+	});
 
-		// Print the bridges
-		/*for (const Gate& gate : bridge)
-			cout << gate.Ports.first << '/' << gate.Ports.second << "--";
-
-		// Delete superfluous characters
-		cout << '\b' << '\b' << ' ' << ' ' << endl;*/
-	}
-
-	cout << "Day 24 Part 1 answer: " << highestStrength << endl;
+	cout << "Day 24 Part 1 answer: " << BridgeStrength(*highestStrengthBridge) << endl;
 }
 
 void Day24::Part2()
 {
-	//ifstream input("Example/Day24Part1.txt");
-	ifstream input("Input/Day24.txt");
-	if (input.fail())
-	{
-		cout << "Failed to open inputfile." << endl;
-		return;
-	}
-
 	vector<Gate> gates{};
 	vector<Gate> startingGates{};
-	string line;
-	smatch match;
-	while (getline(input, line))
-	{
-		if (!regex_match(line, match, regex(R"((\d+)\/(\d+))")))
-			continue;
 
-		// Add the gate to the corresponding vector
-		Gate gate = Gate({ stoi(match[1]), stoi(match[2]) });
-		(stoi(match[1]) == 0) ? startingGates.push_back(gate) : gates.push_back(gate);
-	}
+	// Parse the input
+	ParseInput(gates, startingGates);
 
 	// Find all bridges
-	for (Gate startingGate : startingGates)
-	{
-		// Disable the starting '0' port
-		startingGate.PortAvailable.first = false;
-
-		// One port counts as a bridge itself too
-		_bridges.insert({ startingGate });
-
-		// Add the startingGate itself
-		Bridge bridge{};
-		bridge.push_back(startingGate);
-
-		// Find connections
-		FindConnection(gates, bridge);
-	}
+	CalculateBridges(gates, startingGates);
 
 	// Find the longest bridge
 	const auto longestBridgeElement = max_element(_bridges.begin(), _bridges.end(), [](const Bridge& lhs, const Bridge& rhs)
@@ -178,14 +151,11 @@ void Day24::Part2()
 		return bridge.size() == longestBridgeSize;
 	});
 
-	// Pick the longest bridge with the highest strength
-	int highestStrength = -1;
-	for (const Bridge& bridge : longestBridges)
+	// Find the (longest) bridge with the highest strength
+	const auto highestStrengthBridge = max_element(longestBridges.begin(), longestBridges.end(), [this](const Bridge& lhs, const Bridge& rhs)
 	{
-		int bridgeStrength = BridgeStrength(bridge);
-		if (bridgeStrength > highestStrength)
-			highestStrength = bridgeStrength;
-	}
+		return BridgeStrength(lhs) < BridgeStrength(rhs);
+	});
 
-	cout << "Day 24 Part 2 answer: " << highestStrength << endl;
+	cout << "Day 24 Part 2 answer: " << BridgeStrength(*highestStrengthBridge) << endl;
 }

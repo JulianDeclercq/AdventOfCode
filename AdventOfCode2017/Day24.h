@@ -43,7 +43,10 @@ class Day24
 {
 private:
 	int BridgeStrength(const Bridge& bridge);
-	void FindConnection(vector<Gate> gates, Bridge bridge);
+	void FindConnection(const vector<Gate>& gates, const Bridge& bridge);
+
+	void ParseInput(vector<Gate>& gates, vector<Gate>& startingGates);
+	void CalculateBridges(vector<Gate>& gates, vector<Gate>& startingGates);
 
 	set<Bridge> _bridges{};
 public:

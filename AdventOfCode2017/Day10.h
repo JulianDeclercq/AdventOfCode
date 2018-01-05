@@ -21,4 +21,5 @@ private:
 public:
 	void Part1();
 	void Part2();
+	string KnotHash(const string& input);
 };

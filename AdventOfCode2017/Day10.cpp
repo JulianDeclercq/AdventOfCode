@@ -52,6 +52,11 @@ void Day10::Part1()
 void Day10::Part2()
 {
 	string input = "14,58,0,116,179,16,1,104,2,254,167,86,255,55,122,244";
+	cout << "Day 10 Part 2 answer: " << KnotHash(input) << endl;
+}
+
+string Day10::KnotHash(const string& input)
+{
 	const string standardLengthSuffix = "17,31,73,47,23";
 
 	// Fill the list
@@ -94,5 +99,5 @@ void Day10::Part2()
 	for (int element : denseHash)
 		sstream << setfill('0') << setw(2) << hex << element;
 
-	cout << "Day 10 Part 2 answer: " << sstream.str() << endl;
+	return sstream.str();
 }

@@ -10,9 +10,12 @@ struct Generator
 {
 private:
 	static const int bitSize = sizeof(long long) * 8;
+	long long Value;
+	int Factor;
+	int Criterion;
 
 public:
-	Generator(long long value, int factor) : Value(value), Factor(factor)
+	Generator(long long value, int factor, int criterion = 0) : Value(value), Factor(factor), Criterion(criterion)
 	{
 	}
 
@@ -22,19 +25,23 @@ public:
 		return Value;
 	}
 
+	void NextValidValue()
+	{
+		// Keep calculating the value until it is dividable by the criterion
+		while (NextValue() % Criterion != 0);
+	}
+
 	string ValueLowest16Bits()
 	{
 		bitset<bitSize> answer(Value);
 		string fullBits = answer.to_string();
 		return fullBits.substr(fullBits.size() - 16);
 	}
-
-	long long Value;
-	int Factor;
 };
 
 class Day15
 {
 public:
 	void Part1();
+	void Part2();
 };

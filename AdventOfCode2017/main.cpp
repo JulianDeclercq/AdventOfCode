@@ -3,15 +3,10 @@
 
 int main()
 {
-	//clock_t clkStart = clock();
+	clock_t clkStart = clock();
 
-	/*
-		Day16().Part1Test();
-		cout << "Execution time: " << (clock() - clkStart) / 1000.0f << " seconds" << endl;
-
-		clkStart = clock();*/
 	Day16().Part2();
-	//cout << "Execution time OPTIMIZED: " << (clock() - clkStart) / 1000.0f << " seconds" << endl;
+	cout << "Execution time OPTIMIZED: " << (clock() - clkStart) << "ms" << endl;
 
 	return 0;
 }

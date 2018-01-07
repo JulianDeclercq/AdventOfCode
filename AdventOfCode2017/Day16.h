@@ -16,13 +16,11 @@ private:
 
 	// Part 2
 	static const int GROUP_SIZE = 16;
-	char _programOrder[GROUP_SIZE];
+	string _programOrder;
 
 	void ExecuteMove2(const string& move);
 	void PrintProgramOrder();
 
-	int ITERATIONS = 10000000;
-	string COMMAND = "pe/d";
 public:
 	void Part1();
 	void Part1Test();

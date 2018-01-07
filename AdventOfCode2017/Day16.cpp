@@ -1,5 +1,4 @@
 #include "Day16.h"
-#include <time.h>
 
 void Day16::ExecuteMove(string& programOrder, const string& move)
 {
@@ -48,9 +47,11 @@ void Day16::ExecuteMove(string& programOrder, const string& move)
 	default: cout << "Invalid move: " << move[0] << endl; break;
 	}
 }
+
 void Day16::ExecuteMove2(const string& move)
 {
-	char newOrder[GROUP_SIZE];
+	string newOrder;
+	newOrder.resize(GROUP_SIZE);
 
 	// Execute appropriate dance move
 	switch (move[0])
@@ -164,9 +165,14 @@ void Day16::PrintProgramOrder()
 void Day16::Part2()
 {
 	cout << "Group size is: " << GROUP_SIZE << endl;
+
 	// Starting state of the programs
+	_programOrder.resize(GROUP_SIZE);
 	for (int i = 0; i < GROUP_SIZE; ++i)
 		_programOrder[i] = (static_cast<char>('a' + i));
+
+	// Take a copy to save as starting order
+	string startingOrder = string(_programOrder);
 
 	// Read commands from file
 	//ifstream input("Example/Day16Part1.txt");
@@ -182,30 +188,27 @@ void Day16::Part2()
 	getline(input, line);
 	vector<string> moves = Helpers::Split(line, ',');
 
-	clock_t clkStart = clock();
-	for (int i = 0; i < 1000000000; ++i)
+	// Determine at which step the sequence repeats itself
+	int step = 0;
+	do
 	{
-		if (i % 100000 == 0)
-			cout << "Execution time for " << i << " iterations is: " << (clock() - clkStart) / 1000.0f << " seconds" << endl;
+		// Execute all the moves
+		for (const string& move : moves)
+			ExecuteMove2(move);
 
+		// Increment the step
+		++step;
+	} while (_programOrder.compare(startingOrder) != 0);
+
+	// Execute all moves for one step.
+	// As steps repeat this means that the order after these iterations will be equal to the order after 1 billion iterations.
+	for (int i = 0; i < (1000000000 % step); ++i)
+	{
+		// Execute all the moves
 		for (const string& move : moves)
 			ExecuteMove2(move);
 	}
 
-	cout << "OPTIMIZED answer: ";
+	cout << "Day 16 Part 2 answer: ";
 	PrintProgramOrder();
-}
-
-void Day16::Part1Test()
-{
-	cout << "Number of iterations: " << ITERATIONS << endl;
-	// Starting state of the programs
-	string programOrder = "";
-	for (int i = 0; i < GROUP_SIZE; ++i)
-		programOrder += (static_cast<char>('a' + i));
-
-	for (int i = 0; i < ITERATIONS; ++i)
-		ExecuteMove(programOrder, COMMAND);
-
-	cout << "answer: " << programOrder << endl;
 }

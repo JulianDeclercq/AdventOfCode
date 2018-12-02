@@ -3,3 +3,11 @@ AdventOfCode2018/Debug/
 AdventOfCode2018/Release/
 
 *.opendb
+
+AdventOfCode2018/\.vs/AdventOfCode2018/v14/\.suo
+
+AdventOfCode2018/AdventOfCode2018\.VC\.db
+
+AdventOfCode2018/AdventOfCode2018\.vcxproj
+
+AdventOfCode2018/AdventOfCode2018\.vcxproj\.filters

@@ -1,6 +1,6 @@
 #include "Day1.h"
 
-void Day1::read_input()
+void Day1::parse_input()
 {
 	ifstream input("Input/day1.txt");
 
@@ -41,7 +41,7 @@ void Day1::part1()
 	cout << "Day 1 part 1:" << endl;
 
 	// read the input
-	read_input();
+	parse_input();
 
 	int answer = 0;
 	for (int mass : _masses)
@@ -55,7 +55,7 @@ void Day1::part2()
 	cout << "Day 1 part 2:" << endl;
 
 	// read the input
-	read_input();
+	parse_input();
 
 	int answer = 0;
 	for (int mass : _masses)

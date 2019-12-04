@@ -12,7 +12,7 @@ class Day1
 	private:
 		std::vector<int> _masses = std::vector<int>();
 
-		void read_input();
+		void parse_input();
 		int fuel_required(int mass);
 		int fuel_required_part2(int massOrFuel);
 

@@ -19,11 +19,21 @@ void Day1::read_input()
 
 int Day1::fuel_required(int mass)
 {
-	// literally following the instructions
-	//return int(floor(mass / 3.0) - 2.0);
+	return int(floor(mass / 3.0) - 2.0);
+}
 
-	// simpler and works too due to int rounding
-	return mass / 3 - 2;
+int Day1::fuel_required_part2(int massOrFuel)
+{
+	// calculate the fuel required for this mass or fuel
+	int fuelNeeded = fuel_required(massOrFuel);
+
+	// if fuel needed for this fuel is negative, recursion stops
+	if (fuelNeeded <= 0)
+		return 0;
+
+	// calculate the fuel needed for this mass/fuel and add it to the total
+	//cout << "needed " << fuelNeeded << " fuel" << endl;
+	return (fuelNeeded + fuel_required_part2(fuelNeeded));
 }
 
 void Day1::part1()
@@ -33,10 +43,23 @@ void Day1::part1()
 	// read the input
 	read_input();
 
-	// give the answer required for part 1
 	int answer = 0;
 	for (int mass : _masses)
 		answer += fuel_required(mass);
 
 	cout << "The answer to day 1 part 1 is: " << answer << endl;
+}
+
+void Day1::part2()
+{
+	cout << "Day 1 part 2:" << endl;
+
+	// read the input
+	read_input();
+
+	int answer = 0;
+	for (int mass : _masses)
+		answer += fuel_required_part2(mass);
+
+	cout << "The answer to day 1 part 2 is: " << answer << endl;
 }

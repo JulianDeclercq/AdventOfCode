@@ -14,6 +14,7 @@ class Day1
 
 		void read_input();
 		int fuel_required(int mass);
+		int fuel_required_part2(int massOrFuel);
 
 	public:
 		// constructor

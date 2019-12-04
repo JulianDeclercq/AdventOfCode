@@ -28,30 +28,24 @@ void Day2::parse_input()
 		line = match.suffix().str();
 	}
 
-	/*
-	Once you have a working computer, the first step is to restore the gravity
-	assist program (your puzzle input) to the "1202 program alarm" state it had just before
-	the last computer caught fire. To do this, before running the program,
-	replace position 1 with the value 12 and replace position 2 with the value 2.
-	*/
-	_intcode[1] = 12;
-	_intcode[2] = 2;
+	// copy the intcode for later resets
+	_originalIntcode = _intcode;
 }
 
 void Day2::progress()
 {
 	//TODO: bounds check needed?
 	// check the next opcode
-	int opcode = _intcode[_idx];
+	int opcode = _intcode[_instructionPointer];
 
 	// execute the opcode
 	switch (opcode)
 	{
 		case 1: // addition
-			_intcode[_intcode[_idx + 3]] = _intcode[_intcode[_idx + 1]] + _intcode[_intcode[_idx + 2]];
+			_intcode[_intcode[_instructionPointer + 3]] = _intcode[_intcode[_instructionPointer + 1]] + _intcode[_intcode[_instructionPointer + 2]];
 			break;
 		case 2:
-			_intcode[_intcode[_idx + 3]] = _intcode[_intcode[_idx + 1]] * _intcode[_intcode[_idx + 2]];
+			_intcode[_intcode[_instructionPointer + 3]] = _intcode[_intcode[_instructionPointer + 1]] * _intcode[_intcode[_instructionPointer + 2]];
 			break;
 		case 99: // program should immediately halt
 			return;
@@ -59,24 +53,75 @@ void Day2::progress()
 			break;
 	}
 
-	// progress to the next operation
-	_idx += 4;
+	// progress to the next instruction
+	_instructionPointer += 4;
 	progress();
+}
+
+void Day2::print()
+{
+	for (int i : _intcode)
+		cout << i << " ";
+	cout << endl;
 }
 
 void Day2::part1()
 {
 	parse_input();
 
+	/*	Once you have a working computer, the first step is to restore the gravity
+	assist program (your puzzle input) to the "1202 program alarm" state it had just before
+	the last computer caught fire. To do this, before running the program,
+	replace position 1 with the value 12 and replace position 2 with the value 2. */
+	_intcode[1] = 12;
+	_intcode[2] = 2;
+
 	// start traversion
 	progress();
 
-	//debug: print the intcode
-	for (int i : _intcode)
-		cout << i << " ";
-	cout << endl;
+	//print();
+	cout << "The answer to day 2 part 1 is: " << _intcode[0] << endl;
+}
 
-	cout << "The answer to day 1 part 1 is: " << _intcode[0] << endl;
+void Day2::reset()
+{
+	// reset the computer memory
+	_intcode = _originalIntcode;
+
+	// reset the instruction pointer
+	_instructionPointer = 0;
+}
+
+void Day2::part2()
+{
+	parse_input();
+
+	// look for the desired output
+	for (int noun = 0; noun < 99; ++noun)
+	{
+		for (int verb = 0; verb < 99; ++verb)
+		{
+			// reset the memory before trying
+			reset();
+
+			// set the noun and verb
+			_intcode[1] = noun;
+			_intcode[2] = verb;
+
+			// run a cycle
+			progress();
+			//cout << "Cycles output: " << _intcode[0] << endl;
+
+			// check if the result was found
+			if (_intcode[0] == _desiredOutput)
+			{
+				cout << "The answer to day 2 part 2 is: " <<  100 * noun + verb << endl;
+				return;
+			}
+		}
+	}
+
+	cout << "Didn't find desired output." << endl;
 }
 
 

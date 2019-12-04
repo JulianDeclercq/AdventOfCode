@@ -9,5 +9,5 @@ using namespace std;
 
 int main()
 {
-	Day2().part1();
+	Day2().part2();
 }

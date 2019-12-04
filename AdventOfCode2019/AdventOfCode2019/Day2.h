@@ -10,28 +10,16 @@ using namespace std;
 class Day2
 {
 private:
-	// structs
-	struct Operation 
-	{
-		Operation(int opcode, int idx1, int idx2, int targetIdx)
-			: Opcode(opcode), Index1(idx1), Index2(idx2), TargetIndex(targetIdx)
-		{
-
-		}
-
-		int Opcode = -1;
-		int Index1 = -1;
-		int Index2 = -1;
-		int TargetIndex = -1;
-	};
-
 	// variables
-	int _idx = 0;
+	int _instructionPointer = 0;
 
 	// methods
 	void parse_input();
 
 	vector<int> _intcode = vector<int>();
+	vector<int> _originalIntcode = vector<int>();
+
+	const int _desiredOutput = 19690720;
 
 public:
 	// constructor
@@ -39,6 +27,9 @@ public:
 
 	void part1();
 	void progress();
+	void print();
 
 	void part2();
+	void reset();
+
 };

@@ -30,7 +30,8 @@
 *.exe
 *.out
 *.app
-AdventOfCode2019/.vs/
-AdventOfCode2019/AdventOfCode2019/Debug/
+AdventOfCode2020/.vs/
+AdventOfCode2020/AdventOfCode2019/Debug/
 *.ilk
 *.pdb
+AdventOfCode2020/Debug/

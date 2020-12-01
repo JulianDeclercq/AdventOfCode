@@ -36,3 +36,22 @@ int Day1::Part1()
 	cout << "Error: no solution found for Day1::Part1.";
 	return -1;
 }
+
+int Day1::Part2()
+{
+	ParseInput();
+	for (int i = 0; i < _expenses.size(); ++i)
+	{
+		for (int j = 0; j < _expenses.size(); ++j)
+		{
+			for (int k = 0; k < _expenses.size(); ++k)
+			{
+				if (_expenses[i] + _expenses[j] + _expenses[k] == 2020)
+					return _expenses[i] * _expenses[j] * _expenses[k];
+			}
+		}
+	}
+
+	cout << "Error: no solution found for Day1::Part1.";
+	return -1;
+}

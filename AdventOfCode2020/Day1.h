@@ -18,4 +18,5 @@ private:
 public:
 	Day1(){}
 	int Part1();
+	int Part2();
 };

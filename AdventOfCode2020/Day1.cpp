@@ -24,9 +24,9 @@ void Day1::ParseInput()
 int Day1::Part1()
 {
 	ParseInput();
-	for (int i = 0; i < _expenses.size(); ++i)
+	for (size_t i = 0; i < _expenses.size(); ++i)
 	{
-		for (int j = 0; j < _expenses.size(); ++j)
+		for (size_t j = 0; j < _expenses.size(); ++j)
 		{
 			if (_expenses[i] + _expenses[j] == 2020)
 				return _expenses[i] * _expenses[j];
@@ -40,11 +40,11 @@ int Day1::Part1()
 int Day1::Part2()
 {
 	ParseInput();
-	for (int i = 0; i < _expenses.size(); ++i)
+	for (size_t i = 0; i < _expenses.size(); ++i)
 	{
-		for (int j = 0; j < _expenses.size(); ++j)
+		for (size_t j = 0; j < _expenses.size(); ++j)
 		{
-			for (int k = 0; k < _expenses.size(); ++k)
+			for (size_t k = 0; k < _expenses.size(); ++k)
 			{
 				if (_expenses[i] + _expenses[j] + _expenses[k] == 2020)
 					return _expenses[i] * _expenses[j] * _expenses[k];

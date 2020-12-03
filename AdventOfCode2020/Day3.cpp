@@ -27,40 +27,46 @@ void Day3::ParseInput()
 	_inputParsed = true;
 }
 
-char Day3::AtCoord(Vector2 p) // DEBUG
+bool Day3::IsTree(const Vector2& p)
 {
-	int col = p.X % _width;
+	int col = p.X % _width; // wrap
 	int row = p.Y * _width;
-	char c = _treeChart[col + row];
-	return c;
+	return _treeChart[col + row] == '#';
 }
 
-bool Day3::IsTree(Vector2 p)
+int Day3::TreesOnSlope(const Vector2& slope)
 {
-	return AtCoord(p) == '#'; // TEMP UNTIL ATCOORD IS NO LONGER IN USE
-}
-
-int Day3::Part1()
-{
-	ParseInput();
-
-	Vector2 slope(3, 1);
-	Vector2 current(0, 0);
 	int treeCount = 0;
+	Vector2 current(0, 0);
+
 	while (current.Y < _height)
 	{
 		if (IsTree(current))
-		{
 			++treeCount;
-			//cout << "Found tree at " << current.ToString() << endl;
-		}
-		//else cout << "Found NO tree at " << current.ToString() << endl;
 
 		// slide the slope
 		current += slope;
 	}
 
 	return treeCount;
+}
+
+int Day3::Part1()
+{
+	ParseInput();
+	return TreesOnSlope({3, 1});
+}
+
+unsigned int Day3::Part2()
+{
+	ParseInput();
+
+	unsigned int trees = 1;
+	vector<Vector2> slopes{ {1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2} };
+	for (const auto& slope : slopes)
+		trees *= TreesOnSlope(slope);
+
+	return trees;
 }
 
 

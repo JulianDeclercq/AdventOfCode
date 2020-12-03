@@ -36,11 +36,11 @@ private:
 	int _width = 0, _height = 0;
 
 	void ParseInput();
-	char AtCoord(Vector2 p);
-	bool IsTree(Vector2 p);
+	bool IsTree(const Vector2& p);
+	int TreesOnSlope(const Vector2& slope);
 
 public:
 	Day3(){}
 	int Part1();
-
+	unsigned int Part2();
 };

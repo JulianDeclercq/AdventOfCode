@@ -19,7 +19,8 @@ private:
 	bool _inputParsed = false;
 	void ParseInput();
 	void ParsePassport(string& s);
-	bool IsValid(const passport& p);
+	bool RequiredKeysPresent(const passport& p);
+	bool RequiredKeysValid(const passport& p);
 public:
 	Day4() {};
 	int Part1();

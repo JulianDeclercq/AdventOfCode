@@ -15,11 +15,11 @@ class Day5
 {
 private:
 	vector<string> _boardingPasses;
-	vector<int> _boardingIDs;
+	vector<int> _boardingIDsSorted;
 	bool _inputParsed = false;
 	void ParseInput();
 	int Partitioning(const range& range, const string& operation, const char lower, const char upper);
-	void CalculateBoardingIDs(const vector<string>& passes, vector<int>& ids);
+	void CalculateBoardingIDsSorted(const vector<string>& passes, vector<int>& ids);
 public:
 	Day5() {};
 	int Part1();

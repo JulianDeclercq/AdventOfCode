@@ -43,7 +43,7 @@ int Day5::Partitioning(const range& range, const string& operation, const char l
 	}
 }
 
-void Day5::CalculateBoardingIDs(const vector<string>& passes, vector<int>& ids)
+void Day5::CalculateBoardingIDsSorted(const vector<string>& passes, vector<int>& ids)
 {
 	if (!ids.empty())
 	{
@@ -58,26 +58,26 @@ void Day5::CalculateBoardingIDs(const vector<string>& passes, vector<int>& ids)
 		int col = Partitioning({ 0, 7 }, pass.substr(7), 'L', 'R');
 		ids.push_back(row * 8 + col); // calculate id and add it to the list
 	}
+	sort(ids.begin(), ids.end());
 }
 
 int Day5::Part1()
 {
 	ParseInput();
-	CalculateBoardingIDs(_boardingPasses, _boardingIDs);
-	return *max_element(_boardingIDs.begin(), _boardingIDs.end());
+	CalculateBoardingIDsSorted(_boardingPasses, _boardingIDsSorted);
+	return _boardingIDsSorted.back();
 }
 
 int Day5::Part2()
 {
 	ParseInput();
-	CalculateBoardingIDs(_boardingPasses, _boardingIDs);
-	sort(_boardingIDs.begin(), _boardingIDs.end());
+	CalculateBoardingIDsSorted(_boardingPasses, _boardingIDsSorted);
 
-	int expected = _boardingIDs[0];
-	for (size_t i = 0; i < _boardingIDs.size(); ++i, ++expected)
+	int expected = _boardingIDsSorted[0];
+	for (size_t i = 0; i < _boardingIDsSorted.size(); ++i, ++expected)
 	{
-		if (_boardingIDs[i] != expected)
-			return _boardingIDs[i] - 1;
+		if (_boardingIDsSorted[i] != expected)
+			return _boardingIDsSorted[i] - 1;
 	}
 	cout << "Didn't find solution";
 	return -1;

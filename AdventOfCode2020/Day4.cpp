@@ -52,7 +52,7 @@ void Day4::ParsePassport(string& s)
 	regex_token_iterator<string::iterator> it(s.begin(), s.end(), reg, submatches);
 	while (it != rend)
 	{
-		// save the key from current iterator value
+		// save the key from current iterator
 		string key = *it;
 
 		// move iterator to next submatch, the value

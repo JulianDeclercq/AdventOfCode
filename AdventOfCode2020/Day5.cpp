@@ -60,5 +60,23 @@ int Day5::Part1()
 int Day5::Part2()
 {
 	ParseInput();
-	return 0;
+
+	auto ids = vector<int>();
+	ids.reserve(_boardingPasses.size());
+	for (const string& boardingPass : _boardingPasses)
+	{
+		int row = Partitioning({ 0, 127 }, boardingPass.substr(0, 7), 'F', 'B');
+		int col = Partitioning({ 0, 7 }, boardingPass.substr(7), 'L', 'R');
+		ids.push_back(row * 8 + col);
+	}
+	sort(ids.begin(), ids.end());
+
+	int expected = ids[0];
+	for (int i = 0; i < ids.size(); ++i, ++expected)
+	{
+		if (ids[i] != expected)
+			return ids[i] - 1;
+	}
+	cout << "Didn't find solution";
+	return -1;
 }

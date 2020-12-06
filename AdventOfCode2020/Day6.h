@@ -24,6 +24,6 @@ private:
 
 public:
 	Day6() {};
-	int Part1();
-	int Part2();
+	int PartOne();
+	int PartTwo();
 };

@@ -28,10 +28,10 @@ private:
 	vector<Password> _passwords = vector<Password>();
 	void ParseInput();
 
-	bool IsValidPart1(const Password& password);
-	bool IsValidPart2(const Password& password);
+	bool IsValidPartOne(const Password& password);
+	bool IsValidPartTwo(const Password& password);
 public:
 	Day2(){}
-	int Part1();
-	int Part2();
+	int PartOne();
+	int PartTwo();
 };

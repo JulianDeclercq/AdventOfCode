@@ -51,13 +51,13 @@ int Day3::TreesOnSlope(const Vector2& slope)
 	return treeCount;
 }
 
-int Day3::Part1()
+int Day3::PartOne()
 {
 	ParseInput();
 	return TreesOnSlope({3, 1});
 }
 
-unsigned int Day3::Part2()
+unsigned int Day3::PartTwo()
 {
 	ParseInput();
 

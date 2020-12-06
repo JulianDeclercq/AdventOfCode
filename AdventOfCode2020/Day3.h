@@ -41,6 +41,6 @@ private:
 
 public:
 	Day3(){}
-	int Part1();
-	unsigned int Part2();
+	int PartOne();
+	unsigned int PartTwo();
 };

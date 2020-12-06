@@ -36,19 +36,19 @@ void Day2::ParseInput()
 	_inputParsed = true;
 }
 
-bool Day2::IsValidPart1(const Password& password)
+bool Day2::IsValidPartOne(const Password& password)
 {
 	int count = count_if(password.Contents.begin(), password.Contents.end(), [password](const char c) {return c == password.Requirement; });
 	return count >= password.Minimum && count <= password.Maximum;
 }
 
-int Day2::Part1()
+int Day2::PartOne()
 {
 	ParseInput();
-	return count_if(_passwords.begin(), _passwords.end(), [this](const Password& p) {return IsValidPart1(p); });
+	return count_if(_passwords.begin(), _passwords.end(), [this](const Password& p) {return IsValidPartOne(p); });
 }
 
-bool Day2::IsValidPart2(const Password& password)
+bool Day2::IsValidPartTwo(const Password& password)
 {
 	int matchCount = 0;
 	if (password.Requirement == password.Contents[password.Minimum - 1])
@@ -60,8 +60,8 @@ bool Day2::IsValidPart2(const Password& password)
 	return matchCount == 1;
 }
 
-int Day2::Part2()
+int Day2::PartTwo()
 {
 	ParseInput();
-	return count_if(_passwords.begin(), _passwords.end(), [this](const Password& p) {return IsValidPart2(p); });
+	return count_if(_passwords.begin(), _passwords.end(), [this](const Password& p) {return IsValidPartTwo(p); });
 }

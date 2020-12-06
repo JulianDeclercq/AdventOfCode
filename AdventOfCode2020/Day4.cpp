@@ -36,7 +36,6 @@ void Day4::ParseInput()
 	if (!current.empty())
 		ParsePassport(current);
 
-	_passports[0];
 	_inputParsed = true;
 }
 
@@ -153,13 +152,13 @@ bool Day4::RequiredKeysValid(const passport& p)
 	return true;
 }
 
-int Day4::Part1()
+int Day4::PartOne()
 {
 	ParseInput();
 	return count_if(_passports.begin(), _passports.end(), [this](const auto& p) {return RequiredKeysPresent(p); });
 }
 
-int Day4::Part2()
+int Day4::PartTwo()
 {
 	ParseInput();
 	return count_if(_passports.begin(), _passports.end(), [this](const auto& p) {return RequiredKeysPresent(p) && RequiredKeysValid(p); });

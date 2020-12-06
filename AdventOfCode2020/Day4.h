@@ -23,6 +23,6 @@ private:
 	bool RequiredKeysValid(const passport& p);
 public:
 	Day4() {};
-	int Part1();
-	int Part2();
+	int PartOne();
+	int PartTwo();
 };

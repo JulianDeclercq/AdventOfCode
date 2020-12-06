@@ -61,14 +61,14 @@ void Day5::CalculateBoardingIDsSorted(const vector<string>& passes, vector<int>&
 	sort(ids.begin(), ids.end());
 }
 
-int Day5::Part1()
+int Day5::PartOne()
 {
 	ParseInput();
 	CalculateBoardingIDsSorted(_boardingPasses, _boardingIDsSorted);
 	return _boardingIDsSorted.back();
 }
 
-int Day5::Part2()
+int Day5::PartTwo()
 {
 	ParseInput();
 	CalculateBoardingIDsSorted(_boardingPasses, _boardingIDsSorted);

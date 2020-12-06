@@ -22,6 +22,6 @@ private:
 	void CalculateBoardingIDsSorted(const vector<string>& passes, vector<int>& ids);
 public:
 	Day5() {};
-	int Part1();
-	int Part2();
+	int PartOne();
+	int PartTwo();
 };

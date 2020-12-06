@@ -21,7 +21,7 @@ void Day1::ParseInput()
 	_inputParsed = true;
 }
 
-int Day1::Part1()
+int Day1::PartOne()
 {
 	ParseInput();
 	for (size_t i = 0; i < _expenses.size(); ++i)
@@ -33,11 +33,11 @@ int Day1::Part1()
 		}
 	}
 
-	cout << "Error: no solution found for Day1::Part1.";
+	cout << "Error: no solution found for Day1::PartOne.";
 	return -1;
 }
 
-int Day1::Part2()
+int Day1::PartTwo()
 {
 	ParseInput();
 	for (size_t i = 0; i < _expenses.size(); ++i)
@@ -52,6 +52,6 @@ int Day1::Part2()
 		}
 	}
 
-	cout << "Error: no solution found for Day1::Part1.";
+	cout << "Error: no solution found for Day1::PartOne.";
 	return -1;
 }

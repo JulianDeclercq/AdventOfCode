@@ -78,13 +78,13 @@ int Day6::TotalGoodsToDeclare(DeclaredGoodsGroups& groups)
 	return count;
 }
 
-int Day6::Part1()
+int Day6::PartOne()
 {
 	ParseInput();
 	return TotalGoodsToDeclare(_anyoneGroups);
 }
 
-int Day6::Part2()
+int Day6::PartTwo()
 {
 	ParseInput();
 	return TotalGoodsToDeclare(_everyoneGroups);

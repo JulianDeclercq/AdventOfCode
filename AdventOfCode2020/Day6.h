@@ -15,9 +15,10 @@ class Day6
 {
 private:
 	bool _inputParsed = false;
-	vector<set<char>> _groupAnswers;
+	vector<set<char>> _groupAnswers, _collectiveGroupAnswers;
 	void ParseInput();
 	void AddGroupAnswer(const string& answer);
+	void AddCollectiveGroupAnswer(int memberCount, const string& answer);
 public:
 	Day6() {};
 	int Part1();

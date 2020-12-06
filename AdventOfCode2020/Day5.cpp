@@ -14,7 +14,7 @@ void Day5::ParseInput()
 		return;
 	}
 
-	string line = "", current = "";
+	string line = "";
 	while (getline(input, line))
 		_boardingPasses.push_back(line);
 

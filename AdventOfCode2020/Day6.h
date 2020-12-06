@@ -10,15 +10,18 @@
 #include <numeric>
 
 using namespace std;
+using DeclaredGoodsGroups = vector<set<char>>;
 
 class Day6
 {
 private:
 	bool _inputParsed = false;
-	vector<set<char>> _groupAnswers, _collectiveGroupAnswers;
+	DeclaredGoodsGroups _anyoneGroups, _everyoneGroups;
 	void ParseInput();
-	void AddGroupAnswer(const string& answer);
-	void AddCollectiveGroupAnswer(int memberCount, const string& answer);
+	void AddGroupAnswerAnyone(const string& answer, DeclaredGoodsGroups& groups);
+	void AddGroupAnswerEveryone(const string& answer, int memberCount, DeclaredGoodsGroups& groups);
+	int TotalGoodsToDeclare(DeclaredGoodsGroups& groups);
+
 public:
 	Day6() {};
 	int Part1();

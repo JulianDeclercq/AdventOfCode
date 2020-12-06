@@ -25,8 +25,8 @@ void Day6::ParseInput()
 			continue;
 		}
 
-		AddGroupAnswer(current);
-		AddCollectiveGroupAnswer(memberCount, current);
+		AddGroupAnswerAnyone(current, _anyoneGroups);
+		AddGroupAnswerEveryone(current, memberCount, _everyoneGroups);
 
 		memberCount = 0;
 		current = "";
@@ -35,53 +35,57 @@ void Day6::ParseInput()
 	// make sure last one gets parsed without input manipulation
 	if (!current.empty())
 	{
-		AddGroupAnswer(current);
-		AddCollectiveGroupAnswer(memberCount, current);
+		AddGroupAnswerAnyone(current, _anyoneGroups);
+		AddGroupAnswerEveryone(current, memberCount, _everyoneGroups);
 	}
 
 	_inputParsed = true;
 }
 
-void Day6::AddGroupAnswer(const string& answer)
+void Day6::AddGroupAnswerAnyone(const string& answer, DeclaredGoodsGroups& groups)
 {
-	set<char> groupAnswers;
+	set<char> goodsToDeclare;
 
+	// if anyone answered yes, it should be declared
 	for (char c : answer)
-		groupAnswers.insert(c);
+		goodsToDeclare.insert(c);
 
-	_groupAnswers.push_back(groupAnswers);
+	groups.push_back(goodsToDeclare);
 }
 
-void Day6::AddCollectiveGroupAnswer(int memberCount, const string& answer)
+void Day6::AddGroupAnswerEveryone(const string& answer, int memberCount, DeclaredGoodsGroups& groups)
 {
-	set<char> groupAnswers;
+	set<char> goodsToDeclare;
 
 	for (char c : answer)
 	{
 		// if everyone answered yes
 		if (count(answer.begin(), answer.end(), c) == memberCount)
-			groupAnswers.insert(c);
+			goodsToDeclare.insert(c);
 	}
 
-	_collectiveGroupAnswers.push_back(groupAnswers);
+	groups.push_back(goodsToDeclare);
+}
+
+// Calculates the total amount of goods to declare for all groups in the plane
+int Day6::TotalGoodsToDeclare(DeclaredGoodsGroups& groups)
+{
+	int count = 0;
+
+	for (const auto& answer : groups)
+		count += answer.size();
+
+	return count;
 }
 
 int Day6::Part1()
 {
 	ParseInput();
-	int count = 0;
-	for (const auto& answer : _groupAnswers)
-		count += answer.size();
-	
-	return count;
+	return TotalGoodsToDeclare(_anyoneGroups);
 }
 
 int Day6::Part2()
 {
 	ParseInput();
-	int count = 0;
-	for (const auto& answer : _collectiveGroupAnswers)
-		count += answer.size();
-
-	return count;
+	return TotalGoodsToDeclare(_everyoneGroups);
 }

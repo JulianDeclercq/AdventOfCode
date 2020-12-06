@@ -72,8 +72,8 @@ int Day6::TotalGoodsToDeclare(DeclaredGoodsGroups& groups)
 {
 	int count = 0;
 
-	for (const auto& answer : groups)
-		count += answer.size();
+	for (const auto& declaredGoods : groups)
+		count += declaredGoods.size();
 
 	return count;
 }

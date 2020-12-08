@@ -58,7 +58,7 @@ void Day4::ParsePassport(string& s)
 		it++;
 
 		// add passport entry
-		p.insert(make_pair(key, *it)); // add passport entry
+		p.insert(make_pair(key, *it));
 
 		// move iterator to next submatch, the new key if it exists
 		it++;

@@ -4,7 +4,7 @@ void Helpers::StopWatch::Start()
 {
 	if (_running)
 	{
-		std::cout << "Stopwatch already running, can't start." << std::endl;
+		std::cout << std::endl << "Stopwatch already running, can't start." << std::endl;
 		return;
 	}
 	_start = std::chrono::high_resolution_clock::now();
@@ -15,7 +15,7 @@ void Helpers::StopWatch::Stop()
 {
 	if (!_running)
 	{
-		std::cout << "Stopwatch was not running, can't stop." << std::endl;
+		std::cout << std::endl << "Stopwatch was not running, can't stop." << std::endl;
 		return;
 	}
 	_elapsed = std::chrono::high_resolution_clock::now() - _start;
@@ -31,7 +31,7 @@ void Helpers::StopWatch::Reset()
 std::string Helpers::StopWatch::Formatted()
 {
 	if (_elapsed == std::chrono::duration<long long, std::nano>::zero())
-		return "StopWatch::Formatted error: no time has elapsed.";
+		return "\nStopWatch::Formatted error: no time has elapsed.";
 
 	// cast to microseconds and divide rather than cast to seconds to avoid losing precision
 	// casting to seconds with any amount under 1 second would lead to "0 seconds"

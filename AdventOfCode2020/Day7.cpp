@@ -6,6 +6,7 @@ void Day7::ParseInput()
 		return;
 
 	//ifstream input("input/day7example.txt");
+	//ifstream input("input/day7example2.txt");
 	ifstream input("input/day7.txt");
 
 	if (!input)
@@ -72,6 +73,16 @@ void Day7::AddToParentBags(const string& bagName, set<string>& parentBags)
 	}
 }
 
+int Day7::ContentCount(const string& bagName, bool root)
+{
+	int total = root ? 0 : 1;
+	
+	for (const auto& bag : _bags[bagName])
+		total += bag.first * ContentCount(bag.second);
+	
+	return total;
+}
+
 int Day7::PartOne()
 {
 	ParseInput();
@@ -84,5 +95,5 @@ int Day7::PartOne()
 int Day7::PartTwo()
 {
 	ParseInput();
-	return 0;
+	return ContentCount("shiny gold", true);
 }

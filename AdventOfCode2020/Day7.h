@@ -20,6 +20,7 @@ private:
 	void ParseInput();
 	void ParseBagContents(const string& bagName, string& contentsDescription);
 	void AddToParentBags(const string& bagName, set<string>& parentBags);
+	int ContentCount(const string& bagName, bool root = false);
 public:
 	int PartOne();
 	int PartTwo();

@@ -24,14 +24,13 @@ private:
 		string Contents = "";
 	};
 
-	bool _inputParsed = false;
 	vector<Password> _passwords = vector<Password>();
-	void ParseInput();
 
 	bool IsValidPartOne(const Password& password);
 	bool IsValidPartTwo(const Password& password);
+
 public:
-	Day2(){}
+	void ParseInput();
 	int PartOne();
 	int PartTwo();
 };

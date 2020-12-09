@@ -2,9 +2,6 @@
 
 void Day1::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day1example.txt");
 	ifstream input("input/day1.txt");
 
@@ -17,13 +14,10 @@ void Day1::ParseInput()
 	string line = "";
 	while (getline(input, line))
 		_expenses.push_back(stoi(line));
-
-	_inputParsed = true;
 }
 
 int Day1::PartOne()
 {
-	ParseInput();
 	for (size_t i = 0; i < _expenses.size(); ++i)
 	{
 		for (size_t j = 0; j < _expenses.size(); ++j)
@@ -39,7 +33,6 @@ int Day1::PartOne()
 
 int Day1::PartTwo()
 {
-	ParseInput();
 	for (size_t i = 0; i < _expenses.size(); ++i)
 	{
 		for (size_t j = 0; j < _expenses.size(); ++j)

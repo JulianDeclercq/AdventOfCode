@@ -2,9 +2,6 @@
 
 void Day7::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day7example.txt");
 	//ifstream input("input/day7example2.txt");
 	ifstream input("input/day7.txt");
@@ -16,24 +13,20 @@ void Day7::ParseInput()
 	}
 
 	string line = "";
+	regex r("(.+) bags contain (.+).");
+	smatch match;
 	while (getline(input, line))
 	{
-		regex r("(.+) bags contain (.+).");
-		smatch match;
 		if (!regex_search(line, match, r))
 		{
 			cout << "Didn't find regex." << endl;
 			continue;
 		}
-		string mainBag = match[1];
-		string contents = static_cast<string>(match[2]);
-		ParseBagContents(match[1], contents);
+		ParseBagContents(match[1], match[2]);
 	}
-
-	_inputParsed = true;
 }
 
-void Day7::ParseBagContents(const string& bagName, string& contentsDescription)
+void Day7::ParseBagContents(const string& bagName, string contentsDescription)
 {
 	auto contents = vector<pair<int, string>>();
 	if (contentsDescription.compare("contain no other bags") != 0)
@@ -85,15 +78,12 @@ int Day7::ContentCount(const string& bagName, bool root)
 
 int Day7::PartOne()
 {
-	ParseInput();
 	set<string> parents;
-
 	AddToParentBags("shiny gold", parents);
 	return parents.size();
 }
 
 int Day7::PartTwo()
 {
-	ParseInput();
 	return ContentCount("shiny gold", true);
 }

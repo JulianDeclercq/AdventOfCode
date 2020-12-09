@@ -2,9 +2,6 @@
 
 void Day5::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day5example.txt");
 	ifstream input("input/day5.txt");
 
@@ -17,8 +14,6 @@ void Day5::ParseInput()
 	string line = "";
 	while (getline(input, line))
 		_boardingPasses.push_back(line);
-
-	_inputParsed = true;
 }
 
 int Day5::Partitioning(const range& range, const string& operation, const char lower, const char upper)

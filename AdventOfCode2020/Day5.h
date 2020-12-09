@@ -16,12 +16,12 @@ class Day5
 private:
 	vector<string> _boardingPasses;
 	vector<int> _boardingIDsSorted;
-	bool _inputParsed = false;
-	void ParseInput();
+	
 	int Partitioning(const range& range, const string& operation, const char lower, const char upper);
 	void CalculateBoardingIDsSorted(const vector<string>& passes, vector<int>& ids);
+
 public:
-	Day5() {};
+	void ParseInput();
 	int PartOne();
 	int PartTwo();
 };

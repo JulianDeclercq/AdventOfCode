@@ -2,9 +2,6 @@
 
 void Day6::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day6example.txt");
 	ifstream input("input/day6.txt");
 
@@ -38,8 +35,6 @@ void Day6::ParseInput()
 		AddGroupAnswerAnyone(current, _anyoneGroups);
 		AddGroupAnswerEveryone(current, memberCount, _everyoneGroups);
 	}
-
-	_inputParsed = true;
 }
 
 void Day6::AddGroupAnswerAnyone(const string& answer, DeclaredGoodsGroups& groups)

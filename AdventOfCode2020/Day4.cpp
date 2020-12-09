@@ -2,9 +2,6 @@
 
 void Day4::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day4example.txt");
 	//ifstream input("input/day4example2.txt");
 	//ifstream input("input/day4example3.txt");
@@ -35,8 +32,6 @@ void Day4::ParseInput()
 	// make sure last passport gets parsed as well (without manipulating the input)
 	if (!current.empty())
 		ParsePassport(current);
-
-	_inputParsed = true;
 }
 
 void Day4::ParsePassport(string& s)

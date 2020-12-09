@@ -10,13 +10,10 @@ using namespace std;
 class Day1
 {
 private:
-	bool _inputParsed = false;
 	vector<int> _expenses = vector<int>();
 
-	void ParseInput();
-
 public:
-	Day1(){}
+	void ParseInput();
 	int PartOne();
 	int PartTwo();
 };

@@ -2,9 +2,6 @@
 
 void Day3::ParseInput()
 {
-	if (_inputParsed)
-		return;
-
 	//ifstream input("input/day3example.txt");
 	ifstream input("input/day3.txt");
 
@@ -23,8 +20,6 @@ void Day3::ParseInput()
 		_treeChart.append(line);
 		++_height;
 	}
-
-	_inputParsed = true;
 }
 
 bool Day3::IsTree(const Vector2& p)
@@ -53,14 +48,11 @@ int Day3::TreesOnSlope(const Vector2& slope)
 
 int Day3::PartOne()
 {
-	ParseInput();
 	return TreesOnSlope({3, 1});
 }
 
 unsigned int Day3::PartTwo()
 {
-	ParseInput();
-
 	unsigned int trees = 1;
 	vector<Vector2> slopes{ {1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2} };
 	for (const auto& slope : slopes)

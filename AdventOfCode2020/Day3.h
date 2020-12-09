@@ -31,16 +31,14 @@ private:
 		}
 	};
 
-	bool _inputParsed = false;
 	string _treeChart = "";
 	int _width = 0, _height = 0;
 
-	void ParseInput();
 	bool IsTree(const Vector2& p);
 	int TreesOnSlope(const Vector2& slope);
 
 public:
-	Day3(){}
+	void ParseInput();
 	int PartOne();
 	unsigned int PartTwo();
 };

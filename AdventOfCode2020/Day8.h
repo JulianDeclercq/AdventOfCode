@@ -27,7 +27,7 @@ private:
 	int _instructionIdx = 0;
 	int _accumulator = 0;
 	bool _repeatedInstruction = false;
-	InstructionType _originalType;
+	InstructionType _originalType = InstructionType::INVALID;
 
 	void ExecuteNext();
 	void Reset();

@@ -131,4 +131,5 @@ int Day8::PartTwo()
 		// a repeated instruction was found, swap the original instruction back in and continue
 		instruction.first = _originalType;
 	}
+	return -1;
 }

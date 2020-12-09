@@ -8,19 +8,31 @@
 #include <regex>
 
 using namespace std;
-using instruction = pair<string, int>;
+
+enum class InstructionType
+{
+	INVALID,
+	ACC,
+	JMP,
+	NOP
+};
+using instruction = pair<InstructionType, int>;
 
 class Day8
 {
 private:
+
 	vector<instruction> _instructions;
 	vector<bool> _visited;
-	int _accumulator = 0;
 	int _instructionIdx = 0;
-	int _repeatedInstructionIdx = -1;
+	int _accumulator = 0;
+	bool _repeatedInstruction = false;
+	InstructionType _originalType;
 
-	bool ExecuteInstruction(int instructionIdx);
+	void ExecuteNext();
+	void Reset();
 public:
+
 	void ParseInput();
 	int PartOne();
 	int PartTwo();

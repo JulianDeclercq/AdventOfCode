@@ -2,7 +2,7 @@
 
 void Day9::ParseInput()
 {
-	//ifstream input("input/day9example.txt");
+	//ifstream input("input/day9example.txt"); _preamble = 5;
 	ifstream input("input/day9.txt");
 
 	if (!input)
@@ -27,20 +27,20 @@ long long Day9::PartOne()
 			auto target = _numbers[i] - _numbers[j];
 			for (int k = startIdx; k <= endIdx && !found; ++k)
 			{
-				// skip self
+				// self doesn't count
 				if (j == k)
 					continue;
 
 				if (_numbers[k] == target)
-				{
-					//cout << current << ": was valid with " << _numbers[j] << " and " << _numbers[k] << endl;
 					found = true;
-				}
 			}
 		}
 
 		if (!found)
-			return _numbers[i];
+		{
+			_part1Cached = _numbers[i];
+			return _part1Cached;
+		}
 
 		++startIdx;
 		++endIdx;
@@ -48,7 +48,35 @@ long long Day9::PartOne()
 	return -1;
 }
 
-int Day9::PartTwo()
+long long Day9::PartTwo()
 {
-	return 0;
+	if (_part1Cached == -1)
+		PartOne();
+
+	size_t startIdx = 0;
+	long long target = _part1Cached, sum = 0, first = -1, largest = 0;
+	for (size_t i = startIdx; i < _numbers.size(); ++i)
+	{
+		if (first == -1)
+			first = _numbers[i];
+
+		if (_numbers[i] > largest)
+			largest = _numbers[i];
+
+		sum += _numbers[i];
+
+		if (sum == target)
+		{
+			return first + largest;
+		}
+		else if (sum > target)
+		{
+			// reset and start looking again
+			++startIdx;
+			i = startIdx;
+			first = -1;
+			sum = 0;
+		}
+	}
+	return -1;
 }

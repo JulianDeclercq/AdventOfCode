@@ -8,14 +8,12 @@
 
 using namespace std;
 
-class Day9
+class Day10
 {
 private:
-	vector<long long> _numbers;
-	int _preamble = 25;
-	long long _part1Cached = -1;
+	vector<int> _adaptors;
 public:
 	void ParseInput();
-	long long PartOne();
-	long long PartTwo();
+	int PartOne();
+	int PartTwo();
 };

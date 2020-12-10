@@ -1,10 +1,11 @@
 #include "Day10.h"
 
+
 void Day10::ParseInput()
 {
 	//ifstream input("input/day10example.txt");
-	//ifstream input("input/day10example2.txt");
-	ifstream input("input/day10.txt");
+	ifstream input("input/day10example2.txt");
+	//ifstream input("input/day10.txt");
 
 	if (!input)
 	{
@@ -43,7 +44,58 @@ int Day10::PartOne()
 	return counter1 * counter3;
 }
 
-int Day10::PartTwo()
+void Day10::calculateArrangements(const arrangement& c, int offset)
 {
-	return 0;
+	arrangement currentArrangement = c;
+	for (size_t i = offset; i < _adaptors.size(); ++i)
+	{
+		int diff = _adaptors[i] - currentArrangement.back();
+		if (diff <= 3)
+		{ 
+			// recursion
+			calculateArrangements(currentArrangement, i + 1);
+
+			// add to current
+			currentArrangement.push_back(_adaptors[i]);
+
+			// add the arrangement if it connects to the device
+			if (i == _adaptors.size() - 1)
+				_arrangements.push_back(currentArrangement);
+		}
+	}
+}
+
+void Day10::calculateArrangements2(int last, int offset)
+{
+	for (size_t i = offset; i < _adaptors.size(); ++i)
+	{
+		if (_adaptors[i] - last <= 3)
+		{
+			// recursion
+			calculateArrangements2(last, i + 1);
+
+			// add to current
+			last = _adaptors[i];
+
+			// add the arrangement if it connects to the device
+			if (i == _adaptors.size() - 1)
+				++_count;
+		}
+	}
+}
+
+long long Day10::PartTwo(bool fast)
+{
+	if (fast)
+	{
+		_count = 0;
+		calculateArrangements2({ _adaptors.front() }, 1);
+		return _count;
+	}
+	else
+	{
+		calculateArrangements({ _adaptors.front() }, 1);
+		return _arrangements.size();
+	}
+	return -1;
 }

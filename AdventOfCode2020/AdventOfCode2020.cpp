@@ -1,12 +1,12 @@
 ﻿#include <iostream>
 #include "Helpers.h"
-#include "Day8.h"
+#include "Day9.h"
 
 using namespace std;
 
 int main()
 {
-    auto day = Day8();
+    auto day = Day9();
     auto stopwatch = Helpers::StopWatch();
 
     stopwatch.Start();
@@ -15,12 +15,12 @@ int main()
     cout << "Parsed input\t\t\t" << stopwatch.Formatted() << endl;
 
     stopwatch.Start();
-    cout << "Solution to day 8, part one: " << day.PartOne();
+    cout << "Solution to day 9, part one: " << day.PartOne();
     stopwatch.Stop();
     cout << stopwatch.Formatted() << endl;
 
     stopwatch.Start();
-    cout << "Solution to day 8, part two: " << day.PartTwo();
+    cout << "Solution to day 9, part two: " << day.PartTwo();
     stopwatch.Stop();
     cout << stopwatch.Formatted() << endl;
 }

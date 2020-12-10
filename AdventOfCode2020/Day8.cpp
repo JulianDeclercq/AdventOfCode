@@ -124,6 +124,7 @@ int Day8::PartTwo()
 		{
 			ExecuteNext();
 
+			// SUCCESS! If the program has terminated successfully, return the accumulator value
 			if (_instructionIdx == _instructions.size())
 				return _accumulator;
 		}

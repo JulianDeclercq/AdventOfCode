@@ -14,18 +14,13 @@ int main()
     stopwatch.Stop();
     cout << "Parsed input\t\t\t" << stopwatch.Formatted() << endl;
 
-    //stopwatch.Start();
-    //cout << "Solution to day 10, part one: " << day.PartOne();
-    //stopwatch.Stop();
-    //cout << stopwatch.Formatted() << endl;
-
     stopwatch.Start();
-    cout << "Solution to day 10, part two: " << day.PartTwo(false);
+    cout << "Solution to day 10, part one: " << day.PartOne();
     stopwatch.Stop();
     cout << stopwatch.Formatted() << endl;
 
     stopwatch.Start();
-    cout << "Solution to day 10, part two F: " << day.PartTwo(true);
+    cout << "Solution to day 10, part two: " << day.PartTwo();
     stopwatch.Stop();
-    cout << stopwatch.Formatted() << endl;
+    cout << stopwatch.Formatted() << endl << endl;
 }

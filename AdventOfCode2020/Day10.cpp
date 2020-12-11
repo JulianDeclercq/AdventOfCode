@@ -4,8 +4,8 @@
 void Day10::ParseInput()
 {
 	//ifstream input("input/day10example.txt");
-	ifstream input("input/day10example2.txt");
-	//ifstream input("input/day10.txt");
+	//ifstream input("input/day10example2.txt");
+	ifstream input("input/day10.txt");
 
 	if (!input)
 	{
@@ -44,58 +44,51 @@ int Day10::PartOne()
 	return counter1 * counter3;
 }
 
-void Day10::calculateArrangements(const arrangement& c, int offset)
-{
-	arrangement currentArrangement = c;
-	for (size_t i = offset; i < _adaptors.size(); ++i)
-	{
-		int diff = _adaptors[i] - currentArrangement.back();
-		if (diff <= 3)
-		{ 
-			// recursion
-			calculateArrangements(currentArrangement, i + 1);
-
-			// add to current
-			currentArrangement.push_back(_adaptors[i]);
-
-			// add the arrangement if it connects to the device
-			if (i == _adaptors.size() - 1)
-				_arrangements.push_back(currentArrangement);
-		}
-	}
-}
-
-void Day10::calculateArrangements2(int last, int offset)
+// works but way too slow
+void Day10::CalculateArrangementsOld(int last, int offset)
 {
 	for (size_t i = offset; i < _adaptors.size(); ++i)
 	{
-		if (_adaptors[i] - last <= 3)
-		{
-			// recursion
-			calculateArrangements2(last, i + 1);
+		if (_adaptors[i] - last > 3)
+			return;
 
-			// add to current
-			last = _adaptors[i];
+		CalculateArrangementsOld(last, i + 1);
 
-			// add the arrangement if it connects to the device
-			if (i == _adaptors.size() - 1)
-				++_count;
-		}
+		last = _adaptors[i];
+
+		// add the arrangement if it connects to the device
+		if (i == _adaptors.size() - 1)
+			++_count;
 	}
 }
 
-long long Day10::PartTwo(bool fast)
+// thanks to https://old.reddit.com/r/adventofcode/comments/ka8z8x/2020_day_10_solutions/gfal951/
+// for the great explanation
+long long Day10::CalculateArrangements(int step)
 {
-	if (fast)
+	if (_memo.find(step) != _memo.end())
+		return _memo.at(step);
+
+	long long count = 0;
+	for (int i = 1; i <= 3; ++i)
 	{
-		_count = 0;
-		calculateArrangements2({ _adaptors.front() }, 1);
-		return _count;
+		// avoid out of bounds
+		if (step - i < 0)
+			break;
+
+		// check if the adaptors are compatible
+		if (_adaptors[step] - _adaptors[step - i] <= 3)
+			count += CalculateArrangements(step - i);
 	}
-	else
-	{
-		calculateArrangements({ _adaptors.front() }, 1);
-		return _arrangements.size();
-	}
-	return -1;
+	_memo[step] = count;
+	return count;
+}
+
+long long Day10::PartTwo()
+{
+	//CalculateArrangementsOld({ _adaptors.front() }, 1); 
+	//return _count;
+
+	_memo[0] = 1;
+	return CalculateArrangements(_adaptors.size() - 1);
 }

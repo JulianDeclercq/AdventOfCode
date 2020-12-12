@@ -22,61 +22,41 @@ void Day11::ParseInput()
 	}
 }
 
-char Day11::SeatAt(const Point& p)
-{
-	//int col = p.X % _width; // wrap
-	int col = p.X;
-	int row = p.Y * _width;
-	return _seats[col + row];
-}
-
-int Day11::PointToIdx(const Point& p)
-{
-	int col = p.X;
-	int row = p.Y * _width;
-	return col + row;
-}
-
-Point Day11::IdxToPoint(int idx)
-{
-	return Point({idx % _width, idx / _width});
-}
-
-string Day11::Neighbours(const Point& p, const string& seats)
+string Day11::Neighbours(int idx, const string& seats)
 {
 	string neighbours = "";
-	bool hasNeighboursLeft = p.X > 0;
-	bool hasNeighboursRight = p.X < _width - 1;
-	bool hasNeighboursUp = p.Y > 0;
-	bool hasNeighboursDown = p.Y < _height - 1;
+	bool hasNeighboursLeft = idx % _width != 0;
+	bool hasNeighboursRight = idx % _width != _width - 1;
+	bool hasNeighboursUp = idx > _width;
+	bool hasNeighboursDown = idx + _width < seats.size();
 	
 	if (hasNeighboursLeft)
 	{
-		neighbours += seats[PointToIdx({ p.X - 1, p.Y })];
+		neighbours += seats[idx - 1];
 
 		if (hasNeighboursUp)
-			neighbours += seats[PointToIdx({ p.X - 1, p.Y - 1 })];
+			neighbours += seats[idx - _width - 1];
 
 		if (hasNeighboursDown)
-			neighbours += seats[PointToIdx({ p.X - 1, p.Y + 1 })];
+			neighbours += seats[idx + _width - 1];
 	}
 
 	if (hasNeighboursRight)
 	{
-		neighbours += seats[PointToIdx({ p.X + 1, p.Y })];
+		neighbours += seats[idx + 1];
 
 		if (hasNeighboursUp)
-			neighbours += seats[PointToIdx({ p.X + 1, p.Y - 1 })];
+			neighbours += seats[idx - _width + 1];
 
 		if (hasNeighboursDown)
-			neighbours += seats[PointToIdx({ p.X + 1, p.Y + 1 })];
+			neighbours += seats[idx + _width + 1];
 	}
 
 	if (hasNeighboursUp)
-		neighbours += seats[PointToIdx({ p.X, p.Y - 1 })];
+		neighbours += seats[idx - _width];
 
 	if (hasNeighboursDown)
-		neighbours += seats[PointToIdx({ p.X, p.Y + 1 })];
+		neighbours += seats[idx + _width];
 
 	return neighbours;
 }
@@ -90,13 +70,7 @@ void Day11::Transform(string& seats)
 		if (copy[i] == '.')
 			continue;
 		
-		const Point p = IdxToPoint(i);
-		if (p.X == 3 && p.Y == 0)
-		{
-			int brkpt = 5;
-		}
-
-		const auto& neighbours = Neighbours(p, copy);
+		const auto& neighbours = Neighbours(i, copy);
 		if (copy[i] == 'L')
 		{
 			if (find(neighbours.begin(), neighbours.end(), '#') == neighbours.end())
@@ -125,7 +99,10 @@ void Day11::DebugPrint()
 
 int Day11::PartOne()
 {
+	const auto& n = Neighbours(11, _seats);
+
 	string previous = string(_seats);
+	//DebugPrint();
 	do
 	{
 		previous = string(_seats);

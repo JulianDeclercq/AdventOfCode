@@ -32,6 +32,11 @@ namespace Helpers
 			return std::to_string(X) + ", " + std::to_string(Y);
 		}
 
+		static int ManhattanDistance(const point& lhs, const point& rhs)
+		{
+			return abs(lhs.X - rhs.X) + abs(lhs.Y - rhs.Y);
+		}
+
 		point& operator+=(const point& rhs)
 		{
 			X += rhs.X;
@@ -49,10 +54,6 @@ namespace Helpers
 			return (lhs.X < rhs.X) || (lhs.X == rhs.X && lhs.Y < rhs.Y);
 		}
 	
-		static int ManhattanDistance(const point& lhs, const point& rhs)
-		{
-			return abs(lhs.X - rhs.X) + abs(lhs.Y - rhs.Y);
-		}
 	};
 
 }

@@ -57,8 +57,56 @@ void Day12::Execute(const instruction& instruction)
 	}
 }
 
+void Day12::ExecutePart2(const instruction& instruction)
+{
+	int count = 0;
+	float angle = 0.0f;
+	switch (instruction.first)
+	{
+	case 'N':
+		_waypoint += instruction.second * point(0, -1);
+		break;
+	case 'E':
+		_waypoint += instruction.second * point(1, 0);
+		break;
+	case 'S':
+		_waypoint += instruction.second * point(0, 1);
+		break;
+	case 'W':
+		_waypoint += instruction.second * point(-1, 0);
+		break;
+	case 'R':
+		angle = static_cast<float>(instruction.second);
+		_waypoint = RotatePoint(_waypoint, angle);
+		break;
+	case 'L':
+		angle = static_cast<float>(instruction.second);
+		_waypoint = RotatePoint(_waypoint, -angle);
+		break;
+	case 'F':
+	{
+		_position += instruction.second * _waypoint;
+	}
+		break;
+	default: cout << "Invalid instruction: " << instruction.first << instruction.second << endl;
+		break;
+	}
+}
+
+point Day12::RotatePoint(const point& p, float angle)
+{
+	int s = sin(angle * M_PI / 180.0);
+	int c = cos(angle * M_PI / 180.0);
+
+	float x = c * p.X + (-s * p.Y);
+	float y = s * p.X + c * p.Y;
+
+	return point(static_cast<int>(x), static_cast<int>(y));
+}
+
 int Day12::PartOne()
 {
+	_position = point(0, 0);
 	for (const instruction& instruction : _instructions)
 		Execute(instruction);
 
@@ -67,5 +115,9 @@ int Day12::PartOne()
 
 int Day12::PartTwo()
 {
-	return 0;
+	_position = point(0, 0);
+	for (const instruction& instruction : _instructions)
+		ExecutePart2(instruction);
+
+	return Helpers::point::ManhattanDistance({ 0, 0 }, _position);
 }

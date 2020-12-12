@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#define _USE_MATH_DEFINES
+#include "math.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -24,8 +26,11 @@ class Day12
 		{ point( 0,  1), point(-1,  0) },	// S -> W
 		{ point(-1,  0), point( 0, -1) }	// W -> N
 	};
+	point _waypoint = point(10, -1); // relative to the ship position
 private:
 	void Execute(const instruction& instruction);
+	void ExecutePart2(const instruction& instruction);
+	point RotatePoint(const point& p, float angle);
 public:
 	void ParseInput();
 	int PartOne();

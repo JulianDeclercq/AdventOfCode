@@ -22,17 +22,17 @@ void Day3::ParseInput()
 	}
 }
 
-bool Day3::IsTree(const Point& p)
+bool Day3::IsTree(const point& p)
 {
 	int col = p.X % _width; // wrap
 	int row = p.Y * _width;
 	return _treeChart[col + row] == '#';
 }
 
-int Day3::TreesOnSlope(const Point& slope)
+int Day3::TreesOnSlope(const point& slope)
 {
 	int treeCount = 0;
-	Point current(0, 0);
+	point current(0, 0);
 
 	while (current.Y < _height)
 	{
@@ -54,7 +54,7 @@ int Day3::PartOne()
 unsigned int Day3::PartTwo()
 {
 	unsigned int trees = 1;
-	vector<Point> slopes{ {1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2} };
+	vector<point> slopes{ {1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2} };
 	for (const auto& slope : slopes)
 		trees *= TreesOnSlope(slope);
 

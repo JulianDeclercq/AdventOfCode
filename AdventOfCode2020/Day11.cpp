@@ -23,17 +23,17 @@ void Day11::ParseInput()
 	}
 }
 
-int Day11::PointToIdx(const Point& p)
+int Day11::PointToIdx(const point& p)
 {
 	return p.X + (p.Y * _width); // col + row
 }
 
-Point Day11::IdxToPoint(int idx)
+point Day11::IdxToPoint(int idx)
 {
-	return Point({idx % _width, idx / _width});
+	return point({idx % _width, idx / _width});
 }
 
-string Day11::Neighbours(const Point& p, const string& seats)
+string Day11::Neighbours(const point& p, const string& seats)
 {
 	string neighbours = "";
 	bool hasNeighboursLeft = p.X > 0;
@@ -72,11 +72,11 @@ string Day11::Neighbours(const Point& p, const string& seats)
 	return neighbours;
 }
 
-string Day11::NeighbouringSeats(const Point& p, const string& seats)
+string Day11::NeighbouringSeats(const point& p, const string& seats)
 {
 	string neighbours = "";
 
-	Point n = p;
+	point n = p;
 	// find the first visible chair on the straight left
 	while (n.X > 0)
 	{
@@ -156,7 +156,7 @@ string Day11::NeighbouringSeats(const Point& p, const string& seats)
 	return neighbours;
 }
 
-bool Day11::AddIfChair(const Point& p, const string& seats, string& addTo)
+bool Day11::AddIfChair(const point& p, const string& seats, string& addTo)
 {
 	char c = seats[PointToIdx(p)];
 	if (c != '.') // '.' == floor
@@ -176,7 +176,7 @@ void Day11::Transform(string& seats, bool partTwo)
 		if (copy[i] == '.')
 			continue;
 		
-		const Point p = IdxToPoint(i);
+		const point p = IdxToPoint(i);
 		const auto& neighbours = partTwo ? NeighbouringSeats(p, copy) : Neighbours(p, copy);
 		if (copy[i] == 'L')
 		{

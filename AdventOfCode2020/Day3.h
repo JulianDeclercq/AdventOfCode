@@ -9,7 +9,7 @@
 #include "Helpers.h"
 
 using namespace std;
-using Point = Helpers::Point;
+using point = Helpers::point;
 
 class Day3
 {
@@ -17,8 +17,8 @@ private:
 	string _treeChart = "";
 	int _width = 0, _height = 0;
 
-	bool IsTree(const Point& p);
-	int TreesOnSlope(const Point& slope);
+	bool IsTree(const point& p);
+	int TreesOnSlope(const point& slope);
 
 public:
 	void ParseInput();

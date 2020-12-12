@@ -2,6 +2,7 @@
 #include <chrono>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 namespace Helpers
 {
@@ -18,22 +19,40 @@ namespace Helpers
         std::string Formatted();
     };
 
-	struct Point
+	struct point
 	{
-		Point(int x, int y) : X(x), Y(y) {}
+		point(int x, int y) : X(x), Y(y) {}
 		int X = 0;
 		int Y = 0;
+
+		point(){}
 
 		std::string ToString()
 		{
 			return std::to_string(X) + ", " + std::to_string(Y);
 		}
 
-		Point& operator+=(const Point& rhs)
+		point& operator+=(const point& rhs)
 		{
 			X += rhs.X;
 			Y += rhs.Y;
 			return *this; // return the result by reference
 		}
+
+		friend point operator* (const int lhs, const point& p)
+		{
+			return point(lhs * p.X, lhs * p.Y);
+		}
+
+		friend bool operator<(const point& lhs, const point& rhs)
+		{
+			return (lhs.X < rhs.X) || (lhs.X == rhs.X && lhs.Y < rhs.Y);
+		}
+	
+		static int ManhattanDistance(const point& lhs, const point& rhs)
+		{
+			return abs(lhs.X - rhs.X) + abs(lhs.Y - rhs.Y);
+		}
 	};
+
 }

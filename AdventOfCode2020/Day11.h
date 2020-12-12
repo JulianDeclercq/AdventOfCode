@@ -8,7 +8,7 @@
 #include "Helpers.h"
 
 using namespace std;
-using Point = Helpers::Point;
+using point = Helpers::point;
 
 class Day11
 {
@@ -16,11 +16,11 @@ private:
 	string _seats = "";
 	int _width = 0, _height = 0;
 
-	int PointToIdx(const Point& p);
-	Point IdxToPoint(int idx);
-	string Neighbours(const Point& p, const string& seats);
-	string NeighbouringSeats(const Point& p, const string& seats);
-	bool AddIfChair(const Point& p, const string& seats, string& addTo);
+	int PointToIdx(const point& p);
+	point IdxToPoint(int idx);
+	string Neighbours(const point& p, const string& seats);
+	string NeighbouringSeats(const point& p, const string& seats);
+	bool AddIfChair(const point& p, const string& seats, string& addTo);
 	void Transform(string& seats, bool partTwo);
 	void DebugPrint(const string& s);
 

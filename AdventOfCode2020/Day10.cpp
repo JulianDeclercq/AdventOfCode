@@ -45,14 +45,14 @@ int Day10::PartOne()
 }
 
 // works but way too slow
-void Day10::CalculateArrangementsOld(int last, int offset)
+void Day10::CountArrangementsOld(int last, int offset)
 {
 	for (size_t i = offset; i < _adaptors.size(); ++i)
 	{
 		if (_adaptors[i] - last > 3)
 			return;
 
-		CalculateArrangementsOld(last, i + 1);
+		CountArrangementsOld(last, i + 1);
 
 		last = _adaptors[i];
 
@@ -63,22 +63,28 @@ void Day10::CalculateArrangementsOld(int last, int offset)
 }
 
 // thanks to https://old.reddit.com/r/adventofcode/comments/ka8z8x/2020_day_10_solutions/gfal951/
-// for the great explanation
-long long Day10::CalculateArrangements(int step)
+// for the inspiration and explanation
+long long Day10::CountArrangements(int step)
 {
 	if (_memo.find(step) != _memo.end())
 		return _memo.at(step);
 
 	long long count = 0;
-	for (int i = 1; i <= 3; ++i)
+	for (size_t i = 1; i < _adaptors.size(); ++i)
 	{
 		// avoid out of bounds
-		if (step - i < 0)
+		int next = step - i;
+		if (next < 0)
 			break;
 
 		// check if the adaptors are compatible
-		if (_adaptors[step] - _adaptors[step - i] <= 3)
-			count += CalculateArrangements(step - i);
+		// in case of failing this check: since the list is sorted, 
+		// any adaptors "beyond" this point can be excluded as well (so leave the loop)
+		if (_adaptors[step] - _adaptors[next] > 3)
+			break;
+
+		// if the adaptors are compatible, count the arrangements up until this point
+		count += CountArrangements(next);
 	}
 	_memo[step] = count;
 	return count;
@@ -86,9 +92,9 @@ long long Day10::CalculateArrangements(int step)
 
 long long Day10::PartTwo()
 {
-	//CalculateArrangementsOld({ _adaptors.front() }, 1); 
+	//CountArrangementsOld({ _adaptors.front() }, 1); 
 	//return _count;
 
 	_memo[0] = 1;
-	return CalculateArrangements(_adaptors.size() - 1);
+	return CountArrangements(_adaptors.size() - 1);
 }

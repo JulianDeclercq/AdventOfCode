@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <regex>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -11,17 +10,21 @@
 using namespace std;
 using Point = Helpers::Point;
 
-class Day3
+class Day11
 {
 private:
-	string _treeChart = "";
+	string _seats = "";
 	int _width = 0, _height = 0;
 
-	bool IsTree(const Point& p);
-	int TreesOnSlope(const Point& slope);
+	char SeatAt(const Point& p);
+	int PointToIdx(const Point& p);
+	Point IdxToPoint(int idx);
+	string Neighbours(const Point& p, const string& seats);
+	void Transform(string& seats);
+	void DebugPrint();
 
 public:
 	void ParseInput();
 	int PartOne();
-	unsigned int PartTwo();
+	int PartTwo();
 };

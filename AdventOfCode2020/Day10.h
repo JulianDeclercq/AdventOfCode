@@ -14,10 +14,10 @@ class Day10
 private:
 	vector<int> _adaptors;
 	long long _count = 0;
-	void CalculateArrangementsOld(int last, int offset);
+	void CountArrangementsOld(int last, int offset);
 
 	map<int, long long> _memo;
-	long long CalculateArrangements(int step);
+	long long CountArrangements(int step);
 public:
 	void ParseInput();
 	int PartOne();

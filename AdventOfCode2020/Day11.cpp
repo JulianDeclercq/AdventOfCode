@@ -3,6 +3,7 @@
 void Day11::ParseInput()
 {
 	//ifstream input("input/day11example.txt");
+	//ifstream input("input/day11example2.txt");
 	ifstream input("input/day11.txt");
 
 	if (!input)
@@ -22,46 +23,151 @@ void Day11::ParseInput()
 	}
 }
 
-string Day11::Neighbours(int idx, const string& seats)
+int Day11::PointToIdx(const Point& p)
+{
+	return p.X + (p.Y * _width); // col + row
+}
+
+Point Day11::IdxToPoint(int idx)
+{
+	return Point({idx % _width, idx / _width});
+}
+
+string Day11::Neighbours(const Point& p, const string& seats)
 {
 	string neighbours = "";
-	bool hasNeighboursLeft = idx % _width != 0;
-	bool hasNeighboursRight = idx % _width != _width - 1;
-	bool hasNeighboursUp = idx > _width;
-	bool hasNeighboursDown = idx + _width < seats.size();
+	bool hasNeighboursLeft = p.X > 0;
+	bool hasNeighboursRight = p.X < _width - 1;
+	bool hasNeighboursUp = p.Y > 0;
+	bool hasNeighboursDown = p.Y < _height - 1;
 	
 	if (hasNeighboursLeft)
 	{
-		neighbours += seats[idx - 1];
-
 		if (hasNeighboursUp)
-			neighbours += seats[idx - _width - 1];
+			neighbours += seats[PointToIdx({ p.X - 1, p.Y - 1 })];
+		
+		neighbours += seats[PointToIdx({ p.X - 1, p.Y })];
 
 		if (hasNeighboursDown)
-			neighbours += seats[idx + _width - 1];
-	}
-
-	if (hasNeighboursRight)
-	{
-		neighbours += seats[idx + 1];
-
-		if (hasNeighboursUp)
-			neighbours += seats[idx - _width + 1];
-
-		if (hasNeighboursDown)
-			neighbours += seats[idx + _width + 1];
+			neighbours += seats[PointToIdx({ p.X - 1, p.Y + 1 })];
 	}
 
 	if (hasNeighboursUp)
-		neighbours += seats[idx - _width];
+		neighbours += seats[PointToIdx({ p.X, p.Y - 1 })];
 
 	if (hasNeighboursDown)
-		neighbours += seats[idx + _width];
+		neighbours += seats[PointToIdx({ p.X, p.Y + 1 })];
+
+	if (hasNeighboursRight)
+	{
+		if (hasNeighboursUp)
+			neighbours += seats[PointToIdx({ p.X + 1, p.Y - 1 })];
+		
+		neighbours += seats[PointToIdx({ p.X + 1, p.Y })];
+
+		if (hasNeighboursDown)
+			neighbours += seats[PointToIdx({ p.X + 1, p.Y + 1 })];
+	}
 
 	return neighbours;
 }
 
-void Day11::Transform(string& seats)
+string Day11::NeighbouringSeats(const Point& p, const string& seats)
+{
+	string neighbours = "";
+
+	Point n = p;
+	// find the first visible chair on the straight left
+	while (n.X > 0)
+	{
+		--n.X;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// straight right
+	n = p;
+	while (n.X < _width - 1) // TODO: DOUBLE CHECK
+	{
+		++n.X;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// straight up
+	n = p;
+	while (n.Y > 0)
+	{
+		--n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// straight down
+	n = p;
+	while (n.Y < _height - 1)
+	{
+		++n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// diagonals
+	// left-up
+	n = p;
+	while (n.X > 0 && n.Y > 0)
+	{
+		--n.X;
+		--n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// left-down
+	n = p;
+	while (n.X > 0 && n.Y < _height - 1)
+	{
+		--n.X;
+		++n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// right-up
+	n = p;
+	while (n.X < _width - 1 && n.Y > 0)
+	{
+		++n.X;
+		--n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	// right-down
+	n = p;
+	while (n.X < _width - 1 && n.Y < _height - 1)
+	{
+		++n.X;
+		++n.Y;
+		if (AddIfChair(n, seats, neighbours))
+			break;
+	}
+
+	return neighbours;
+}
+
+bool Day11::AddIfChair(const Point& p, const string& seats, string& addTo)
+{
+	char c = seats[PointToIdx(p)];
+	if (c != '.') // '.' == floor
+	{
+		addTo += c;
+		return true;
+	}
+	return false;
+}
+
+void Day11::Transform(string& seats, bool partTwo)
 {
 	const string copy = string(seats);
 	for (size_t i = 0; i < copy.size(); ++i)
@@ -70,7 +176,8 @@ void Day11::Transform(string& seats)
 		if (copy[i] == '.')
 			continue;
 		
-		const auto& neighbours = Neighbours(i, copy);
+		const Point p = IdxToPoint(i);
+		const auto& neighbours = partTwo ? NeighbouringSeats(p, copy) : Neighbours(p, copy);
 		if (copy[i] == 'L')
 		{
 			if (find(neighbours.begin(), neighbours.end(), '#') == neighbours.end())
@@ -78,42 +185,48 @@ void Day11::Transform(string& seats)
 		}
 		else if (copy[i] == '#')
 		{
-			if (count(neighbours.begin(), neighbours.end(), '#') >= 4)
+			if (count(neighbours.begin(), neighbours.end(), '#') >= (partTwo ? 5 : 4))
 				seats[i] = 'L';
 		}
 	}
 }
 
-void Day11::DebugPrint()
+void Day11::DebugPrint(const string& s)
 {
-	for (size_t i = 0; i < _seats.size(); ++i)
+	for (size_t i = 0; i < s.size(); ++i)
 	{
 		if (i % _width == 0 && i != 0)
 			cout << endl;
 
-		cout << _seats[i];
+		cout << s[i];
 	}
 	cout << endl << endl;
 }
 
-
 int Day11::PartOne()
 {
-	const auto& n = Neighbours(11, _seats);
-
-	string previous = string(_seats);
-	//DebugPrint();
+	string copy = string(_seats); // avoid changing seats so other part can use it after this part has been called
+	
+	string previous = string(copy);
 	do
 	{
-		previous = string(_seats);
-		Transform(_seats);
-		//DebugPrint();
-	} while (_seats.compare(previous) != 0);
+		previous = string(copy);
+		Transform(copy, false);
+	} while (copy.compare(previous) != 0);
 	
-	return count(_seats.begin(), _seats.end(), '#');
+	return count(copy.begin(), copy.end(), '#');
 }
 
 int Day11::PartTwo()
 {
-	return 0;
+	string copy = string(_seats); // avoid changing seats so other part can use it after this part has been called
+	
+	string previous = string(copy);
+	do
+	{
+		previous = string(copy);
+		Transform(copy, true);
+	} while (copy.compare(previous) != 0);
+
+	return count(copy.begin(), copy.end(), '#');
 }

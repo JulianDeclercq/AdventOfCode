@@ -1,6 +1,5 @@
 #include "Day12.h"
 
-
 void Day12::ParseInput()
 {
 	//ifstream input("input/day12example.txt");
@@ -93,9 +92,10 @@ void Day12::ExecutePart2(const instruction& instruction)
 	}
 }
 
+// derived from a theoretical explanation from https://math.stackexchange.com/questions/346672/2d-rotation-of-point-about-origin
 point Day12::RotatePoint(const point& p, float angle)
 {
-	int s = sin(angle * M_PI / 180.0);
+	int s = sin(angle * M_PI / 180.0); // convert degrees to radians
 	int c = cos(angle * M_PI / 180.0);
 
 	float x = c * p.X + (-s * p.Y);

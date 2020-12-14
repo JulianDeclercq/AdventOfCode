@@ -2,8 +2,9 @@
 
 void Day13::ParseInput()
 {
-	ifstream input("input/day13example6.txt");
-	//ifstream input("input/day13.txt");
+	//ifstream input("input/day13example6.txt");
+	ifstream input("input/day13.txt");
+	_startAt = 100000000000000; // cheeky head start
 
 	if (!input)
 	{
@@ -16,10 +17,10 @@ void Day13::ParseInput()
 	_target = stoi(line);
 
 	getline(input, line);
-	
+
 	int ctr = 0;
 	stringstream ss(line);
-	while (ss.good()) 
+	while (ss.good())
 	{
 		string substr;
 		getline(ss, substr, ',');
@@ -32,6 +33,8 @@ void Day13::ParseInput()
 		}
 		++ctr;
 	}
+
+	// sort the busses in descending order to maximise the step (and thus minimise iterations)
 	sort(_busses.begin(), _busses.end(), [](const int a, const int b) {return a > b; });
 }
 
@@ -54,25 +57,48 @@ int Day13::PartOne()
 
 long long Day13::PartTwo()
 {
-	// IDEA: it has to be divisable, so modulo 0
-	// idea is to check all the ones from the HIGHEST busnumbers (since this one is the LEAST frequent, and thus most performant to check (i suppose)) 
-	// then check if the second least frequent is offset correctly and so on until a solution has been found
-	//long long current = 100000000000000;
-	long long t = 0;
-	t -= t % _busses[0] +_offsets[_busses[0]];
+	long long t = _startAt;
+
+	// ensure the start is valid by moving to the closest t that is divisibly by the first bus
+	t -= t % _busses[0] + _offsets[_busses[0]];
+
+	long long period = _busses[0];
+	bool lock = false;
 	while (true)
 	{
 		for (size_t i = 1; i < _busses.size(); ++i)
 		{
 			int bus = _busses[i];
-			long long timestampWatch = t + _offsets[bus];
-			if (timestampWatch % bus != 0)
+			long long timeStamp = t + _offsets[bus];
+			if (timeStamp % bus != 0)
 				break;
+
+			if (!lock)
+			{
+				auto& el = _test[_busses[i]]; // original T, COUNT
+				el.second++;
+
+				if (el.second > 1)
+				{
+					int diff = t - el.first;
+					if (diff > period)
+					{
+						period = diff;
+						lock = true;
+					}
+				}
+				else
+				{
+					el.first = t;
+				}
+			}
 
 			if (i == _busses.size() - 1)
 				return t;
 		}
-		t += _busses[0]; // next iteration
+		t += period; // next iteration
 	}
 	return 0;
 }
+
+

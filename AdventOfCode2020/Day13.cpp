@@ -63,7 +63,6 @@ long long Day13::PartTwo()
 	t -= t % _busses[0] + _offsets[_busses[0]];
 
 	long long period = _busses[0];
-	bool lock = false;
 	while (true)
 	{
 		for (size_t i = 1; i < _busses.size(); ++i)
@@ -73,8 +72,7 @@ long long Day13::PartTwo()
 			if (timeStamp % bus != 0)
 				break;
 
-			auto& el = _test[_busses[i]]; // COUNT, t
-			
+			auto& el = _stepCalculation[_busses[i]];
 			if (el.first == 0)
 			{
 				el.second = t;
@@ -85,10 +83,9 @@ long long Day13::PartTwo()
 				if (diff > period)
 					period = diff;
 			}
-			
 			el.first++;
 
-			// if all busses depart on their supposed timestamp
+			// if all busses depart on their supposed timestamp, the answer has been found
 			if (i == _busses.size() - 1)
 				return t;
 		}

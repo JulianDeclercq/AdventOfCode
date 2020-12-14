@@ -73,26 +73,22 @@ long long Day13::PartTwo()
 			if (timeStamp % bus != 0)
 				break;
 
-			if (!lock)
+			auto& el = _test[_busses[i]]; // COUNT, t
+			
+			if (el.first == 0)
 			{
-				auto& el = _test[_busses[i]]; // original T, COUNT
-				el.second++;
-
-				if (el.second > 1)
-				{
-					int diff = t - el.first;
-					if (diff > period)
-					{
-						period = diff;
-						lock = true;
-					}
-				}
-				else
-				{
-					el.first = t;
-				}
+				el.second = t;
 			}
+			else if (el.first == 1)
+			{
+				long long diff = t - el.second;
+				if (diff > period)
+					period = diff;
+			}
+			
+			el.first++;
 
+			// if all busses depart on their supposed timestamp
 			if (i == _busses.size() - 1)
 				return t;
 		}

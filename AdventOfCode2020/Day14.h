@@ -16,12 +16,13 @@ using ull = unsigned long long;
 class Day14
 {
 private:
-	map<int, ull> _memory;
+	map<ull, ull> _memory;
 	vector<string> _instructions;
 	string _mask;
-	void SetMask(string& mask);
 	ull ApplyMask(ull target);
-	void WriteMemory(int at, ull value);
+	string ApplyMask2(const string& mask, ull target);
+	vector<int> CalculateAddresses(const string& s);
+	vector<string> Possibilities(const string& s);
 
 public:
 	void ParseInput();

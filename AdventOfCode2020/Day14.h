@@ -21,8 +21,8 @@ private:
 	string _mask;
 	ull ApplyMask(ull target);
 	string ApplyMask2(const string& mask, ull target);
-	vector<int> CalculateAddresses(const string& s);
 	vector<string> Possibilities(const string& s);
+	ull ValueSumAfterExecution(bool part1);
 
 public:
 	void ParseInput();

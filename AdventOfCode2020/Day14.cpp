@@ -3,8 +3,8 @@
 void Day14::ParseInput()
 {	
 	//ifstream input("input/day14example.txt");
-	ifstream input("input/day14example2.txt");
-	//ifstream input("input/day14.txt");
+	//ifstream input("input/day14example2.txt");
+	ifstream input("input/day14.txt");
 
 	if (!input)
 	{
@@ -20,9 +20,8 @@ void Day14::ParseInput()
 ull Day14::ApplyMask(ull target)
 {
 	auto targetBits = bitset<36>(target);
-	//cout << "TargetBits B: " << targetBits.to_string() << "(" << target << ")" << endl;
 
-	// reverse the string, since bitset::set works from least significant to most significant
+	// reverse the mask, since bitset::set works from least significant to most significant
 	string mask(_mask);
 	reverse(mask.begin(), mask.end());
 
@@ -42,16 +41,12 @@ ull Day14::ApplyMask(ull target)
 		}
 		else cout << "invalid character found in mask parsing: " << mask[i] << endl;
 	}
-
-	const auto result = targetBits.to_ullong();
-	//cout << "TargetBits A: " << targetBits.to_string() << "(" << result << ")" << endl << endl;
-	return result;
+	return targetBits.to_ullong();
 }
 
 string Day14::ApplyMask2(const string& mask, ull target)
 {
 	string targetBits = bitset<36>(target).to_string();
-	//reverse(targetBits.begin(), targetBits.end());
 
 	for (size_t i = 0; i < mask.size(); ++i)
 	{
@@ -61,24 +56,6 @@ string Day14::ApplyMask2(const string& mask, ull target)
 		targetBits[i] = mask[i];
 	}
 	return targetBits;
-}
-
-vector<int> Day14::CalculateAddresses(const string& s)
-{
-	vector<string> addresses;
-	string cpy(s);
-
-	size_t idx = cpy.find('X');
-	while (idx != string::npos)
-	{
-		cpy[idx] = 0;
-
-		idx = s.find('X');
-	}
-	//replace(cpy.begin(), cpy.end(), 'X', '0');
-	//addresses.push_back(static_cast<int>(bitset<36>(targetBits).to_ullong()));
-
-	return vector<int>();
 }
 
 vector<string> Day14::Possibilities(const string& s)
@@ -104,7 +81,7 @@ vector<string> Day14::Possibilities(const string& s)
 	return possibilities;
 }
 
-ull Day14::PartOne()
+ull Day14::ValueSumAfterExecution(bool part1)
 {
 	_memory.clear();
 	regex maskR("mask = (\\w+)"), memR("mem\\[(\\d+)\\] = (\\d+)");
@@ -118,10 +95,26 @@ ull Day14::PartOne()
 		else if (regex_search(instruction, match, memR))
 		{
 			size_t size = 0;
-			unsigned long long target = stoull(static_cast<string>(match[2]), &size, 0);
+			ull target = stoull(static_cast<string>(match[2]), &size, 0);
+			
+			if (part1)
+			{
+				// write the value to the memory address
+				_memory[stoi(match[1])] = ApplyMask(target);
+			}
+			else // part 2
+			{
+				// write the value to the memory address
+				string mask = ApplyMask2(_mask, stoi(match[1]));
+				const auto possibilities = Possibilities(mask);
 
-			// write the value to the memory address
-			_memory[stoi(match[1])] = ApplyMask(target);
+				vector<ull> addresses;
+				for (const string& possibility : possibilities)
+					addresses.push_back(bitset<36>(possibility).to_ullong());
+
+				for (const auto address : addresses)
+					_memory[address] = target;
+			}
 		}
 		else cout << "Invalid instruction: " << instruction << endl;
 	}
@@ -134,44 +127,12 @@ ull Day14::PartOne()
 	return count;
 }
 
+ull Day14::PartOne()
+{
+	return ValueSumAfterExecution(true);
+}
+
 ull Day14::PartTwo()
 {
-	_memory.clear();
-	regex maskR("mask = (\\w+)"), memR("mem\\[(\\d+)\\] = (\\d+)");
-	smatch match;
-	for (const string& instruction : _instructions)
-	{
-		if (regex_search(instruction, match, maskR))
-		{
-			_mask = match[1];
-		}
-		else if (regex_search(instruction, match, memR))
-		{
-			size_t size = 0;
-			unsigned long long target = stoull(static_cast<string>(match[2]), &size, 0);
-
-			// write the value to the memory address
-			string mask = ApplyMask2(_mask, stoi(match[1]));
-			const auto possibilities = Possibilities(mask);
-
-			vector<ull> addresses;
-			for (const string& possibility : possibilities)
-			{
-				string cpy(possibility);
-				addresses.push_back(bitset<36>(cpy).to_ullong());
-			}
-			
-			//const auto& addresses = CalculateAddresses(mask);
-			for(const auto address : addresses)
-				_memory[address] = target;
-		}
-		else cout << "Invalid instruction: " << instruction << endl;
-	}
-
-	ull count = 0;
-
-	for (const auto& pair : _memory)
-		count += pair.second;
-
-	return count;
+	return ValueSumAfterExecution(false);
 }

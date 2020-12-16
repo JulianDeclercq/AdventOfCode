@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <sstream>
+#include <vector>
 
 namespace Helpers
 {
@@ -53,7 +55,18 @@ namespace Helpers
 		{
 			return (lhs.X < rhs.X) || (lhs.X == rhs.X && lhs.Y < rhs.Y);
 		}
-	
 	};
 
+	static inline std::vector<int> ParseNumbersSeparatedByCommas(const std::string& s)
+	{
+		std::vector<int> numbers;
+		std::stringstream ss(s);
+		for (int i; ss >> i;)
+		{
+			numbers.push_back(i);
+			if (ss.peek() == ',')
+				ss.ignore();
+		}
+		return numbers;
+	}
 }

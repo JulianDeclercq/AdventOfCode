@@ -58,7 +58,6 @@ void Day12::Execute(const instruction& instruction)
 
 void Day12::ExecutePart2(const instruction& instruction)
 {
-	int count = 0;
 	float angle = 0.0f;
 	switch (instruction.first)
 	{
@@ -95,13 +94,13 @@ void Day12::ExecutePart2(const instruction& instruction)
 // derived from a theoretical explanation from https://math.stackexchange.com/questions/346672/2d-rotation-of-point-about-origin
 point Day12::RotatePoint(const point& p, float angle)
 {
-	int s = sin(angle * M_PI / 180.0); // convert degrees to radians
-	int c = cos(angle * M_PI / 180.0);
+	int s = static_cast<int>(sin(angle * M_PI / 180.0)); // convert degrees to radians
+	int c = static_cast<int>(cos(angle * M_PI / 180.0));
 
-	float x = c * p.X + (-s * p.Y);
-	float y = s * p.X + c * p.Y;
+	int x = c * p.X + (-s * p.Y);
+	int y = s * p.X + c * p.Y;
 
-	return point(static_cast<int>(x), static_cast<int>(y));
+	return point(x, y);
 }
 
 int Day12::PartOne()

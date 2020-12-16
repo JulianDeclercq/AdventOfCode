@@ -5,14 +5,7 @@ void Day15::ParseInput()
     //string input = "0,3,6";
     string input = "8,0,17,4,1,12";
 
-    stringstream ss(input);
-
-    for (int i; ss >> i;) 
-    {
-        _numbers.push_back(i);
-        if (ss.peek() == ',')
-            ss.ignore();
-    }
+    _numbers = Helpers::ParseNumbersSeparatedByCommas(input);
 }
 
 void Day15::InitialSpeak(int number)
@@ -43,7 +36,6 @@ void Day15::Next()
         else
         {
             // how many turns apart the number is from when it was previously spoken
-            //_current = _idx - _lastSpoken[_current].first;
             _current = _lastSpoken[_current].TurnsApart();
         }
         

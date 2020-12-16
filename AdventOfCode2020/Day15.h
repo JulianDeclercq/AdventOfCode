@@ -7,23 +7,13 @@
 #include <algorithm>
 #include <sstream>
 #include <map>
+#include "Helpers.h"
 
 using namespace std;
 
 struct SpokenNumber
 {
-	//vector<int> SpokenAt = vector<int>(); // indices this number has been spoken at
 	int TimesSpoken = 0;
-
-	//int TurnsApart()
-	//{
-	//	if (SpokenAt.size() < 2)
-	//	{
-	//		cout << "Can't calculate TurnsApart" << endl;
-	//		return -1;
-	//	}
-	//	return SpokenAt[SpokenAt.size() - 1] - SpokenAt[SpokenAt.size() - 2];
-	//}
 
 	int TurnsApart()
 	{

@@ -10,6 +10,7 @@
 #include "Helpers.h"
 
 using namespace std;
+using ull = unsigned long long;
 using ticket = vector<int>;
 
 struct InclusiveRange
@@ -35,8 +36,16 @@ private:
 
 	vector<InclusiveRange> _allRanges; // shortcut for part 1 solution
 
+	vector<vector<int>> _valuesPerColumn;
+	map<string, int> _fieldIndices;
+
+	vector<vector<string>> _possibleFieldsPerColumn; // idx is column
+
+	bool FitInFieldRanges(const vector<int>& values, const vector<InclusiveRange>& ranges);
+	void RemoveFromPossibilities(const string& field, size_t ignoreIdx);
+
 public:
 	void ParseInput();
 	int PartOne();
-	int PartTwo();
+	ull PartTwo();
 };

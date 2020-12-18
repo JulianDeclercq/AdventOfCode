@@ -57,6 +57,21 @@ namespace Helpers
 		}
 	};
 
+	struct point3D
+	{
+		point3D(int x, int y, int z) : X(x), Y(y), Z(z) {}
+		int X = 0;
+		int Y = 0;
+		int Z = 0;
+
+		friend bool operator<(const point3D& lhs, const point3D& rhs)
+		{
+			if (lhs.X != rhs.X) return lhs.X < rhs.X;
+			if (lhs.Y != rhs.Y) return lhs.Y < rhs.Y;
+			return lhs.Z < rhs.Z;
+		}
+	};
+
 	static inline std::vector<int> ParseNumbersSeparatedByCommas(const std::string& s)
 	{
 		std::vector<int> numbers;

@@ -112,104 +112,72 @@ public class Day7
         return instructions;
     }
 
-    private ushort? RetrieveSignal(string input)
-    {
-        if (ushort.TryParse(input, out var signal))
-            return signal;
-
-        if (_circuit.TryGetValue(input, out signal))
-            return signal;
-
-        return null;
-    }
-
     private void ExecuteInstruction(Instruction instruction)
     {
-        var lhs = RetrieveSignal(instruction.Lhs);
-        var rhs = RetrieveSignal(instruction.Rhs);
+        var lhs = GetWireValue(instruction.Lhs);
+        var rhs = GetWireValue(instruction.Rhs);
         switch (instruction.Type)
         {
             case InstructionType.Assignment:
-            {   
-                if (lhs != null)
-                    _circuit[instruction.Target] = lhs.Value;
-
+                _circuit[instruction.Target] = lhs;
                 break;
-            }
             case InstructionType.And:
-            {
-                if (lhs != null && rhs != null)
-                    _circuit[instruction.Target] = (ushort)(lhs.Value & rhs.Value);
-                
+                _circuit[instruction.Target] = (ushort)(lhs & rhs);
                 break;
-            }
             case InstructionType.Or:
-            {
-                if (lhs != null && rhs != null)
-                    _circuit[instruction.Target] = (ushort)(lhs.Value | rhs.Value);
-                
+                _circuit[instruction.Target] = (ushort)(lhs | rhs);
                 break;
-            }
             case InstructionType.Not:
-            {
-                if (lhs != null)
-                    _circuit[instruction.Target] = (ushort)(~lhs.Value);
-
+                _circuit[instruction.Target] = (ushort)(~lhs);
                 break;
-            }
             case InstructionType.LShift:
-            {
-                if (lhs != null && rhs != null)
-                    _circuit[instruction.Target] = (ushort)(lhs.Value << rhs.Value);
-                
+                _circuit[instruction.Target] = (ushort)(lhs << rhs);
                 break;
-            }
             case InstructionType.RShift:
-            {
-                if (lhs != null && rhs != null)
-                    _circuit[instruction.Target] = (ushort)(lhs.Value >> rhs.Value);
-                
+                _circuit[instruction.Target] = (ushort)(lhs >> rhs);
                 break;
-            }
             default:
                 Console.WriteLine($"Invalid instruction type: {instruction.Type}");
                 break;
         }
     }
 
-    private ushort FindWireValue(string identifier)
+    private ushort GetWireValue(string identifier)
     {
-        // keep executing until the wire with given identifier has a value
-        for (;;)
-        {
-            foreach (var instruction in Instructions)
-            {
-                // check if the answer has been found
-                if (_circuit.ContainsKey(identifier))
-                    return _circuit[identifier];
-                
-                // if the value for this wire has already been found, skip the instruction
-                if (_circuit.ContainsKey(instruction.Target))
-                    continue;
-                
-                // execute the instruction
-                ExecuteInstruction(instruction);
-            }
-        }
+        // ignore empty identifiers (e.g. "rhs" for assignment instructions)
+        if (string.IsNullOrEmpty(identifier))
+            return ushort.MinValue;
+        
+        // return the value if it exists
+        if (_circuit.ContainsKey(identifier))
+            return _circuit[identifier];
+
+        // check if the value input is a number rather than a wire identifier 
+        if (ushort.TryParse(identifier, out var signal))
+            return signal;
+        
+        // if the wire value doesn't exist yet, calculate it by executing the corresponding instruction
+        var instruction = Instructions.Single(i => i.Target.Equals(identifier));
+        
+        // recursive: ExecuteInstruction calls GetWireValue()
+        ExecuteInstruction(instruction);
+        
+        // return the wire value as it is now guaranteed to exist
+        return _circuit[identifier];
     }
     
     public void Part1()
     {
-        Console.WriteLine($"Day 7 part 1: {FindWireValue("a")}");;
+        Console.WriteLine($"Day 7 part 1: {GetWireValue("a")}");;
     }
 
     public void Part2()
     {
-        var signalA = FindWireValue("a");
+        var signalA = GetWireValue("a");
         
         _circuit.Clear();
         _circuit["b"] = signalA;
 
-        Console.WriteLine($"Day 7 part 2: {FindWireValue("a")}");;
+        Console.WriteLine($"Day 7 part 2: {GetWireValue("a")}");;
     }
 }

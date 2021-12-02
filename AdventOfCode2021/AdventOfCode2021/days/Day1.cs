@@ -2,27 +2,24 @@
 
 public class Day1
 {
-    private string[] _lines = Array.Empty<string>();
-    private string[] Lines
+    private int[] _depths = Array.Empty<int>();
+    private int[] Depths
     {
         get
         {
-            if (_lines.Length == 0)
-            {
-                //_lines = File.ReadAllLines(@"..\..\..\input\day1_example.txt");
-                _lines = File.ReadAllLines(@"..\..\..\input\day1.txt");
-            }
+            if (_depths.Length == 0)
+                _depths = File.ReadAllLines(@"..\..\..\input\day1.txt").Select(int.Parse).ToArray();
 
-            return _lines;
+            return _depths;
         }
     }
 
     public void Part1()
     {
         var ctr = 0;
-        for (var i = 0; i < Lines.Length - 1; ++i)
+        for (var i = 0; i < Depths.Length - 1; ++i)
         {
-            if (int.Parse(Lines[i + 1]) > int.Parse(Lines[i]))
+            if (Depths[i + 1] > Depths[i])
                 ctr++;
         }
         Console.WriteLine($"Day 1 part 1: {ctr}");
@@ -31,8 +28,8 @@ public class Day1
     public void Part2()
     {
         var windows = new List<int>();
-        for (var i = 0; i < Lines.Length - 2; ++i)
-            windows.Add(int.Parse(Lines[i]) + int.Parse(Lines[i+1]) + int.Parse(Lines[i+2]));
+        for (var i = 0; i < Depths.Length - 2; ++i)
+            windows.Add(Depths[i] + Depths[i+1] + Depths[i+2]);
 
         var ctr = 0;
         for (var i = 0; i < windows.Count - 1; ++i)
@@ -42,5 +39,4 @@ public class Day1
         }
         Console.WriteLine($"Day 1 part 2: {ctr}");
     }
-
 }

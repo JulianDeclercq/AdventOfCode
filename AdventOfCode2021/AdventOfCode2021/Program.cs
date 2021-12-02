@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2021.days;
 
-new Day1().Part1();
-new Day1().Part2();
+var day = new Day2();
+day.Part1();
+//day.Part2();

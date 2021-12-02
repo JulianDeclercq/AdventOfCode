@@ -23,10 +23,22 @@ public class Day7
         public string Target = string.Empty;
     }
     
+    private List<Instruction> _instructions = new();
+    private List<Instruction> Instructions
+    {
+        get
+        {
+            if (_instructions.Count == 0)
+                _instructions = ParseInput(@"..\..\..\input\day7.txt");
+
+            return _instructions;
+        }
+    }
+    
     // key: identifier, value: signal
     private Dictionary<string, ushort> _circuit = new();
 
-    private List<Instruction> ParseInput(string path)
+    private static List<Instruction> ParseInput(string path)
     {
         List<Instruction> instructions = new();
         var input = File.ReadAllLines(path);
@@ -164,25 +176,40 @@ public class Day7
                 break;
         }
     }
-    
-    public void Part1()
+
+    private ushort FindWireValue(string identifier)
     {
-        // var instructions = ParseInput(@"..\..\..\input\day7_example.txt");
-        var instructions = ParseInput(@"..\..\..\input\day7.txt");
-        
-        // keep executing instructions until wire A contains a signal
+        // keep executing until the wire with given identifier has a value
         for (;;)
         {
-            foreach (var instruction in instructions)
+            foreach (var instruction in Instructions)
             {
+                // check if the answer has been found
+                if (_circuit.ContainsKey(identifier))
+                    return _circuit[identifier];
+                
+                // if the value for this wire has already been found, skip the instruction
+                if (_circuit.ContainsKey(instruction.Target))
+                    continue;
+                
+                // execute the instruction
                 ExecuteInstruction(instruction);
-                if (_circuit.ContainsKey("a"))
-                {
-                    Console.WriteLine($"Answer to day 7 part 1: {_circuit["a"]}");
-                    return;
-                }
             }
         }
     }
+    
+    public void Part1()
+    {
+        Console.WriteLine($"Day 7 part 1: {FindWireValue("a")}");;
+    }
 
+    public void Part2()
+    {
+        var signalA = FindWireValue("a");
+        
+        _circuit.Clear();
+        _circuit["b"] = signalA;
+
+        Console.WriteLine($"Day 7 part 2: {FindWireValue("a")}");;
+    }
 }

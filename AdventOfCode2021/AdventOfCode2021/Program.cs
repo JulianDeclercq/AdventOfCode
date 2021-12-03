@@ -1,3 +1,4 @@
 ﻿using AdventOfCode2021.days;
 
-Day2.Solve();
+var day = new Day3();
+day.Part1();

@@ -56,7 +56,7 @@ public class Day4
                 return true;
             }
 
-            entry = default;
+            entry = new Entry(0, new Point(0, 0));
             return false;
         }
 
@@ -104,13 +104,14 @@ public class Day4
     }
     
 
-    public static void Part1()
+    public static void Solve()
     {
         //var lines = File.ReadAllLines(@"..\..\..\input\day4_example.txt");
         var lines = File.ReadAllLines(@"..\..\..\input\day4.txt");
         var boards = ParseBoards(lines);
         
         // game loop, pull the numbers
+        Board? lastBingo = null;
         var numbers = lines[0].Split(',').Select(int.Parse);
         foreach (var number in numbers)
         {
@@ -123,35 +124,13 @@ public class Day4
                 // try to mark the number on the board, if successful check for bingo
                 if (board.TryMark(number, out var entry) && board.CheckBingo(entry))
                 {
-                    Console.WriteLine($"Day 4 part 1: {board.Score}");
-                    return;
+                    if (lastBingo == null)
+                        Console.WriteLine($"Day 4 part 1: {board.Score}");
+
+                    lastBingo = board;
                 }
             }
         }
-    }
-    
-    public static void Part2()
-    {
-        //var lines = File.ReadAllLines(@"..\..\..\input\day4_example.txt");
-        var lines = File.ReadAllLines(@"..\..\..\input\day4.txt");
-        var boards = ParseBoards(lines);
-        
-        // game loop, pull the numbers
-        Board? lastWon = null;
-        var numbers = lines[0].Split(',').Select(int.Parse);
-        foreach (var number in numbers)
-        {
-            foreach (var board in boards)
-            {
-                // skip boards that have already won
-                if (board.Bingo())
-                    continue;
-                
-                // try to mark the number on the board, if successful check for bingo
-                if (board.TryMark(number, out var entry) && board.CheckBingo(entry))
-                    lastWon = board;
-            }
-        }
-        Console.WriteLine($"Day 4 part 2: {lastWon!.Score}");
+        Console.WriteLine($"Day 4 part 2: {lastBingo!.Score}");
     }
 }

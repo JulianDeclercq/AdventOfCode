@@ -35,18 +35,13 @@ public class Day4
         }
 
         public int Index = -1; // for debugging purposes
+        public int Score = 0; // score after this card wins
         public List<Entry> Entries = new();
 
         public void Clear() => Entries.Clear();
         public void AddRange(IEnumerable<Entry> range) => Entries.AddRange(range);
-
-        public static Board Copy(Board toCopy)
-        {
-            return new Board
-            {
-                Entries = toCopy.Entries.ToList()
-            };
-        }
+        public static Board Copy(Board toCopy) => new() { Entries = toCopy.Entries.ToList() };
+        public bool HasWon() => Score != 0;
 
         // check all entries for given value and mark the entry with corresponding value
         public bool TryMark(int value, out Entry entry)
@@ -71,24 +66,15 @@ public class Day4
         public bool CheckBingo(Entry lastMarkedEntry)
         {
             // check all columns
-            if (Entries.Where(e => e.Position.X == lastMarkedEntry.Position.X).All(e => e.Marked))
+            if (Entries.Where(e => e.Position.X == lastMarkedEntry.Position.X).All(e => e.Marked) ||
+                Entries.Where(e => e.Position.Y == lastMarkedEntry.Position.Y).All(e => e.Marked))
             {
-                Console.WriteLine($"Winning board is {Index} on columns");                
+                // calculate the score
+                Score = lastMarkedEntry.Value * Entries.Where(e => !e.Marked).Sum(e => e.Value);
                 return true;
             }
-
-            // check all rows
-            if (Entries.Where(e => e.Position.Y == lastMarkedEntry.Position.Y).All(e => e.Marked))
-            {
-                Console.WriteLine($"Winning board is {Index} on rows");                
-                return true;
-            }
-
             return false;
         }
-
-        public int CalculateScore(int lastNumberCalled) =>
-            lastNumberCalled * Entries.Where(e => !e.Marked).Sum(e => e.Value);
     }
 
     private List<Board> ParseBoards(string[] lines)
@@ -96,7 +82,7 @@ public class Day4
         var boards = new List<Board>();
         Board board = new(); 
 
-        // skip first 2 lines
+        // skip first 2 lines, to where the boards start
         for (var i = 2; i < lines.Length; ++i)
         {
             // add the current board to the list and start a new board if an empty line is found
@@ -140,13 +126,50 @@ public class Day4
             Console.WriteLine($"Pulling number {number}");
             foreach (var board in boards)
             {
+                // skip boards that have already won
+                if (board.HasWon())
+                    continue;
+                
                 // try to mark the number on the board, if successful check for bingo
                 if (board.TryMark(number, out var entry) && board.CheckBingo(entry))
                 {
-                    Console.WriteLine($"Day 4 part 1: {board.CalculateScore(number)}");
+                    Console.WriteLine($"Day 4 part 1: {board.Score}");
                     return;
                 }
             }
         }
+    }
+    
+    public void Part2()
+    {
+        //var lines = File.ReadAllLines(@"..\..\..\input\day4_example.txt");
+        var lines = File.ReadAllLines(@"..\..\..\input\day4.txt");
+        var boards = ParseBoards(lines);
+        
+        // for debugging purposes
+        for (var i = 0; i < boards.Count; ++i)
+            boards[i].Index = i;
+
+        foreach(var board in boards)
+            Console.WriteLine($"board {board.Index}");
+        
+        // game loop, pull the numbers
+        Board? lastWon = null;
+        var numbers = lines[0].Split(',').Select(int.Parse);
+        foreach (var number in numbers)
+        {
+            Console.WriteLine($"Pulling number {number}");
+            foreach (var board in boards)
+            {
+                // skip boards that have already won
+                if (board.HasWon())
+                    continue;
+                
+                // try to mark the number on the board, if successful check for bingo
+                if (board.TryMark(number, out var entry) && board.CheckBingo(entry))
+                    lastWon = board;
+            }
+        }
+        Console.WriteLine($"Day 4 part 2: {lastWon!.Score}");
     }
 }

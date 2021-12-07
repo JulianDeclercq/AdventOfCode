@@ -1,13 +1,10 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
-
-namespace AdventOfCode2021.days;
+﻿namespace AdventOfCode2021.days;
 
 public class Day6
 {
     private readonly Dictionary<int, ulong> _memo = new();
     
-    private ulong ChildrenMadeNew(int startingValue, int daysLeft)
+    private ulong MakeChildren(int startingValue, int daysLeft)
     {
         // try to fetch from memo
         if (startingValue == 8 && _memo.TryGetValue(daysLeft, out var m))
@@ -27,7 +24,7 @@ public class Day6
         children += (ulong) childrenMade;
 
         for (var i = 0; i < childrenMade; ++i)
-            children += ChildrenMadeNew(8, newDaysLeft - i * 7);
+            children += MakeChildren(8, newDaysLeft - i * 7);
 
         // memo if starting value was 8
         if (startingValue == 8)
@@ -44,19 +41,12 @@ public class Day6
         ulong ctr = 0;
         foreach (var number in input)
         {
-            var child = ChildrenMadeNew(number, numberOfDays);
+            var child = MakeChildren(number, numberOfDays);
             ctr += child;
         }
         return ctr + (ulong) input.Length;
     }
   
-    public void Part1()
-    {
-        Console.WriteLine($"Day 6 part 1: {Solve(80)}");
-    }
-    
-    public void Part2()
-    {
-        Console.WriteLine($"Day 6 part 2: {Solve(256)}");
-    }
+    public void Part1() => Console.WriteLine($"Day 6 part 1: {Solve(80)}");
+    public void Part2() => Console.WriteLine($"Day 6 part 2: {Solve(256)}");
 }

@@ -10,7 +10,6 @@ public class Day7
 
     private static int Solve(Func<IEnumerable<int>, int, int> evaluationFunction)
     {
-        //var crabs = File.ReadLines(@"..\..\..\input\day7_example.txt").First().Split(',').Select(int.Parse).ToArray();
         var crabs = File.ReadLines(@"..\..\..\input\day7.txt").First().Split(',').Select(int.Parse).ToArray();
         return crabs.Select((t, i) => evaluationFunction(crabs, i)).Min();
     }

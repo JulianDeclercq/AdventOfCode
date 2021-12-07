@@ -6,36 +6,39 @@ public class Day6
     
     private ulong MakeChildren(int startingValue, int daysLeft)
     {
-        // try to fetch from memo
-        if (startingValue == 8 && _memo.TryGetValue(daysLeft, out var m))
-            return m;
-        
-        ulong children = 0;
+        // only memo the newly made ones, first generation is fine to not memo
+        var shouldMemo = startingValue == 8;
 
-        // it takes startingValue + 1 days to make the first one
+        // try to fetch from memo
+        if (shouldMemo && _memo.TryGetValue(daysLeft, out var m))
+            return m;
+
+        // it takes startingValue + 1 days to make the first child
         if (daysLeft < startingValue + 1)
-            return children;
+            return 0;
+
+        // make the first child
+        ulong children = 1;
         
-        children++;
+        // for every 7 days left, a new one is created (that has value 8)
         var newDaysLeft = (daysLeft - (startingValue + 1));
-        
-        // for every 6 days left, a new one is created (that has value 8)
         var childrenMade = newDaysLeft / 7;
         children += (ulong) childrenMade;
 
+        // add the future children of the children
         for (var i = 0; i < childrenMade; ++i)
             children += MakeChildren(8, newDaysLeft - i * 7);
 
-        // memo if starting value was 8
-        if (startingValue == 8)
+        // memo
+        if (shouldMemo)
             _memo.Add(daysLeft, children);
         
+        // return the total amount of children this fish and its offspring (and their offspring, ...) will make
         return children;
     }
 
     private ulong Solve(int numberOfDays)
     {
-        //var input = File.ReadLines(@"..\..\..\input\day6_example.txt").First().Split(',').Select(int.Parse).ToArray();
         var input = File.ReadLines(@"..\..\..\input\day6.txt").First().Split(',').Select(int.Parse).ToArray();
         
         ulong ctr = 0;

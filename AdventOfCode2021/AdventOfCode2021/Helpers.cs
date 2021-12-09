@@ -1,22 +1,30 @@
-﻿using System.Data;
+﻿namespace AdventOfCode2021;
 
-namespace AdventOfCode2021;
-
-public class Point
+public class Point : IEquatable<Point>
 {
     public Point(int x, int y)
     {
         X = x;
         Y = y;
     }
+
+    public readonly int X, Y;
     
-    public int X;
-    public int Y;
+    public override string ToString() => $"{X}, {Y}";
+
+    #region IEquatable
     
-    public override string ToString()
+    public bool Equals(Point? other)
     {
-        return $"{X}, {Y}";
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return X == other.X && Y == other.Y;
     }
+
+    public override int GetHashCode() => HashCode.Combine(X, Y);
+    public override bool Equals(object? obj) => Equals(obj as Point);
+    
+    #endregion
 }
 
 public class Grid<T>
@@ -43,21 +51,55 @@ public class Grid<T>
         return Cells[idx];
     }
 
+    public T At(Point p) => At(p.X, p.Y);
+
     // doesn't wrap (currently)
-    public IEnumerable<T> Neighbours(int x, int y)
+    public IEnumerable<T> Neighbours(Point p, bool includeDiagonals = true) => Neighbours(p.X, p.Y, includeDiagonals);
+    public IEnumerable<T> Neighbours(int x, int y, bool includeDiagonals = true)
     {
-        return new List<T>()
+        var neighbours = new List<T>()
         {
-            Get(x - 1, y - 1),
             Get(x, y - 1),
-            Get(x + 1, y - 1),
             Get(x + 1, y),
-            Get(x + 1, y + 1),
             Get(x, y + 1),
-            Get(x - 1, y + 1),
             Get(x - 1, y)
-        }.Where(n => n != null && !n.Equals(Invalid));
+        };
+
+        if (includeDiagonals)
+        {
+            neighbours.Add(Get(x - 1, y - 1));
+            neighbours.Add(Get(x + 1, y - 1));
+            neighbours.Add(Get(x + 1, y + 1));
+            neighbours.Add(Get(x - 1, y + 1));
+        }
+
+        return neighbours.Where(n => n != null && !n.Equals(Invalid));
     }
+
+    public IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true)
+    {
+        var neighbours = new List<Point>()
+        {
+            new (p.X, p.Y - 1),
+            new (p.X + 1, p.Y),
+            new (p.X, p.Y + 1),
+            new (p.X - 1, p.Y)
+        };
+
+        if (includeDiagonals)
+        {
+            neighbours.Add(new Point(p.X - 1, p.Y - 1));
+            neighbours.Add(new Point(p.X + 1, p.Y - 1));
+            neighbours.Add(new Point(p.X + 1, p.Y + 1));
+            neighbours.Add(new Point(p.X - 1, p.Y + 1));
+        }
+
+        return neighbours.Where(ValidPoint);
+    }
+    
+    // checks if the point is within bounds
+    public bool ValidPoint(Point point) 
+        => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
 
     private T Invalid;
     private int Width = 0;

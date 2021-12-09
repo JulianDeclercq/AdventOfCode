@@ -47,5 +47,5 @@ public class Day7
     }
     
     public static void Part1() => Console.WriteLine($"Day 7 part 1: {Solve(TotalFuel)}");
-    public static void Part2() => Console.WriteLine($"Day 7 part 1: {Solve(TotalFuel2)}");
+    public static void Part2() => Console.WriteLine($"Day 7 part 2: {Solve(TotalFuel2)}");
 }

@@ -2,3 +2,4 @@
 
 var day = new Day9();
 day.Part1();
+day.Part2();

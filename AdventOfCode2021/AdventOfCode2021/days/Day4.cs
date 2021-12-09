@@ -2,23 +2,6 @@
 
 public class Day4
 {
-    public class Point
-    {
-        public Point(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-        
-        public int X;
-        public int Y;
-        
-        public override string ToString()
-        {
-            return $"{X}, {Y}";
-        }
-    }
-
     public class Board
     {
         public class Entry

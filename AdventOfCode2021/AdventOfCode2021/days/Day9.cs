@@ -47,12 +47,12 @@ public class Day9
                 if (Grid.At(p) == 9)
                     continue;
 
-                // if this point is already part of a basin, move on to the next one
+                // if this point is already part of any basin, move on to the next point
                 if (basins.SelectMany(point => point).Contains(p))
                     continue;
 
-                // make sure the basin only contains unique elements and add it to the list of all basins
-                basins.Add(GenerateBasin(p, Grid, new List<Point>(){}));
+                // generate the basin and add it to the list
+                basins.Add(GenerateBasin(p, new List<Point>()));
             }
         }
 
@@ -62,19 +62,19 @@ public class Day9
             .Aggregate(1, (current, previous) => current * previous);
         Console.WriteLine($"Day 9 part 2: {answer}");
     }
-    
-    private List<Point> GenerateBasin(Point point, Grid<int> grid, List<Point> current)
+
+    private List<Point> GenerateBasin(Point point, List<Point> current)
     {
         // check for new points to add
-        var newPoints = grid.NeighbouringPoints(point, false)
-            .Where(x => grid.At(x) != 9 && !current.Contains(x)).ToList();
+        var newPoints = Grid.NeighbouringPoints(point, false)
+            .Where(p => Grid.At(p) != 9 && !current.Contains(p)).ToList();
 
         // add the new points to current
         current.AddRange(newPoints);
         
         // check for new basin candidates
         foreach (var p in newPoints)
-            GenerateBasin(p, grid, current);
+            GenerateBasin(p, current);
 
         return current;
     }

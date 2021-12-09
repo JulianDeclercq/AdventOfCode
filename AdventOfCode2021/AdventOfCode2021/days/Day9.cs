@@ -2,25 +2,32 @@
 
 public class Day9
 {
-    private static int RiskLevel(int i) => i + 1;
+    private Grid<int>? _grid = null;
+    private Grid<int> Grid
+    {
+        get
+        {
+            if (_grid == null)
+            {
+                var lines = File.ReadAllLines(@"..\..\..\input\day9.txt");
+                _grid = new Grid<int>(lines[0].Length, lines.Length, int.MaxValue);
+                _grid.AddRange(lines.SelectMany(l => l.ToCharArray()).Select(c => int.Parse(char.ToString(c))));
+            }
+
+            return _grid;
+        }
+    }
     
     public void Part1()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day9.txt");
-        var gridWidth = lines[0].Length;
-        var gridHeight = lines.Length;
-        var heightGrid = new Grid<int>(gridWidth, gridHeight, int.MaxValue);
-
-        heightGrid.AddRange(lines.SelectMany(l => l.ToCharArray()).Select(c => int.Parse(char.ToString(c))));
-
         var answer = 0;
-        for (var h = 0; h < gridHeight; ++h)
+        for (var h = 0; h < Grid.Height; ++h)
         {
-            for (var w = 0; w < gridWidth; ++w)
+            for (var w = 0; w < Grid.Width; ++w)
             {
-                var height = heightGrid.At(w, h);
-                if (height < heightGrid.Neighbours(w, h).Min())
-                    answer += RiskLevel(height);
+                var height = Grid.At(w, h);
+                if (height < Grid.Neighbours(w, h).Min())
+                    answer += height + 1;
             }
         }
         Console.WriteLine($"Day 9 part 1: {answer}");
@@ -28,36 +35,24 @@ public class Day9
     
     public void Part2()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day9.txt");
-        var gridWidth = lines[0].Length;
-        var gridHeight = lines.Length;
-        var heightGrid = new Grid<int>(gridWidth, gridHeight, int.MaxValue);
-
-        heightGrid.AddRange(lines.SelectMany(l => l.ToCharArray()).Select(c => int.Parse(char.ToString(c))));
-        
         // generate all basins
         var basins = new List<List<Point>>();
-        basins.Add(new List<Point>() {new(1, 2), new(3, 4)});
-        for (var h = 0; h < gridHeight; ++h)
+        for (var h = 0; h < Grid.Height; ++h)
         {
-            for (var w = 0; w < gridWidth; ++w)
+            for (var w = 0; w < Grid.Width; ++w)
             {
                 var p = new Point(w, h);
                 
                 // peaks (height 9) are not part of any basin
-                var value = heightGrid.At(p);
-                if (value == 9)
+                if (Grid.At(p) == 9)
                     continue;
 
                 // if this point is already part of a basin, move on to the next one
-                if (basins.SelectMany(x => x).Contains(p))
+                if (basins.SelectMany(point => point).Contains(p))
                     continue;
 
-                // create the basin this point is part of
-                var basin = GenerateBasin(p, heightGrid, new List<Point>(){p});
-                
                 // make sure the basin only contains unique elements and add it to the list of all basins
-                basins.Add(basin.ToHashSet().ToList());
+                basins.Add(GenerateBasin(p, Grid, new List<Point>(){}));
             }
         }
 
@@ -67,8 +62,8 @@ public class Day9
             .Aggregate(1, (current, previous) => current * previous);
         Console.WriteLine($"Day 9 part 2: {answer}");
     }
-
-    private IEnumerable<Point> GenerateBasin(Point point, Grid<int> grid, List<Point> current)
+    
+    private List<Point> GenerateBasin(Point point, Grid<int> grid, List<Point> current)
     {
         // check for new points to add
         var newPoints = grid.NeighbouringPoints(point, false)

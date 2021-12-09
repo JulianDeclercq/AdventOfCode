@@ -36,25 +36,23 @@ public class Grid<T>
 
         Width = width;
         Height = height;
-        Invalid = invalid;
+        _invalid = invalid;
     }
 
-    public void AddRange(IEnumerable<T> tRange) => Cells.AddRange(tRange);
+    public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);
     public T At(int x, int y) => Get(x, y);
-
-    public T Get(int x, int y)
-    {
-        if (x < 0 || x > Width - 1) return Invalid;
-        if (y < 0 || y > Height - 1) return Invalid;
-
-        var idx = y * Width + x;
-        return Cells[idx];
-    }
-
     public T At(Point p) => At(p.X, p.Y);
 
-    // doesn't wrap (currently)
-    public IEnumerable<T> Neighbours(Point p, bool includeDiagonals = true) => Neighbours(p.X, p.Y, includeDiagonals);
+    private T Get(int x, int y)
+    {
+        if (x < 0 || x > Width - 1) return _invalid;
+        if (y < 0 || y > Height - 1) return _invalid;
+
+        var idx = y * Width + x;
+        return _cells[idx];
+    }
+
+    // doesn't support wrapping
     public IEnumerable<T> Neighbours(int x, int y, bool includeDiagonals = true)
     {
         var neighbours = new List<T>()
@@ -73,7 +71,7 @@ public class Grid<T>
             neighbours.Add(Get(x - 1, y + 1));
         }
 
-        return neighbours.Where(n => n != null && !n.Equals(Invalid));
+        return neighbours.Where(n => n != null && !n.Equals(_invalid));
     }
 
     public IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true)
@@ -98,11 +96,11 @@ public class Grid<T>
     }
     
     // checks if the point is within bounds
-    public bool ValidPoint(Point point) 
+    private bool ValidPoint(Point point) 
         => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
 
-    private T Invalid;
-    private int Width = 0;
-    private int Height = 0;
-    public List<T> Cells = new List<T>();
+    public int Width { get; }
+    public int Height { get; }
+    private readonly T _invalid;
+    private readonly List<T> _cells = new List<T>();
 }

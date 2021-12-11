@@ -1,7 +1,21 @@
-﻿namespace AdventOfCode2021;
+﻿using System.Text.RegularExpressions;
+
+namespace AdventOfCode2021;
+
+public static class Helpers
+{
+    public static int ToInt(Group m) => int.Parse(m.Value);
+}
 
 public class Point : IEquatable<Point>
 {
+    public static Point Normalized(Point p)
+    {
+        var distance = Math.Sqrt(p.X * p.X + p.Y * p.Y);
+        return new Point(Convert.ToInt16(p.X / distance), Convert.ToInt16(p.Y / distance));
+    }
+    public static Point Direction(Point from, Point to) => Normalized(to - from);
+
     public Point(int x, int y)
     {
         X = x;
@@ -11,6 +25,8 @@ public class Point : IEquatable<Point>
     public readonly int X, Y;
     
     public override string ToString() => $"{X}, {Y}";
+    public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
+    public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
 
     #region IEquatable
     
@@ -40,16 +56,29 @@ public class Grid<T>
     }
 
     public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);
-    public T At(int x, int y) => Get(x, y);
+    public IEnumerable<T> All() => _cells;
     public T At(Point p) => At(p.X, p.Y);
+    public T At(int x, int y) => Get(x, y);
 
     private T Get(int x, int y)
     {
-        if (x < 0 || x > Width - 1) return _invalid;
-        if (y < 0 || y > Height - 1) return _invalid;
+        var idx = Index(x, y);
+        return idx == -1 ? _invalid : _cells[idx];
+    }
+    
+    private int Index(int x, int y)
+    {
+        if (x < 0 || x > Width - 1) return -1;
+        if (y < 0 || y > Height - 1) return -1;
 
-        var idx = y * Width + x;
-        return _cells[idx];
+        return y * Width + x;
+    }
+
+    public void ModifyAt(Point p, Func<T, T> func) => ModifyAt(p.X, p.Y, func);
+    public void ModifyAt(int x, int y, Func<T, T> func)
+    {
+        // calculate the result of the function on the original element and override its value in the list 
+        _cells[Index(x, y)] = func(Get(x, y));
     }
 
     // doesn't support wrapping
@@ -94,7 +123,30 @@ public class Grid<T>
 
         return neighbours.Where(ValidPoint);
     }
-    
+
+    // includes line start and line end
+    public IEnumerable<Point> PointsOnLine(Point lineStart, Point lineEnd, bool includeDiagonals = true)
+    {
+        // direction
+        var dir = Point.Direction(lineStart, lineEnd);
+
+        // if the direction is diagonal and diagonals should be excluded, return an empty list
+        if (!includeDiagonals && dir.X != 0 && dir.Y != 0)
+            return Enumerable.Empty<Point>();
+        
+        // accumulate the points
+        var points = new List<Point>(){lineStart};
+
+        var current = lineStart;
+        while (!current.Equals(lineEnd))
+        {
+            current += dir;
+            points.Add(current);
+        }
+
+        return points;
+    }
+
     // checks if the point is within bounds
     private bool ValidPoint(Point point) 
         => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
@@ -103,4 +155,18 @@ public class Grid<T>
     public int Height { get; }
     private readonly T _invalid;
     private readonly List<T> _cells = new List<T>();
+
+    public override string ToString()
+    {
+        var s = string.Empty;
+        for (var i = 0; i < _cells.Count; ++i)
+        {
+            if (i != 0 && i % Width == 0)
+                s += '\n';
+            
+            s += _cells[i];
+        }
+
+        return s += '\n';
+    }
 }

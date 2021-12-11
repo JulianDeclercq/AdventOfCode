@@ -16,7 +16,7 @@ public class Day5
         public Point End;
     }
     
-    public void Part1()
+    public void Solve(bool part2 = false)
     {
         var input = File.ReadAllLines(@"..\..\..\input\day5.txt");
         var regex = new Regex(@"(\d+),(\d+) -> (\d+),(\d+)");
@@ -50,7 +50,7 @@ public class Day5
         // mark the lines
         foreach (var line in lines)
         {
-            foreach (var point in grid.PointsOnLine(line.Start, line.End, includeDiagonals: false))
+            foreach (var point in grid.PointsOnLine(line.Start, line.End, includeDiagonals: part2))
                 grid.ModifyAt(point, x => x + 1);
             
             //Console.WriteLine(grid);

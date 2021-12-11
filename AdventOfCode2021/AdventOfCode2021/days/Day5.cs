@@ -4,25 +4,13 @@ namespace AdventOfCode2021.days;
 
 public class Day5
 {
-    private class Line
-    {
-        public Line(Point start, Point end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public readonly Point Start;
-        public readonly Point End;
-    }
-
     private static void Solve(bool includeDiagonals)
     {
         var input = File.ReadAllLines(@"..\..\..\input\day5.txt");
         var regex = new Regex(@"(\d+),(\d+) -> (\d+),(\d+)");
         var lines = new List<Line>();
 
-        int width = 0, height = 0;
+        // parse input
         foreach (var s in input)
         {
             if (!regex.IsMatch(s))
@@ -33,28 +21,19 @@ public class Day5
 
             var match = regex.Match(s);
             var ints = match.Groups.Values.Skip(1).Select(Helpers.ToInt).ToList();
-            lines.Add(new Line(new Point(ints[0], ints[1]), new Point(ints[2], ints[3])));
-
-            width = Math.Max(width, Math.Max(ints[0], ints[2]));
-            height = Math.Max(height, Math.Max(ints[1], ints[3]));
+            var line = new Line(new Point(ints[0], ints[1]), new Point(ints[2], ints[3]));
+            if (includeDiagonals || !line.IsDiagonal)
+                lines.Add(line);
         }
 
-        // compensate for zero indexed list (e.g. if max X value is 456 that means 457 elements fit per row)
-        width++;
-        height++;
-        
-        // create the grid and fill it
-        var grid = new Grid<int>(width, height, int.MaxValue);
-        grid.AddRange(Enumerable.Repeat(0, width * height));
-        
         // mark the lines
+        var counter = new Dictionary<Point, int>();
         foreach (var line in lines)
         {
-            foreach (var point in grid.PointsOnLine(line.Start, line.End, includeDiagonals))
-                grid.ModifyAt(point, x => x + 1);
+            foreach (var point in line.Points)
+                counter[point] = (counter.ContainsKey(point) ? counter[point] : 0) + 1;
         }
-
-        Console.WriteLine($"Day 5 part {(includeDiagonals ? 2 : 1)}: {grid.All().Count(x => x >= 2)}");
+        Console.WriteLine($"Day 5 part {(includeDiagonals ? 2 : 1)}: {counter.Count(x => x.Value >= 2)}");
     }
     
     public void Part1() => Solve(includeDiagonals: false);

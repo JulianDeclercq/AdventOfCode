@@ -4,6 +4,7 @@ namespace AdventOfCode2021;
 
 public static class Helpers
 {
+    // for syntactic sugar in linQ expressions
     public static int ToInt(Group m) => int.Parse(m.Value);
 }
 
@@ -43,6 +44,37 @@ public class Point : IEquatable<Point>
     #endregion
 }
 
+public class Line
+{
+    public Line(Point start, Point end)
+    {
+        _start = start;
+        _end = end;
+        _direction = Point.Direction(_start, _end);
+        Points = CalculatePoints();
+    }
+
+    private readonly Point _start;
+    private readonly Point _end;
+    private readonly Point _direction;
+    public readonly IEnumerable<Point> Points;
+    public bool IsDiagonal => _direction.X != 0 && _direction.Y != 0;
+    
+    private IEnumerable<Point> CalculatePoints()
+    {
+        var points = new List<Point>(){_start};
+
+        // accumulate the points
+        var current = _start;
+        while (!current.Equals(_end))
+        {
+            current += _direction;
+            points.Add(current);
+        }
+        return points;
+    }
+}
+
 public class Grid<T>
 {
     public Grid(int width, int height, T invalid)
@@ -56,7 +88,6 @@ public class Grid<T>
     }
 
     public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);
-    public IEnumerable<T> All() => _cells;
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
 
@@ -72,14 +103,6 @@ public class Grid<T>
         if (y < 0 || y > Height - 1) return -1;
 
         return y * Width + x;
-    }
-
-    public void ModifyAt(Point p, Func<T, T> modifier) => ModifyAt(p.X, p.Y, modifier);
-
-    private void ModifyAt(int x, int y, Func<T, T> modifier)
-    {
-        // calculate the result of the function on the original element and override its value in the list 
-        _cells[Index(x, y)] = modifier(Get(x, y));
     }
 
     // doesn't support wrapping
@@ -123,29 +146,6 @@ public class Grid<T>
         }
 
         return neighbours.Where(ValidPoint);
-    }
-
-    // includes line start and line end
-    public IEnumerable<Point> PointsOnLine(Point lineStart, Point lineEnd, bool includeDiagonals = true)
-    {
-        // direction
-        var dir = Point.Direction(lineStart, lineEnd);
-
-        // if the direction is diagonal and diagonals should be excluded, return an empty list
-        if (!includeDiagonals && dir.X != 0 && dir.Y != 0)
-            return Enumerable.Empty<Point>();
-        
-        // accumulate the points
-        var points = new List<Point>(){lineStart};
-
-        var current = lineStart;
-        while (!current.Equals(lineEnd))
-        {
-            current += dir;
-            points.Add(current);
-        }
-
-        return points;
     }
 
     // checks if the point is within bounds

@@ -12,11 +12,11 @@ public class Day5
             End = end;
         }
 
-        public Point Start;
-        public Point End;
+        public readonly Point Start;
+        public readonly Point End;
     }
-    
-    public void Solve(bool part2 = false)
+
+    private static void Solve(bool includeDiagonals)
     {
         var input = File.ReadAllLines(@"..\..\..\input\day5.txt");
         var regex = new Regex(@"(\d+),(\d+) -> (\d+),(\d+)");
@@ -39,7 +39,7 @@ public class Day5
             height = Math.Max(height, Math.Max(ints[1], ints[3]));
         }
 
-        // compensate for zero indexed list (if max X is 456 that means 457 elements fit per row)
+        // compensate for zero indexed list (e.g. if max X value is 456 that means 457 elements fit per row)
         width++;
         height++;
         
@@ -50,13 +50,13 @@ public class Day5
         // mark the lines
         foreach (var line in lines)
         {
-            foreach (var point in grid.PointsOnLine(line.Start, line.End, includeDiagonals: part2))
+            foreach (var point in grid.PointsOnLine(line.Start, line.End, includeDiagonals))
                 grid.ModifyAt(point, x => x + 1);
-            
-            //Console.WriteLine(grid);
         }
 
-        var answer = grid.All().Count(x => x >= 2);
-        Console.WriteLine($"Day 5 part 1: {answer}");
+        Console.WriteLine($"Day 5 part {(includeDiagonals ? 2 : 1)}: {grid.All().Count(x => x >= 2)}");
     }
+    
+    public void Part1() => Solve(includeDiagonals: false);
+    public void Part2() => Solve(includeDiagonals: true);
 }

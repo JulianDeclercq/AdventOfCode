@@ -9,7 +9,7 @@ public static class Helpers
 
 public class Point : IEquatable<Point>
 {
-    public static Point Normalized(Point p)
+    private static Point Normalized(Point p)
     {
         var distance = Math.Sqrt(p.X * p.X + p.Y * p.Y);
         return new Point(Convert.ToInt16(p.X / distance), Convert.ToInt16(p.Y / distance));
@@ -74,11 +74,12 @@ public class Grid<T>
         return y * Width + x;
     }
 
-    public void ModifyAt(Point p, Func<T, T> func) => ModifyAt(p.X, p.Y, func);
-    public void ModifyAt(int x, int y, Func<T, T> func)
+    public void ModifyAt(Point p, Func<T, T> modifier) => ModifyAt(p.X, p.Y, modifier);
+
+    private void ModifyAt(int x, int y, Func<T, T> modifier)
     {
         // calculate the result of the function on the original element and override its value in the list 
-        _cells[Index(x, y)] = func(Get(x, y));
+        _cells[Index(x, y)] = modifier(Get(x, y));
     }
 
     // doesn't support wrapping

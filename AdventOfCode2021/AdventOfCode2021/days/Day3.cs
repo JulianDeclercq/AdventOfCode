@@ -15,6 +15,36 @@ public class Day3
             return _lines;
         }
     }
+    
+    private static char MostCommonBit(IEnumerable<string> entries, int index)
+    {
+        var ctr = entries.Sum(line => (line[index] == '1') ? 1 : -1);
+        return ctr >= 0 ? '1' : '0'; // if ctr is positive, '1' was more common than '0'
+    }
+
+    private static char LeastCommonBit(IEnumerable<string> entries, int index)
+    {
+        var ctr = entries.Sum(line => (line[index] == '1') ? 1 : -1);
+        return ctr < 0 ? '1' : '0'; // if ctr is negative, '1' was less common than '0'
+    }
+    
+    private int FindRating(Func<IEnumerable<string>, int, char> criteria)
+    {
+        var possibilities = Lines.ToList();
+        var length = Lines[0].Length;
+        for (var i = 0; i < length; ++i)
+        {
+            // calculate the possibilities based on the criteria
+            possibilities = possibilities.Where(x => x[i] == criteria(possibilities, i)).ToList();
+            
+            // if there is only a single possibility left, this is the answer
+            if (possibilities.Count == 1)
+                return Convert.ToInt16(possibilities[0], 2);
+        }
+
+        // failed to find a rating
+        return int.MinValue;
+    }
        
     public void Part1()
     {
@@ -24,12 +54,8 @@ public class Day3
 
         for (var i = 0; i < length; ++i)
         {
-            var ctr = 0;
-            foreach (var line in Lines)
-                ctr += (line[i] == '1') ? 1 : -1;
-
-            bGamma[i] = ctr > 0 ? '1' : '0'; // if ctr is positive, '1' was more common than '0'
-            bEpsilon[i] = ctr < 0 ? '1' : '0'; // if ctr is negative, '1' was less common than '0'
+            bGamma[i] = MostCommonBit(Lines, i);
+            bEpsilon[i] = LeastCommonBit(Lines, i);
         }
 
         var gamma = Convert.ToInt16(bGamma.ToString(), 2);
@@ -38,50 +64,10 @@ public class Day3
         Console.WriteLine($"Day 3 part 1: {gamma * epsilon}");
     }
 
-    public char MostCommonBit(IEnumerable<string> entries, int index)
-    {
-        var ctr = entries.Sum(line => (line[index] == '1') ? 1 : -1);
-        return ctr >= 0 ? '1' : '0'; // if ctr is positive, '1' was more common than '0'
-    }
-    
-    public char LeastCommonBit(IEnumerable<string> entries, int index)
-    {
-        var ctr = entries.Sum(line => (line[index] == '1') ? 1 : -1);
-        return ctr < 0 ? '1' : '0'; // if ctr is negative, '1' was less common than '0'
-    }
-    
     public void Part2()
     {
-        var length = Lines[0].Length;
-
-        // oxygen generator rating is tied to most common bit (=> gamma)
-        var possibilities = Lines.ToList();
-        for (var i = 0; i < length; ++i)
-        {
-            var idx = i;
-            var mostCommonBit = MostCommonBit(possibilities, i);
-            possibilities = possibilities.Where(x => x[idx] == mostCommonBit).ToList();
-            if (possibilities.Count == 1)
-                break;
-        }
-
-        var bOGR = possibilities[0];
-        
-        // CO2 scrubber rating is tied to least common bit (=> epsilon)
-        possibilities = Lines.ToList();
-        for (var i = 0; i < length; ++i)
-        {
-            var idx = i;
-            var leastCommonBit = LeastCommonBit(possibilities, i);
-            possibilities = possibilities.Where(x => x[idx] == leastCommonBit).ToList();
-            if (possibilities.Count == 1)
-                break;
-        }
-
-        var bCO2SR = possibilities[0];
-        var OGR = Convert.ToInt16(bOGR, 2);
-        var CO2SR = Convert.ToInt16(bCO2SR, 2);
-        
-        Console.WriteLine($"Day 3 part 2: {OGR * CO2SR}");
+        var ogr = FindRating(MostCommonBit);
+        var co2Sr = FindRating(LeastCommonBit);
+        Console.WriteLine($"Day 3 part 2: {ogr * co2Sr}");
     }
 }

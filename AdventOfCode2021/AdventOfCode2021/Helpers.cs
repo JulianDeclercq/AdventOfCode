@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace AdventOfCode2021;
 
@@ -87,16 +88,34 @@ public class Grid<T>
         _invalid = invalid;
     }
 
-    public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);
+    public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);   
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
+
+    public bool Set(Point p, T value) => Set(p.X, p.Y, value);
+    public bool Set(int x, int y, T value)
+    {
+        var idx = Index(x, y);
+        if (idx == -1)
+            return false;
+
+        _cells[idx] = value;
+        return true;
+    }
+
+    public void Set(int idx, T value) => _cells[idx] = value;  
+    
+    public IEnumerable<T> All() => _cells;
 
     private T Get(int x, int y)
     {
         var idx = Index(x, y);
         return idx == -1 ? _invalid : _cells[idx];
     }
-    
+
+    public Point FromIndex(int idx) => new (idx % Width, idx / Width);
+
+    public int Index(Point p) => Index(p.X, p.Y);
     private int Index(int x, int y)
     {
         if (x < 0 || x > Width - 1) return -1;
@@ -152,10 +171,17 @@ public class Grid<T>
     private bool ValidPoint(Point point) 
         => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
 
+    public Grid<T> Copy()
+    {
+        var grid = new Grid<T>(Width, Height, _invalid);
+        grid.AddRange(_cells.ToArray());
+        return grid;
+    }
+
     public int Width { get; }
     public int Height { get; }
     private readonly T _invalid;
-    private readonly List<T> _cells = new List<T>();
+    private readonly List<T> _cells = new();
 
     public override string ToString()
     {

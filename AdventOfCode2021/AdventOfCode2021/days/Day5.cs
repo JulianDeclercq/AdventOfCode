@@ -13,12 +13,6 @@ public class Day5
         // parse input
         foreach (var s in input)
         {
-            if (!regex.IsMatch(s))
-            {
-                Console.WriteLine($"Failed to parse line {s}");
-                return;
-            }
-
             var match = regex.Match(s);
             var ints = match.Groups.Values.Skip(1).Select(Helpers.ToInt).ToList();
             var line = new Line(new Point(ints[0], ints[1]), new Point(ints[2], ints[3]));

@@ -92,9 +92,7 @@ public class Day13
         // cut off folded part
         var all = result.All().ToList();
         var to = result.Index(new Point(0, value));
-        var newGrid = new Grid<char>(result.Width, result.Height / 2, all.GetRange(0, to), '@');
-           
-        return newGrid;
+        return new Grid<char>(result.Width, result.Height / 2, all.GetRange(0, to), '@');
     }
 
     private static Grid<char> VerticalFold(Grid<char> grid, int value)

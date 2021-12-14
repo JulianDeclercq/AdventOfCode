@@ -63,63 +63,64 @@ public class Day13
   
     private static Grid<char> Fold(Grid<char> grid, char axis, int value)
    {
-       // horizontal fold, split the grid in half horizontally (HALF DEPENDS ON THE VALUE!!)
-       if (axis == 'y')
+       return axis switch
        {
-           var result = grid.Copy();
-
-           var size = grid.Width * (grid.Height / 2);
-           for (var i = 0; i < size; ++i)
-           {
-               var p = grid.FromIndex(i);
-              
-               // already set
-               if (grid.At(p) == '#')
-                   continue;
-              
-               var distToFold = Math.Abs(value - p.Y);
-               var flipped = new Point(p.X, p.Y + (2 * distToFold));
-               result.Set(i, grid.At(flipped));
-           }
-
-           // cut off folded part
-           var to = result.Index(new Point(0, value));
-           var all = result.All().ToList();
-           var newGrid = new Grid<char>(result.Width, result.Height / 2, all.GetRange(0, to), '@');
-           
-           return newGrid;
-       }
-
-       if (axis == 'x')
-       {
-           var width = grid.Width / 2;
-           var height = grid.Height;
-           
-           var cells = grid.All().ToArray();
-           
-           var leftHalf = new List<char>();
-           for (var i = 0; i < height; ++i)
-               leftHalf.AddRange(cells.Skip(width * i * 2 + i).Take(width)); // +i to skip fold line itself
-
-           var leftGrid = new Grid<char>(width, height, leftHalf, '@');
-           
-           var result = leftGrid.Copy();
-           for (var i = 0; i < width * height; ++i)
-           {
-               var p = leftGrid.FromIndex(i);
-              
-               // already set
-               if (leftGrid.At(p) == '#')
-                   continue;
-              
-               var distToFold = Math.Abs(value - p.X);
-               var flipped = new Point(p.X + (2 * distToFold), p.Y);
-               result.Set(i, grid.At(flipped));
-           }
-
-           return result;
-       }
-
-       return new Grid<char>(-1, -1, Array.Empty<char>(), '/');
+           'y' => HorizontalFold(grid, value),
+           'x' => VerticalFold(grid, value),
+           _ => grid // invalid axis
+       };
    }
+
+    private static Grid<char> HorizontalFold(Grid<char> grid, int value)
+    {
+        var result = grid.Copy();
+
+        var size = grid.Width * (grid.Height / 2);
+        for (var i = 0; i < size; ++i)
+        {
+            var p = grid.FromIndex(i);
+              
+            // already set
+            if (grid.At(p) == '#')
+                continue;
+              
+            var distToFold = Math.Abs(value - p.Y);
+            var flipped = new Point(p.X, p.Y + (2 * distToFold));
+            result.Set(i, grid.At(flipped));
+        }
+
+        // cut off folded part
+        var all = result.All().ToList();
+        var to = result.Index(new Point(0, value));
+        var newGrid = new Grid<char>(result.Width, result.Height / 2, all.GetRange(0, to), '@');
+           
+        return newGrid;
+    }
+
+    private static Grid<char> VerticalFold(Grid<char> grid, int value)
+    {
+        var width = grid.Width / 2;
+        var height = grid.Height;
+           
+        var cells = grid.All().ToArray();
+        var leftGrid = new Grid<char>(width, height, Array.Empty<char>(), '@');
+        for (var i = 0; i < height; ++i)
+            leftGrid.AddRange(cells.Skip(width * i * 2 + i).Take(width)); // +i to skip fold line itself
+           
+        var result = leftGrid.Copy();
+        for (var i = 0; i < width * height; ++i)
+        {
+            var p = leftGrid.FromIndex(i);
+              
+            // already set
+            if (leftGrid.At(p) == '#')
+                continue;
+              
+            var distToFold = Math.Abs(value - p.X);
+            var flipped = new Point(p.X + (2 * distToFold), p.Y);
+            result.Set(i, grid.At(flipped));
+        }
+
+        return result;
+    }
 }

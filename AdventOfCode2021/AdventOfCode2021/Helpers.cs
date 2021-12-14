@@ -1,6 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Microsoft.VisualBasic.CompilerServices;
-
 namespace AdventOfCode2021;
 
 public static class Helpers
@@ -78,16 +76,19 @@ public class Line
 
 public class Grid<T>
 {
-    public Grid(int width, int height, T invalid)
+    public Grid(int width, int height, IEnumerable<T> elements, T invalid)
     {
         if (width < 1 || height < 1)
             throw new Exception("Can't create grid with no rows or columns");
 
         Width = width;
         Height = height;
+        _cells.AddRange(elements);
         _invalid = invalid;
     }
 
+    // doesn't deep copy the values in _cells if T is a reference type
+    public Grid<T> Copy() => new (Width, Height, _cells, _invalid);
     public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);   
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
@@ -170,14 +171,7 @@ public class Grid<T>
     // checks if the point is within bounds
     private bool ValidPoint(Point point) 
         => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
-
-    public Grid<T> Copy()
-    {
-        var grid = new Grid<T>(Width, Height, _invalid);
-        grid.AddRange(_cells.ToArray());
-        return grid;
-    }
-
+    
     public int Width { get; }
     public int Height { get; }
     private readonly T _invalid;

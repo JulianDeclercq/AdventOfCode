@@ -4,7 +4,7 @@ namespace AdventOfCode2021.days;
 public class Day13
 {
     // returns the grid and a list of folds 
-    private (Grid<char>, List<(char, int)>) ParseInput()
+    private static (Grid<char>, List<(char, int)>) ParseInput()
     {
         var lines = File.ReadAllLines(@"..\..\..\input\day13.txt");
         var pointRegex = new Regex(@"(\d+),(\d+)");
@@ -39,8 +39,7 @@ public class Day13
             }
         }
 
-        var grid = new Grid<char>(width, height, '/');
-        grid.AddRange(Enumerable.Repeat('.', width * height));
+        var grid = new Grid<char>(width, height, Enumerable.Repeat('.', width * height), '@');
         foreach(var p in points) grid.Set(p, '#');
         return (grid, folds);
     }
@@ -86,32 +85,23 @@ public class Day13
            // cut off folded part
            var to = result.Index(new Point(0, value));
            var all = result.All().ToList();
-           var newGrid = new Grid<char>(result.Width, result.Height / 2, '|');
-           newGrid.AddRange(all.GetRange(0, to));
+           var newGrid = new Grid<char>(result.Width, result.Height / 2, all.GetRange(0, to), '@');
            
            return newGrid;
        }
 
        if (axis == 'x')
        {
-           var width = grid.Width / 2; // pretty sure this goes to shit with even number width
+           var width = grid.Width / 2;
            var height = grid.Height;
            
-           var leftGrid = new Grid<char>(width, height, '|');
-           var rightGrid = new Grid<char>(width, height, '|');
            var cells = grid.All().ToArray();
            
            var leftHalf = new List<char>();
-           var rightHalf = new List<char>();
            for (var i = 0; i < height; ++i)
-           {
-               var skip = width * i * 2 + i; // +i to skip fold line itself
-               leftHalf.AddRange(cells.Skip(skip).Take(width));
-               rightHalf.AddRange(cells.Skip(skip + width + 1).Take(width));
-           }
+               leftHalf.AddRange(cells.Skip(width * i * 2 + i).Take(width)); // +i to skip fold line itself
 
-           leftGrid.AddRange(leftHalf);
-           rightGrid.AddRange(rightHalf);
+           var leftGrid = new Grid<char>(width, height, leftHalf, '@');
            
            var result = leftGrid.Copy();
            for (var i = 0; i < width * height; ++i)
@@ -130,7 +120,6 @@ public class Day13
            return result;
        }
 
-       // TODO: better default return
-       return new Grid<char>(-1, -1, '/');
+       return new Grid<char>(-1, -1, Array.Empty<char>(), '/');
    }
 }

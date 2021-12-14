@@ -3,46 +3,66 @@ namespace AdventOfCode2021.days;
 
 public class Day13
 {
+    // returns the grid and a list of folds 
+    private (Grid<char>, List<(char, int)>) ParseInput()
+    {
+        var lines = File.ReadAllLines(@"..\..\..\input\day13.txt");
+        var pointRegex = new Regex(@"(\d+),(\d+)");
+        var foldRegex = new Regex(@".+(x|y)=(\d+)");
+        var folds = new List<(char, int)>();
+        var width = int.MinValue;
+        var height = int.MinValue;
+
+        var points = new List<Point>();
+        foreach (var line in lines)
+        {
+            var match = pointRegex.Match(line);
+            if (match.Success)
+            {
+                points.Add(new Point(Helpers.ToInt(match.Groups[1]), Helpers.ToInt(match.Groups[2])));
+                continue;
+            }
+
+            match = foldRegex.Match(line);
+            if (match.Success)
+            {
+                var axis = match.Groups[1].ToString().First();
+                var value = Helpers.ToInt(match.Groups[2]);
+
+                if (width == int.MinValue && axis == 'x')
+                    width = value * 2 + 1;
+
+                if (height == int.MinValue && axis == 'y')
+                    height = value * 2 + 1;
+                   
+                folds.Add((axis, value));
+            }
+        }
+
+        var grid = new Grid<char>(width, height, '/');
+        grid.AddRange(Enumerable.Repeat('.', width * height));
+        foreach(var p in points) grid.Set(p, '#');
+        return (grid, folds);
+    }
+    
     public void Part1()
-   {
-       var lines = File.ReadAllLines(@"..\..\..\input\day13.txt");
-       var pointRegex = new Regex(@"(\d+),(\d+)");
-       var foldRegex = new Regex(@".+(x|y)=(\d+)");
-       var folds = new List<(char, int)>();
+    { 
+        var (grid, folds) = ParseInput();
+        var answer = Fold(grid, folds[0].Item1, folds[0].Item2).All().Count(c => c == '#'); 
+        Console.WriteLine($"Answer is {answer}");
+    }
+    
+    public void Part2()
+    {
+        var (grid, folds) = ParseInput();
 
-       var points = new List<Point>();
-       foreach (var line in lines)
-       {
-           var match = pointRegex.Match(line);
-           if (match.Success)
-           {
-               points.Add(new Point(Helpers.ToInt(match.Groups[1]), Helpers.ToInt(match.Groups[2])));
-               continue;
-           }
+        foreach (var fold in folds)
+            grid = Fold(grid, fold.Item1, fold.Item2);
 
-           match = foldRegex.Match(line);
-           if (match.Success)
-               folds.Add((match.Groups[1].ToString().First(), Helpers.ToInt(match.Groups[2])));
-       }
-
-       var width = points.Select(p => p.X).Max() + 1;
-       var height = points.Select(p => p.Y).Max() + 1;
-       var grid = new Grid<char>(width, height, '/');
-       grid.AddRange(Enumerable.Repeat('.', width * height));
-       foreach(var p in points) grid.Set(p, '#');
-
-       var current = grid;
-       foreach (var fold in folds)
-       {
-           current = Fold(current, fold.Item1, fold.Item2);
-           break; // part 1
-       }
-       
-       var answer = current.All().Count(c => c == '#');
-       Console.WriteLine($"Answer is {answer}");
-   }
+        Console.WriteLine(grid);
+    }
   
-   private Grid<char> Fold(Grid<char> grid, char axis, int value)
+    private static Grid<char> Fold(Grid<char> grid, char axis, int value)
    {
        // horizontal fold, split the grid in half horizontally (HALF DEPENDS ON THE VALUE!!)
        if (axis == 'y')
@@ -74,7 +94,7 @@ public class Day13
 
        if (axis == 'x')
        {
-           var width = grid.Width / 2;
+           var width = grid.Width / 2; // pretty sure this goes to shit with even number width
            var height = grid.Height;
            
            var leftGrid = new Grid<char>(width, height, '|');
@@ -85,7 +105,7 @@ public class Day13
            var rightHalf = new List<char>();
            for (var i = 0; i < height; ++i)
            {
-               var skip = width * i * 2 + i;
+               var skip = width * i * 2 + i; // +i to skip fold line itself
                leftHalf.AddRange(cells.Skip(skip).Take(width));
                rightHalf.AddRange(cells.Skip(skip + width + 1).Take(width));
            }

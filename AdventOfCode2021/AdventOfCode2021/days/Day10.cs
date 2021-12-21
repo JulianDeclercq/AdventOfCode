@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Text;
+﻿using System.Text;
 
 namespace AdventOfCode2021.days;
 
@@ -24,17 +23,6 @@ public class Day10
     {
         {')', 1}, {']', 2}, {'}', 3}, {'>', 4},
     };
-    
-    public void Part1()
-    {
-        var lines = File.ReadAllLines(@"..\..\..\input\day10.txt");
-
-        var score = 0;
-        foreach(var line in lines)
-            score += CorruptionScore(line);
-        
-        Console.WriteLine($"Day 10 part 1: {score}");
-    }
 
     private static int CorruptionScore(string line)
     {
@@ -52,26 +40,12 @@ public class Day10
                 continue;
             }
 
-            // push the opening brackets to the stack
+            // push the opening bracket to the stack
             stack.Push(c);
         }
         return 0;
     }
-
-    public void Part2()
-    {
-        var lines = File.ReadAllLines(@"..\..\..\input\day10.txt");
-        var incompleteLines = lines.Where(l => CorruptionScore(l) == 0);
-
-        var list = new List<ulong>();
-        foreach (var line in incompleteLines)
-            list.Add(AutocompleteScore(CompletionList(line)));
-
-        list.Sort();
-        
-        Console.WriteLine($"Day 10 part 2: {list[list.Count / 2]}");
-    }
-
+    
     private static string CompletionList(string incompleteLine)
     {
         var stack = new Stack<char>();
@@ -85,15 +59,11 @@ public class Day10
                 continue;
             }
 
-            // push the opening brackets to the stack
+            // push the opening bracket to the stack
             stack.Push(c);
         }
 
-        var completionList = new StringBuilder();
-        foreach (var opening in stack)
-            completionList.Append(Closings[opening]);
-
-        return completionList.ToString();
+        return new string(stack.Select(x => Closings[x]).ToArray());
     }
 
     private static ulong AutocompleteScore(string completionList)
@@ -106,5 +76,21 @@ public class Day10
         }
         return score;
     }
-    
+
+    public void Part1()
+    {
+        var lines = File.ReadAllLines(@"..\..\..\input\day10.txt");
+        Console.WriteLine($"Day 10 part 1: {lines.Sum(CorruptionScore)}");
+    }
+
+    public void Part2()
+    {
+        var lines = File.ReadAllLines(@"..\..\..\input\day10.txt");
+        var incompleteLines = lines.Where(l => CorruptionScore(l) == 0);
+
+        var list = incompleteLines.Select(line => AutocompleteScore(CompletionList(line))).ToList();
+        list.Sort();
+        
+        Console.WriteLine($"Day 10 part 2: {list[list.Count / 2]}");
+    }
 }

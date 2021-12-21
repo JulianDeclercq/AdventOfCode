@@ -58,6 +58,26 @@ public class Day11
         
         Console.WriteLine($"Day 11 part 1: {answer}");
     }
+    
+    public void Part2()
+    {
+        var lines = File.ReadAllLines(@"..\..\..\input\day11.txt");
+        var grid = new Grid<Octopus>(lines[0].Length, lines.Length, 
+            lines.SelectMany(l => l.ToCharArray())
+                .Select(c => new Octopus(Helpers.ToInt(c))), new Octopus(int.MaxValue));
+
+        for (var i = 0; i < grid.Width * grid.Height; ++i)
+            grid.At(i).Index = i;
+
+        int answer = 0, amountFlashed = 0, gridSize = grid.Width * grid.Height;
+        for (var i = 0; amountFlashed != gridSize; ++i)
+        {
+            amountFlashed = Step(grid);
+            answer = i + 1;
+        }
+        
+        Console.WriteLine($"Day 11 part 2: {answer}");
+    }
 
     private void AddEnergy(Grid<Octopus> grid, Octopus octo, Point p)
     {
@@ -73,10 +93,7 @@ public class Day11
             
         // if the octo did flash now, transfer 1 energy to all of its neighbours
         foreach (var neighbour in grid.Neighbours(p.X, p.Y))
-        {   
             AddEnergy(grid, neighbour, grid.FromIndex(neighbour.Index));
-        }
-        
     }
 
     // returns the amount of flashes during this step

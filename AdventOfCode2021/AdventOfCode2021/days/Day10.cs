@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace AdventOfCode2021.days;
+﻿namespace AdventOfCode2021.days;
 
 public class Day10
 {

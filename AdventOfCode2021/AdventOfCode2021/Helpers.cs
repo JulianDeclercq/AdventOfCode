@@ -4,6 +4,7 @@ namespace AdventOfCode2021;
 public static class Helpers
 {
     // for syntactic sugar in linQ expressions
+    public static int ToInt(char c) => int.Parse(char.ToString(c));
     public static int ToInt(Group m) => int.Parse(m.Value);
 }
 
@@ -92,6 +93,7 @@ public class Grid<T>
     public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);   
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
+    public T At(int idx) => _cells[idx];
 
     public bool Set(Point p, T value) => Set(p.X, p.Y, value);
     public bool Set(int x, int y, T value)
@@ -185,7 +187,7 @@ public class Grid<T>
             if (i != 0 && i % Width == 0)
                 s += '\n';
             
-            s += _cells[i];
+            s += _cells[i]?.ToString();
         }
 
         return s += '\n';

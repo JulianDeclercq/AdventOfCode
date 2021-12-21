@@ -11,7 +11,7 @@ public class Day9
             {
                 var lines = File.ReadAllLines(@"..\..\..\input\day9.txt");
                 _grid = new Grid<int>(lines[0].Length, lines.Length, 
-                    lines.SelectMany(l => l.ToCharArray()).Select(c => int.Parse(char.ToString(c))), int.MaxValue);
+                    lines.SelectMany(l => l.ToCharArray()).Select(Helpers.ToInt), int.MaxValue);
             }
 
             return _grid;

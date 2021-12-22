@@ -73,7 +73,7 @@ public class Day13
 
     private static Grid<char> HorizontalFold(Grid<char> grid, int value)
     {
-        var result = grid.Copy();
+        var result = grid.ShallowCopy();
 
         var size = grid.Width * (grid.Height / 2);
         for (var i = 0; i < size; ++i)
@@ -105,7 +105,7 @@ public class Day13
         for (var i = 0; i < height; ++i)
             leftGrid.AddRange(cells.Skip(width * i * 2 + i).Take(width)); // +i to skip fold line itself
            
-        var result = leftGrid.Copy();
+        var result = leftGrid.ShallowCopy();
         for (var i = 0; i < width * height; ++i)
         {
             var p = leftGrid.FromIndex(i);

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 namespace AdventOfCode2021;
 
 public static class Helpers
@@ -6,6 +7,7 @@ public static class Helpers
     // for syntactic sugar in linQ expressions
     public static int ToInt(char c) => int.Parse(char.ToString(c));
     public static int ToInt(Group m) => int.Parse(m.Value);
+    public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
 }
 
 public class Point : IEquatable<Point>
@@ -89,7 +91,7 @@ public class Grid<T>
     }
 
     // doesn't deep copy the values in _cells if T is a reference type
-    public Grid<T> Copy() => new (Width, Height, _cells, _invalid);
+    public Grid<T> ShallowCopy() => new (Width, Height, _cells, _invalid);
     public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);   
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
@@ -121,7 +123,6 @@ public class Grid<T>
         return extended;
     }
     
-
     private T Get(int x, int y)
     {
         var idx = Index(x, y);
@@ -205,3 +206,46 @@ public class Grid<T>
         return s += '\n';
     }
 }
+
+public class Grid3D<T>
+{
+    public Grid3D(int width, int height, int depth, T @default, T invalid)
+    {
+        if (width < 1 || height < 1 || depth < 1)
+            throw new Exception("Can't create Grid3D with no width, height or depth");
+
+        Width = width;
+        Height = height;
+        Depth = depth;
+        _invalid = invalid;
+        
+        // create the "front" grid
+        var grid = new Grid<T>(width, height, Enumerable.Repeat(@default, width * height), invalid);
+        for (var i = 0; i < depth; ++i)
+            _grids.Add(grid.ShallowCopy());
+    }
+
+    public T At(int x, int y, int z) => _grids[z].At(x, y);
+    public void Set(int x, int y, int z, T value) => _grids[z].Set(x, y, value);
+    public IEnumerable<T> All() => _grids.SelectMany(g => g.All());
+    
+    public int Width { get; }
+    public int Height { get; }
+    public int Depth { get; }
+    private readonly List<Grid<T>> _grids = new();
+    private readonly T _invalid;
+
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+
+        foreach (var grid in _grids)
+        {
+            stringBuilder.Append(grid);
+            stringBuilder.AppendLine();
+        }
+        
+        return stringBuilder.ToString();
+    }
+}
+

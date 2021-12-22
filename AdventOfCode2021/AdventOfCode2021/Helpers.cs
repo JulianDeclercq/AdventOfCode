@@ -132,7 +132,7 @@ public class Grid<T>
     public Point FromIndex(int idx) => new (idx % Width, idx / Width);
 
     public int Index(Point p) => Index(p.X, p.Y);
-    private int Index(int x, int y)
+    private int  Index(int x, int y)
     {
         if (x < 0 || x > Width - 1) return -1;
         if (y < 0 || y > Height - 1) return -1;
@@ -207,6 +207,79 @@ public class Grid<T>
     }
 }
 
+public class NegativeGrid<T>
+{
+    public NegativeGrid(int width, int height, Point origin, IEnumerable<T> elements)
+    {
+        if (width < 1 || height < 1)
+            throw new Exception("Can't create grid with no rows or columns");
+
+        Width = width;
+        Height = height;
+        Origin = origin;
+        _cells.AddRange(elements);
+    }
+    
+    public NegativeGrid<T> ShallowCopy() => new (Width, Height, Origin, _cells);
+
+    public T At(Point p) => At(p.X, p.Y);
+    public T At(int x, int y) => Get(x, y);
+    public T At(int idx) => _cells[idx];
+
+    public bool Set(Point p, T value) => Set(p.X, p.Y, value);
+    public bool Set(int x, int y, T value)
+    {
+        var idx = Index(x, y);
+        if (idx == -1)
+            return false;
+
+        _cells[idx] = value;
+        return true;
+    }
+
+    public void Set(int idx, T value) => _cells[idx] = value;  
+    
+    public IEnumerable<T> All() => _cells;
+
+    private T Get(int x, int y)
+    {
+        var idx = Index(x, y);
+        return _cells[idx];
+    }
+
+    public Point FromIndex(int idx) => new (idx % Width, idx / Width);
+
+    public int Index(Point p) => Index(p.X, p.Y);
+    private int Index(int x, int y)
+    {
+        if (!ValidPoint(new Point(x, y))) return -1;
+        return (y + Math.Abs(Origin.Y)) * Width + x + Math.Abs(Origin.X);
+    }
+
+    // checks if the point is within bounds
+    private bool ValidPoint(Point point)
+        => point.X >= Origin.X && point.X <= Width - Origin.X - 1 && point.Y >= Origin.Y && point.Y <= Height - Origin.Y - 1;
+    
+    public int Width { get; }
+    public int Height { get; }
+    public Point Origin { get; }
+    private readonly List<T> _cells = new();
+
+    public override string ToString()
+    {
+        var s = string.Empty;
+        for (var i = 0; i < _cells.Count; ++i)
+        {
+            if (i != 0 && i % Width == 0)
+                s += '\n';
+            
+            s += _cells[i]?.ToString();
+        }
+
+        return s += '\n';
+    }
+}
+
 public class Grid3D<T>
 {
     public Grid3D(int width, int height, int depth, T @default, T invalid)
@@ -235,6 +308,52 @@ public class Grid3D<T>
     private readonly List<Grid<T>> _grids = new();
     private readonly T _invalid;
 
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+
+        foreach (var grid in _grids)
+        {
+            stringBuilder.Append(grid);
+            stringBuilder.AppendLine();
+        }
+        
+        return stringBuilder.ToString();
+    }
+}
+
+public class NegativeGrid3D<T>
+{
+    public NegativeGrid3D(int width, int height, int depth, int minX, int minY, int minZ, T @default)
+    {
+        Width = width;
+        Height = height;
+        Depth = depth;
+        Origin = new ValueTuple<int, int, int>(minX, minY, minZ);
+        
+        // create the "front" grid
+        var grid = new NegativeGrid<T>(width, height, new Point(minX, minY), 
+            Enumerable.Repeat(@default, width * height));
+        
+        for (var i = 0; i < depth; ++i)
+            _grids.Add(grid.ShallowCopy());
+    }
+
+    private int Index(int z)
+    {
+        return z + Math.Abs(Origin.z); // TODO: +1??
+    }
+
+    public T At(int x, int y, int z) => _grids[Index(z)].At(x, y);
+    public void Set(int x, int y, int z, T value) => _grids[Index(z)].Set(x, y, value);
+    public IEnumerable<T> All() => _grids.SelectMany(g => g.All());
+
+    public int Width { get; }
+    public int Height { get; }
+    public int Depth { get; }
+    public (int x, int y, int z) Origin { get; }
+    private readonly List<NegativeGrid<T>> _grids = new();
+    
     public override string ToString()
     {
         var stringBuilder = new StringBuilder();

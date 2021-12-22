@@ -21,10 +21,13 @@ public class Day22
     
     public void Part1()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day22_example.txt");
+        var lines = File.ReadAllLines(@"..\..\..\input\day22.txt");
         var commands = lines.Select(ParseCommand).Where(c => !c.ExceedsLimits);
 
-        var grid3D = new Grid3D<char>(50, 50, 50, '.', '/');
+
+        var dim = 101; // -50 to 50 + 0 itself
+        // TODO: calculate width and height based on the origin and endpoint (endpoint is the opposite of origin, the absolute max x, y point)
+        var grid3D = new NegativeGrid3D<char>(dim, dim, dim, -50, -50, -50, '.');
         foreach (var command in commands)
         {
             ExecuteCommand(grid3D, command);
@@ -55,13 +58,7 @@ public class Day22
         };
     }
 
-    private static bool ValidCommand(Command command)
-    {
-        
-        return true;
-    }
-
-    private static void ExecuteCommand(Grid3D<char> grid, Command command)
+    private static void ExecuteCommand(NegativeGrid3D<char> grid, Command command)
     {
         for (var x = command.XRange.X; x <= command.XRange.Y; ++x)
         {

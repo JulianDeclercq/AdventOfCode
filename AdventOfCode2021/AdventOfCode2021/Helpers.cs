@@ -6,6 +6,8 @@ public static class Helpers
     // for syntactic sugar in linQ expressions
     public static int ToInt(char c) => int.Parse(char.ToString(c));
     public static int ToInt(Group m) => int.Parse(m.Value);
+    public static string Stringify<T>(T t) => t?.ToString() ?? "null";
+
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
 }
 
@@ -76,6 +78,18 @@ public class Line
     }
 }
 
+public class GridElement<T>
+{
+    public GridElement(Point p, T value)
+    {
+        Position = p;
+        Value = value;
+    }
+    
+    public readonly Point Position;
+    public readonly T Value;
+}
+
 public class Grid<T>
 {
     public Grid(int width, int height, IEnumerable<T> elements, T invalid)
@@ -131,7 +145,7 @@ public class Grid<T>
     public Point FromIndex(int idx) => new (idx % Width, idx / Width);
 
     public int Index(Point p) => Index(p.X, p.Y);
-    private int  Index(int x, int y)
+    private int Index(int x, int y)
     {
         if (x < 0 || x > Width - 1) return -1;
         if (y < 0 || y > Height - 1) return -1;
@@ -180,6 +194,32 @@ public class Grid<T>
         }
 
         return neighbours.Where(ValidPoint);
+    }
+
+    // wraps
+    public GridElement<T> GetEasternNeighbour(Point p)
+    {
+        var x = p.X + 1;
+        
+        // check if it has to wrap
+        if (p.X == Width - 1)
+            x = 0;
+
+        var neighbour = new Point(x, p.Y);
+        return new GridElement<T>(neighbour, At(neighbour));
+    }
+    
+    // wraps
+    public GridElement<T> GetSouthernNeighbour(Point p)
+    {
+        var y = p.Y + 1;
+        
+        // check if it has to wrap
+        if (p.Y == Height - 1)
+            y = 0;
+
+        var neighbour = new Point(p.X, y);
+        return new GridElement<T>(neighbour, At(neighbour));
     }
 
     // checks if the point is within bounds

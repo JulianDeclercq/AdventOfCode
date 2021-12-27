@@ -5,17 +5,56 @@ namespace AdventOfCode2021.days;
 public class Day24
 {
     private readonly RegexHelper _regexHelper = new(new Regex(@"(\w+) (\w+) ?(-?\w+)?"), "instruction", "lhs", "rhs");
-    private readonly List<IEnumerable<Action<int>>> _parts = new();
     private readonly Dictionary<char, int> _registers = new() { {'x', 0}, {'y', 0}, {'z', 0}, {'w', 0} };
     
     public void Part1()
     {
         var monad = File.ReadAllLines(@"..\..\..\input\day24.txt").Select(ParseInstruction).ToArray();
+        var parts = new List<IEnumerable<Action<int>>>();
         const int size = 18;
+        
         for (var i = 0; i < 14; ++i)
-            _parts.Add(monad.Skip(size * i).Take(size));
+            parts.Add(monad.Skip(size * i).Take(size));
 
-        const int zSteps = 100; //not sure how high this should be , depends on which step i suppose since some steps divide it by 26 while others dont
+        var possibilities = FindPossibilities(parts.Last(), 0);
+        foreach(var p in possibilities)
+            Console.WriteLine($"Valid input: w = {p.initialW}, z start = {p.initialZ}");
+        
+        Console.WriteLine(possibilities.Count);
+
+        Console.WriteLine('\n');
+
+        var nextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
+        foreach (var p in possibilities)
+            nextPossibilities.AddRange(FindPossibilities(parts[^2], p.initialZ));
+
+        foreach(var p in nextPossibilities)
+            Console.WriteLine($"Valid input: w = {p.initialW}, z start = {p.initialZ}");
+
+        Console.WriteLine(nextPossibilities.Count);
+        
+        var nextnextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
+        foreach (var p in nextPossibilities)
+            nextnextPossibilities.AddRange(FindPossibilities(parts[^3], p.initialZ));
+
+        Console.WriteLine(nextnextPossibilities.Count);
+        
+        var nextnextnextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
+        foreach (var p in nextnextPossibilities)
+            nextnextnextPossibilities.AddRange(FindPossibilities(parts[^4], p.initialZ));
+
+        Console.WriteLine(nextnextnextPossibilities.Count);
+        
+
+//        Console.WriteLine($"Day 24 part 1: {ctr}");
+    }
+
+    private List<(int initialW, int initialZ, int targetZ)> FindPossibilities(IEnumerable<Action<int>> step, int targetZ)
+    {
+        const int zSteps = 100000; //not sure how high this should be , depends on which step i suppose since some steps divide it by 26 while others dont
+        var possibilities = new List<(int, int, int)>();
+        var stepArr = step.ToArray();
+        
         for (var w = 1; w <= 9; ++w)
         {
             for (var z = 0; z <= zSteps; ++z)
@@ -24,18 +63,19 @@ public class Day24
                 _registers['z'] = z;
                 //PrintRegisters();
 
-                foreach (var action in _parts.Last())
+//                foreach (var action in _parts.Last())
+                foreach (var action in stepArr)
                 {
                     action.Invoke(w);
                     //PrintRegisters();
                 }
                 
                 if (_registers['z'] == 0)
-                    Console.WriteLine($"Valid input: w = {w}, z start = {z}");
+                    possibilities.Add(new ValueTuple<int, int, int>(w, z, targetZ));
             }
         }
 
-//        Console.WriteLine($"Day 24 part 1: {ctr}");
+        return possibilities;
     }
 
     private Action<int> ParseInstruction(string instruction)

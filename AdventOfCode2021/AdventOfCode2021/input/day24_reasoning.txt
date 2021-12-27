@@ -1,0 +1,75 @@
+inp w			inp w			inp w		  inp w     	inp w   	inp w   	inp w   	inp w   	inp w		inp w    	inp w      inp w     	inp w    	inp w
+mul x 0			mul x 0			mul x 0		  mul x 0     	mul x 0   	mul x 0   	mul x 0   	mul x 0  	mul x 0		mul x 0    	mul x 0    mul x 0     	mul x 0    	mul x 0
+add x z			add x z			add x z		  add x z     	add x z   	add x z   	add x z   	add x z  	add x z		add x z    	add x z    add x z     	add x z    	add x z
+mod x 26		mod x 26		mod x 26	  mod x 26     	mod x 26   	mod x 26   	mod x 26   	mod x 26  	mod x 26	mod x 26    mod x 26   mod x 26     mod x 26    mod x 26
+div z 1			div z 1			div z 1		  div z 1     	div z 26   	div z 1   	div z 26   	div z 26  	div z 1		div z 26    div z 1    div z 26     div z 26    div z 26
+add x 10		add x 15		add x 14	  add x 15     	add x -8   	add x 10   	add x -16   add x -4  	add x 11	add x -3    add x 12   add x -7     add x -15   add x -7
+eql x w			eql x w			eql x w		  eql x w     	eql x w   	eql x w   	eql x w   	eql x w  	eql x w		eql x w    	eql x w    eql x w     	eql x w    	eql x w
+eql x 0			eql x 0			eql x 0		  eql x 0     	eql x 0   	eql x 0   	eql x 0   	eql x 0  	eql x 0		eql x 0    	eql x 0    eql x 0     	eql x 0    	eql x 0
+mul y 0			mul y 0			mul y 0		  mul y 0     	mul y 0   	mul y 0   	mul y 0   	mul y 0  	mul y 0		mul y 0    	mul y 0    mul y 0     	mul y 0    	mul y 0
+add y 25		add y 25		add y 25	  add y 25     	add y 25   	add y 25   	add y 25   	add y 25  	add y 25	add y 25    add y 25   add y 25     add y 25    add y 25
+mul y x			mul y x			mul y x		  mul y x     	mul y x   	mul y x   	mul y x   	mul y x  	mul y x		mul y x    	mul y x    mul y x     	mul y x    	mul y x
+add y 1			add y 1			add y 1		  add y 1     	add y 1   	add y 1   	add y 1   	add y 1  	add y 1		add y 1    	add y 1    add y 1     	add y 1    	add y 1
+mul z y			mul z y			mul z y		  mul z y     	mul z y   	mul z y   	mul z y   	mul z y  	mul z y		mul z y    	mul z y    mul z y     	mul z y    	mul z y
+mul y 0			mul y 0			mul y 0		  mul y 0     	mul y 0   	mul y 0   	mul y 0   	mul y 0  	mul y 0		mul y 0    	mul y 0    mul y 0     	mul y 0    	mul y 0
+add y w			add y w			add y w		  add y w     	add y w   	add y w   	add y w   	add y w  	add y w		add y w    	add y w    add y w     	add y w    	add y w
+add y 2			add y 16		add y 9		  add y 0     	add y 1   	add y 12   	add y 6   	add y 6  	add y 3		add y 5    	add y 9    add y 3     	add y 2    	add y 3
+mul y x			mul y x			mul y x		  mul y x     	mul y x   	mul y x   	mul y x   	mul y x  	mul y x		mul y x    	mul y x    mul y x     	mul y x    	mul y x
+add z y			add z y			add z y		  add z y     	add z y   	add z y   	add z y   	add z y  	add z y		add z y    	add z y    add z y     	add z y    	add z y
+			
+Observations:
+x gets reset on first instruction every time
+x becomes z no matter what it started as
+x gets modulod by 26 (not sure why?)
+* z gets divided by 26 or by 1 (1 can be ignored)
+* a psuedorandom value gets assigned to z (=> this value will probably be vital in knowing the restrictions per part)
+x gets equality checked against W
+x gets equality checked against 0
+y gets reset
+y gets incremented by 25
+x gets multiplied by y (relevant considering the next step's modulo 26 and x doesn't get reset down the line in the step)
+y gets incremented by 1
+z gets multiplied by y
+y gets reset
+y becomes w
+* a pseudorandom number is added to y
+y is multiplied by x
+finally y is added to z
+
+inp w			inp w			inp w		  inp w     	inp w   	inp w   	inp w   	inp w   	inp w		inp w    	inp w      inp w     	inp w    	inp w
+mul x 0			mul x 0			mul x 0		  mul x 0     	mul x 0   	mul x 0   	mul x 0   	mul x 0  	mul x 0		mul x 0    	mul x 0    mul x 0     	mul x 0    	mul x 0
+add x z			add x z			add x z		  add x z     	add x z   	add x z   	add x z   	add x z  	add x z		add x z    	add x z    add x z     	add x z    	add x z
+mod x 26		mod x 26		mod x 26	  mod x 26     	mod x 26   	mod x 26   	mod x 26   	mod x 26  	mod x 26	mod x 26    mod x 26   mod x 26     mod x 26    mod x 26
+div z 1			div z 1			div z 1		  div z 1     	div z 26   	div z 1   	div z 26   	div z 26  	div z 1		div z 26    div z 1    div z 26     div z 26    div z 26
+add x 10		add x 15		add x 14	  add x 15     	add x -8   	add x 10   	add x -16   add x -4  	add x 11	add x -3    add x 12   add x -7     add x -15   add x -7
+eql x w			eql x w			eql x w		  eql x w     	eql x w   	eql x w   	eql x w   	eql x w  	eql x w		eql x w    	eql x w    eql x w     	eql x w    	eql x w
+eql x 0			eql x 0			eql x 0		  eql x 0     	eql x 0   	eql x 0   	eql x 0   	eql x 0  	eql x 0		eql x 0    	eql x 0    eql x 0     	eql x 0    	eql x 0
+mul y 0			mul y 0			mul y 0		  mul y 0     	mul y 0   	mul y 0   	mul y 0   	mul y 0  	mul y 0		mul y 0    	mul y 0    mul y 0     	mul y 0    	mul y 0
+add y 25		add y 25		add y 25	  add y 25     	add y 25   	add y 25   	add y 25   	add y 25  	add y 25	add y 25    add y 25   add y 25     add y 25    add y 25
+mul y x			mul y x			mul y x		  mul y x     	mul y x   	mul y x   	mul y x   	mul y x  	mul y x		mul y x    	mul y x    mul y x     	mul y x    	mul y x
+add y 1			add y 1			add y 1		  add y 1     	add y 1   	add y 1   	add y 1   	add y 1  	add y 1		add y 1    	add y 1    add y 1     	add y 1    	add y 1
+mul z y			mul z y			mul z y		  mul z y     	mul z y   	mul z y   	mul z y   	mul z y  	mul z y		mul z y    	mul z y    mul z y     	mul z y    	mul z y
+mul y 0			mul y 0			mul y 0		  mul y 0     	mul y 0   	mul y 0   	mul y 0   	mul y 0  	mul y 0		mul y 0    	mul y 0    mul y 0     	mul y 0    	mul y 0
+add y w			add y w			add y w		  add y w     	add y w   	add y w   	add y w   	add y w  	add y w		add y w    	add y w    add y w     	add y w    	add y w
+add y 2			add y 16		add y 9		  add y 0     	add y 1   	add y 12   	add y 6   	add y 6  	add y 3		add y 5    	add y 9    add y 3     	add y 2    	add y 3
+mul y x			mul y x			mul y x		  mul y x     	mul y x   	mul y x   	mul y x   	mul y x  	mul y x		mul y x    	mul y x    mul y x     	mul y x    	mul y x
+add z y			add z y			add z y		  add z y     	add z y   	add z y   	add z y   	add z y  	add z y		add z y    	add z y    add z y     	add z y    	add z y
+
+the registers don't reset inbetween steps, so for the last step it is important to know what is in the registers to check validity
+for example when calculating the possible w (number) to have a z outcome of 0, you need to take the registers into account.
+Possiblities in registers are: {x: /, y: /, z: , w: 1-9}
+
+x doesn't matter since it gets reset
+y doesn't matter since it always gets reset too (and will get set to 25 * z)
+z is VERY important
+
+basically need to calculate for which z and which w values a step will result in the total program storing 0 in z
+for the last step this should be quite straightforward
+
+eql a b - If the value of a and b are equal, then store the value 1 in variable a. Otherwise, store the value 0 in variable a.
+
+
+
+
+
+

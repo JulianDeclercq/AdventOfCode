@@ -6,9 +6,14 @@ public static class Helpers
     // for syntactic sugar in linQ expressions
     public static int ToInt(char c) => int.Parse(char.ToString(c));
     public static int ToInt(Group m) => int.Parse(m.Value);
-    public static string Stringify<T>(T t) => t?.ToString() ?? "null";
+    public static string Ordered(this string s) => string.Concat(s.OrderBy(c => c));
+    public static bool OrderedEquals(this string lhs, string rhs) => lhs.Ordered().Equals(rhs.Ordered());
+    public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.Str(), rhs);
 
+    
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
+    private static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
+
 }
 
 public class Point : IEquatable<Point>

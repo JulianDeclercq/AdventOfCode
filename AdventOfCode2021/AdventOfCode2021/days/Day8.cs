@@ -11,52 +11,45 @@ public class Day8
             UniqueSignalPatterns = uniqueSignalPatterns;
             OutputValues = outputValues;
         }
-        public readonly List<string> UniqueSignalPatterns; // unique signal patterns
-        public readonly List<string> OutputValues; // four digit output value
+        public readonly List<string> UniqueSignalPatterns;
+        public readonly List<string> OutputValues;
     }
     
-    // map the numbers with the segments that represent them (use string here as an array of characters)
+    // {number, amount of segments}
     private readonly Dictionary<int, int> _uniqueLengths = new() { {1, 2}, {4, 4}, {7, 3}, {8, 7} };
     
     public void Part1()
     {
-        var entries = File.ReadLines(@"..\..\..\input\day8.txt").
-            Select(a => a.Split('|')
-           .Select(b => b.Trim())
-           .Select(c => c.Split(' ').ToList()).ToList())
-           .Select(d => new Entry(d[0], d[1])).ToList();
-        
+        var entries = ParseInput();
         var answer = entries.SelectMany(e => e.OutputValues).Count(fdov => _uniqueLengths.ContainsValue(fdov.Length));
         Console.WriteLine($"Day 8 part 1: {answer}");
     }
     
     public void Part2()
     {
-        var entries = File.ReadLines(@"..\..\..\input\day8.txt").
+        var entries = ParseInput();
+        Console.WriteLine($"Day 8 part 2: {entries.Select(FourDigitOutputValue).Sum()}");
+    }
+
+    private static IEnumerable<Entry> ParseInput()
+    {
+        return File.ReadLines(@"..\..\..\input\day8.txt").
             Select(a => a.Split('|')
            .Select(b => b.Trim())
            .Select(c => c.Split(' ').ToList()).ToList())
            .Select(d => new Entry(d[0], d[1])).ToList();
-
-        Console.WriteLine($"Day 8 part 2: {entries.Select(FourDigitOutputValue).Sum()}");
     }
 
     private int FourDigitOutputValue(Entry e)
     {
-        // add (ordered) 1 4 7 and 8 since those have unique lengths
-        var map = new Dictionary<int, string>
-        {
-            {1, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[1]).Ordered()},
-            {4, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[4]).Ordered()},
-            {7, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[7]).Ordered()},
-            {8, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[8]).Ordered()}
-        };
+        // automatically map the values that have unique lengths (1, 4, 7, 8) to their pattern
+        var map = _uniqueLengths.ToDictionary(x => x.Key,
+            x => e.UniqueSignalPatterns.Single(usp => usp.Length == _uniqueLengths[x.Key]).Ordered());
 
         var unmapped = e.UniqueSignalPatterns.Where(x => !map.ContainsValue(x.Ordered())).ToList();
         
-        // determine mapping
         // digits with length 6: 0, 6, 9
-        // 9 is the only 6 length digit left that contains all signals that 4 also contains
+        // 9 is the only 6 length digit that contains all signals that 4 also contains
         var nine = unmapped.Where(x => x.Length == 6).Single(x => x.Intersect(map[4]).OrderedEquals(map[4]));
         map.Add(9, nine.Ordered());
         unmapped.Remove(nine);

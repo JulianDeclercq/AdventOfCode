@@ -16,11 +16,7 @@ public class Day8
     }
     
     // map the numbers with the segments that represent them (use string here as an array of characters)
-    private readonly Dictionary<int, string> _map = new()
-    {
-        {0, "abcefg"}, {1, "cf"}, {2, "acdeg"}, {3, "acdfg"}, {4, "bcdf"},
-        {5, "abdfg"}, {6, "abdefg"}, {7, "acf"}, {8, "abcdefg"}, {9, "abcdfg"},
-    };
+    private readonly Dictionary<int, int> _uniqueLengths = new() { {1, 2}, {4, 4}, {7, 3}, {8, 7} };
     
     public void Part1()
     {
@@ -30,8 +26,7 @@ public class Day8
            .Select(c => c.Split(' ').ToList()).ToList())
            .Select(d => new Entry(d[0], d[1])).ToList();
         
-        var targetLengths = new List<int>{_map[1].Length, _map[4].Length, _map[7].Length, _map[8].Length};
-        var answer = entries.SelectMany(e => e.OutputValues).Count(fdov => targetLengths.Contains(fdov.Length));
+        var answer = entries.SelectMany(e => e.OutputValues).Count(fdov => _uniqueLengths.ContainsValue(fdov.Length));
         Console.WriteLine($"Day 8 part 1: {answer}");
     }
     
@@ -51,10 +46,10 @@ public class Day8
         // add (ordered) 1 4 7 and 8 since those have unique lengths
         var map = new Dictionary<int, string>
         {
-            {1, e.UniqueSignalPatterns.Single(x => x.Length == _map[1].Length).Ordered()},
-            {4, e.UniqueSignalPatterns.Single(x => x.Length == _map[4].Length).Ordered()},
-            {7, e.UniqueSignalPatterns.Single(x => x.Length == _map[7].Length).Ordered()},
-            {8, e.UniqueSignalPatterns.Single(x => x.Length == _map[8].Length).Ordered()}
+            {1, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[1]).Ordered()},
+            {4, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[4]).Ordered()},
+            {7, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[7]).Ordered()},
+            {8, e.UniqueSignalPatterns.Single(x => x.Length == _uniqueLengths[8]).Ordered()}
         };
 
         var unmapped = e.UniqueSignalPatterns.Where(x => !map.ContainsValue(x.Ordered())).ToList();

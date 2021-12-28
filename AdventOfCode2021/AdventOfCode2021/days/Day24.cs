@@ -6,47 +6,66 @@ public class Day24
 {
     private readonly RegexHelper _regexHelper = new(new Regex(@"(\w+) (\w+) ?(-?\w+)?"), "instruction", "lhs", "rhs");
     private readonly Dictionary<char, int> _registers = new() { {'x', 0}, {'y', 0}, {'z', 0}, {'w', 0} };
+    private Dictionary<(int stepIdx, int initialW, int initialZ), int> _memo = new();
+    private List<List<Action<int>>> _parts = new();
     
     public void Part1()
     {
         var monad = File.ReadAllLines(@"..\..\..\input\day24.txt").Select(ParseInstruction).ToArray();
-        var parts = new List<IEnumerable<Action<int>>>();
         const int size = 18;
         
         for (var i = 0; i < 14; ++i)
-            parts.Add(monad.Skip(size * i).Take(size));
+            _parts.Add(monad.Skip(size * i).Take(size).ToList());
 
-        var possibilities = FindPossibilities(parts.Last(), 0);
-        foreach(var p in possibilities)
-            Console.WriteLine($"Valid input: w = {p.initialW}, z start = {p.initialZ}");
+        for (var input = 99999999999999; input >= 11111111111111; --input)
+        {
+            var inputS = input.ToString();
+            ResetRegisters();
+
+            var initialZ = 0;
+            for (var i = 0; i < _parts.Count; ++i)
+                initialZ = RunPart(i, int.Parse(inputS[i].ToString()), initialZ);
+            
+            if (_registers['z'] == 0)
+            {
+                Console.WriteLine($"Day 24 part 1: {inputS}");
+                break;
+            }
+            
+            if (input % 1000000 == 0)
+                Console.WriteLine(inputS);
+        }
         
-        Console.WriteLine(possibilities.Count);
+        Console.WriteLine(_memo.Count);
+        return;
 
-        Console.WriteLine('\n');
-
-        var nextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
-        foreach (var p in possibilities)
-            nextPossibilities.AddRange(FindPossibilities(parts[^2], p.initialZ));
-
-        foreach(var p in nextPossibilities)
-            Console.WriteLine($"Valid input: w = {p.initialW}, z start = {p.initialZ}");
-
-        Console.WriteLine(nextPossibilities.Count);
+        foreach (var m in _memo)
+        {
+            if(m.Key.stepIdx == 13)
+                Console.WriteLine($"{m.Key}: {m.Value}");
+        }
         
-        var nextnextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
-        foreach (var p in nextPossibilities)
-            nextnextPossibilities.AddRange(FindPossibilities(parts[^3], p.initialZ));
-
-        Console.WriteLine(nextnextPossibilities.Count);
-        
-        var nextnextnextPossibilities = new List<(int initialW, int initialZ, int targetZ)>();
-        foreach (var p in nextnextPossibilities)
-            nextnextnextPossibilities.AddRange(FindPossibilities(parts[^4], p.initialZ));
-
-        Console.WriteLine(nextnextnextPossibilities.Count);
-        
-
 //        Console.WriteLine($"Day 24 part 1: {ctr}");
+    }
+
+    private int RunPart(int partIdx, int initialW, int initialZ)
+    {
+        var key = (partIdx, initialW, initialZ);
+        if (_memo.ContainsKey(key))
+        {
+            // simulate the registers as if everything was run again
+            // x and y don't matter since they get reset anyways
+            _registers['w'] = initialW;
+            _registers['z'] = _memo[key];
+            return _memo[key];
+        }
+
+        foreach (var action in _parts[partIdx])
+            action.Invoke(initialW);
+        
+        _memo.Add(key, _registers['z']);
+
+        return _registers['z'];
     }
 
     private List<(int initialW, int initialZ, int targetZ)> FindPossibilities(IEnumerable<Action<int>> step, int targetZ)

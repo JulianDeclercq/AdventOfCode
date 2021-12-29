@@ -2,7 +2,10 @@
 
 public class Day14
 {
-    public void Part1()
+    public void Part1() => Solve();
+    public void Part2() => Solve(part2: true);
+    
+    private static void Solve(bool part2 = false)
     {
         var lines = File.ReadAllLines(@"..\..\..\input\day14.txt");
         var polymerTemplate = lines.First();
@@ -15,11 +18,10 @@ public class Day14
                 return (toInsert, $"{pair[0]}{toInsert}", $"{toInsert}{pair[1]}");
             });
 
-        //foreach(var el in insertionRules) Console.WriteLine($"{el.Key}|{el.Value}");
-
         var sequence = new Dictionary<string, long>();
         var occurenceCounter = new Dictionary<char, long>();
 
+        // create the initial sequence from the template and count initial occurrences
         for (var i = 0; i < polymerTemplate.Length; ++i)
         {
             occurenceCounter.TryGetValue(polymerTemplate[i], out var count);
@@ -29,7 +31,7 @@ public class Day14
                 sequence.Add($"{polymerTemplate[i]}{polymerTemplate[i+1]}", 1);
         }
         
-        const int steps = 40;
+        var steps = part2 ? 40 : 10;
         var newSequence = sequence.ToDictionary(x => x.Key, x => x.Value);
         for (var i = 0; i < steps; ++i)
         {
@@ -53,15 +55,6 @@ public class Day14
             }
             sequence = newSequence.ToDictionary(x => x.Key, x => x.Value);
         }
-        
-        foreach(var e in occurenceCounter)
-            Console.WriteLine($"{e.Key}|{e.Value}");
-        
-        Console.WriteLine($"Day 14 part 1: {occurenceCounter.Values.Max() - occurenceCounter.Values.Min()}");
-        
-        
-
-        //        foreach(var el in map) Console.WriteLine($"{el.Key}|{el.Value}");
-
+        Console.WriteLine($"Day 14 part {(part2 ? 2 : 1)}: {occurenceCounter.Values.Max() - occurenceCounter.Values.Min()}");
     }
 }

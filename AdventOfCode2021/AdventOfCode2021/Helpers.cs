@@ -32,7 +32,7 @@ public class Point : IEquatable<Point>
 
     public readonly int X, Y;
     
-    public override string ToString() => $"{X}, {Y}";
+    public override string ToString() => $"{X},{Y}";
     public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
     public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
 
@@ -158,6 +158,7 @@ public class Grid<T>
     }
 
     // doesn't support wrapping
+    public IEnumerable<T> Neighbours(Point p, bool includeDiagonals = true) => Neighbours(p.X, p.Y, includeDiagonals);
     public IEnumerable<T> Neighbours(int x, int y, bool includeDiagonals = true)
     {
         var neighbours = new List<T>()

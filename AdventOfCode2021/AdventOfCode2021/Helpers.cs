@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 namespace AdventOfCode2021;
 
 public static class Helpers
@@ -9,6 +10,9 @@ public static class Helpers
     public static string Ordered(this string s) => string.Concat(s.OrderBy(c => c));
     public static bool OrderedEquals(this string lhs, string rhs) => lhs.Ordered().Equals(rhs.Ordered());
     public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.Str(), rhs);
+    
+    public static void Print<T>(this IEnumerable<T> enumerable) 
+        => Console.WriteLine(new StringBuilder().AppendJoin('|', enumerable));
     
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
     private static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));

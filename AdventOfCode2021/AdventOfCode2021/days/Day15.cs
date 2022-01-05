@@ -41,6 +41,7 @@ namespace AdventOfCode2021.days
                 }
             }
 
+            // reconstruct the path
             var path = new List<Point>();
             var cur = last;
             while (!cur.Equals(first))
@@ -48,7 +49,6 @@ namespace AdventOfCode2021.days
                 path.Add(cur);
                 cur = cameFrom[cur];
             }
-
             return path.Select(grid.At).Sum();
 
             // debug printing
@@ -59,32 +59,32 @@ namespace AdventOfCode2021.days
         
         public void Part2()
         {
-            var lines = File.ReadAllLines(@"..\..\..\input\day15.txt");
             const int timesLarger = 5;
+            var lines = File.ReadAllLines(@"..\..\..\input\day15.txt");
 
+            // index is iteration of transformation (0 = original, 1 = 1x transformed, 2 = 2x transformed etc.)
+            // 9 is the highest transformation needed (maxTransformations) in this problem's input (timesLarger = 5)
+            const int maxTransformations = timesLarger * 2 - 1;
+            var transformations = new List<string[]>(Enumerable.Repeat(lines, maxTransformations));
             var last = lines;
-            
-            // index is iteration of transformation (1 = 1x transformed etc.)
-            var transformations = new List<string[]>(Enumerable.Repeat(lines, 9));
-            for (var i = 1; i < 9; ++i)
+            for (var i = 1; i < maxTransformations; ++i)
             {
                 last = last.Select(Transform).ToArray();
                 transformations[i] = last;
             }
 
-            int singleWidth = lines[0].Length, singleHeight = lines.Length;
-            var cave = new List<string>(Enumerable.Repeat(string.Empty, timesLarger * singleHeight));
+            var height = lines.Length;
+            var cave = new List<string>(Enumerable.Repeat(string.Empty, timesLarger * height));
 
-            for (var i = 0; i < singleHeight; ++i)
+            for (var i = 0; i < height; ++i)
             {
-                var idx = i;
-                cave[i] = transformations.Take(timesLarger).SelectMany(x => x[idx]).Stringify();
-                cave[i + singleHeight] = transformations.Skip(1).Take(timesLarger).SelectMany(x => x[idx]).Stringify();
-                cave[i + singleHeight * 2] = transformations.Skip(2).Take(timesLarger).SelectMany(x => x[idx]).Stringify();
-                cave[i + singleHeight * 3] = transformations.Skip(3).Take(timesLarger).SelectMany(x => x[idx]).Stringify();
-                cave[i + singleHeight * 4] = transformations.Skip(4).Take(timesLarger).SelectMany(x => x[idx]).Stringify();
+                for (var j = 0; j < timesLarger; ++j)
+                {
+                    var idx = i;
+                    cave[i + height * j] = transformations.Skip(j).Take(timesLarger).SelectMany(x => x[idx]).Stringify();
+                }
             }
-            
+
             Console.WriteLine($"Day 15 part 2: {Solve(cave)}");
         }
 

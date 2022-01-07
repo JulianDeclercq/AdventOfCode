@@ -1,3 +1,5 @@
+0               1               2             3             4           5           6           7           8           9           10         11           12          13
+
 inp w			inp w			inp w		  inp w     	inp w   	inp w   	inp w   	inp w   	inp w		inp w    	inp w      inp w     	inp w    	inp w
 mul x 0			mul x 0			mul x 0		  mul x 0     	mul x 0   	mul x 0   	mul x 0   	mul x 0  	mul x 0		mul x 0    	mul x 0    mul x 0     	mul x 0    	mul x 0
 add x z			add x z			add x z		  add x z     	add x z   	add x z   	add x z   	add x z  	add x z		add x z    	add x z    add x z     	add x z    	add x z
@@ -16,6 +18,13 @@ add y w			add y w			add y w		  add y w     	add y w   	add y w   	add y w   	add
 add y 2			add y 16		add y 9		  add y 0     	add y 1   	add y 12   	add y 6   	add y 6  	add y 3		add y 5    	add y 9    add y 3     	add y 2    	add y 3
 mul y x			mul y x			mul y x		  mul y x     	mul y x   	mul y x   	mul y x   	mul y x  	mul y x		mul y x    	mul y x    mul y x     	mul y x    	mul y x
 add z y			add z y			add z y		  add z y     	add z y   	add z y   	add z y   	add z y  	add z y		add z y    	add z y    add z y     	add z y    	add z y
+
+stap 2 met w = 9 en z = 311
+
+x = 1
+y = 18
+z = 8086
+w = 9
 			
 Observations:
 x gets reset on first instruction every time
@@ -67,6 +76,22 @@ basically need to calculate for which z and which w values a step will result in
 for the last step this should be quite straightforward
 
 eql a b - If the value of a and b are equal, then store the value 1 in variable a. Otherwise, store the value 0 in variable a.
+
+//
+
+possibilities for input of the last step (solutions that result in z being 0):
+
+Valid input: w = 1, z start = 8
+Valid input: w = 2, z start = 9
+Valid input: w = 3, z start = 10
+Valid input: w = 4, z start = 11
+Valid input: w = 5, z start = 12
+Valid input: w = 6, z start = 13
+Valid input: w = 7, z start = 14
+Valid input: w = 8, z start = 15
+Valid input: w = 9, z start = 16
+
+
 
 
 

@@ -57,7 +57,7 @@ public class Day16
         }
 
         // total length in bits of the sub-packets contained by this packet.
-        const int subpacketLength = 11;
+        const int subpacketLength = 11; // this is wrong
         var subpackets = new List<string>();
         if (packet[offset] == '0')
         {

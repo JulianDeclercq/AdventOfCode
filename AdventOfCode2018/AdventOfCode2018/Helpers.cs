@@ -3,7 +3,6 @@ namespace AdventOfCode2018;
 
 public static class Helpers
 {
-    // for syntactic sugar in linQ expressions
     public static int ToInt(char c) => int.Parse(char.ToString(c));
     public static int ToInt(Group m) => int.Parse(m.Value);
     public static string Ordered(this string s) => string.Concat(s.OrderBy(c => c));
@@ -13,6 +12,16 @@ public static class Helpers
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
     private static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
 
+    public static Dictionary<T, int> CountOccurrences<T>(IEnumerable<T> enumerable) where T : notnull
+    {
+        var ctr = new Dictionary<T, int>();
+        foreach (var el in enumerable)
+        {
+            ctr.TryGetValue(el, out var count);
+            ctr[el] = count + 1;
+        }
+        return ctr;
+    }
 }
 
 public class Point : IEquatable<Point>

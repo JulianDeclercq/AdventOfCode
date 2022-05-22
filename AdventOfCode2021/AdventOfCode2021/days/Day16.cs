@@ -19,9 +19,9 @@ public class Day16
     {
         //const string hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
         //const string hexInput = "D2FE28";
-        //const string hexInput = "38006F45291200";
+        const string hexInput = "38006F45291200";
         //const string hexInput = "EE00D40C823060";
-        const string hexInput = "A0016C880162017C3686B18A3D4780";
+        //const string hexInput = "A0016C880162017C3686B18A3D4780";
         ParsePacket(ToBinary(hexInput));
         
         Console.WriteLine($"Day 16 part 1: {_part1}");
@@ -37,7 +37,16 @@ public class Day16
         return sb.ToString();
     }
 
-    private static int ParsePacket(string packet)
+    private class ParseInfo
+    {
+        public string Remainder = "";
+        public int Literal = int.MinValue;
+        public int TotalParsed = 0;
+
+        public override string ToString() => $"Remainder: {Remainder}\nLiteral {Literal}\nTotalParsed: {TotalParsed}";
+    }
+
+    private static ParseInfo ParsePacket(string packet)
     {
         var offset = 0;
         var packetVersion = Convert.ToInt32(packet[offset..3], 2);
@@ -49,39 +58,30 @@ public class Day16
         offset += 3;
         Console.WriteLine($"packet version {packetVersion}, type id {typeId}");
 
-        if (typeId == 4)
+        if (typeId == 4) // parse literal
         {
-            var l = ParseLiteral(packet[offset..]);
-            Console.WriteLine($"Parsed literal {l}");
-            return l;
+            var info = ParseLiteral(packet[offset..]);
+            info.TotalParsed += offset;
+            Console.WriteLine($"Parsed literal {info}");
+            return info;
         }
 
-        // total length in bits of the sub-packets contained by this packet.
-        const int subpacketLength = 11; // this is wrong
-        var subpackets = new List<string>();
-        if (packet[offset] == '0')
+        if (packet[offset] == '0') // total length in bits of the sub-packets contained by this packet.
         {
             offset++;
             
             var totalSubpacketLength = Convert.ToInt32(packet[offset..(offset + 15)], 2);
             offset += 15;
-            Console.WriteLine(totalSubpacketLength);
-
-            var cycles = totalSubpacketLength / subpacketLength;
-            for (var i = 0; i < cycles; ++i)
+            
+            // parse the next packet for now
+            var targetOffset = offset + totalSubpacketLength;
+            while (offset < targetOffset)
             {
-                // parse the last packet
-                if (i == cycles - 1)
-                {
-                    subpackets.Add(packet[offset..(offset + subpacketLength + totalSubpacketLength % subpacketLength)]);
-                    break;
-                }
-
-                subpackets.Add(packet[offset..(offset + subpacketLength)]);
-                offset += subpacketLength;
+                var info = ParsePacket(packet[offset..]);
+                offset += info.TotalParsed;
             }
         }
-        else // number of sub-packets immediately contained by this packet.
+        /*else // number of sub-packets immediately contained by this packet.
         {
             offset++;
 
@@ -92,24 +92,38 @@ public class Day16
                 subpackets.Add(packet[offset..(offset + subpacketLength)]);
                 offset += subpacketLength;
             }
-        }
+        }*/
         
-        // TODO: Don't just print the parsed packet, do something with it :P
-        foreach (var sp in subpackets) 
-            Console.WriteLine(ParsePacket(sp));
-
-        return int.MinValue;
+        return new ParseInfo
+        {
+            Remainder = "endofmethod",
+            Literal = int.MaxValue,
+            TotalParsed = offset // not sure if this is correct
+        };
     }
 
-    private static int ParseLiteral(string packet)
+    private static ParseInfo ParseLiteral(string packet)
     {
         const int groupLength = 5; // literal groups are 4 bits + 1 bit prefix
-        var cycles = packet.Length / groupLength;
 
+        var offset = 0;
         var sb = new StringBuilder();
-        for (var i = 0; i < cycles; ++i)
-            sb.Append(packet.Skip(i * groupLength + 1).Take(groupLength - 1).Stringify()); // +-1 for prefix
+        for (var i = 0;; ++i)
+        {
+            var group = packet.Skip(i * groupLength).Take(groupLength).ToArray();
+            sb.Append(group.Skip(1).Stringify()); // skip the prefix
+            offset += groupLength;
 
-        return Convert.ToInt32(sb.ToString(), 2);
+            // check if this was the last group
+            if (group.First() == '0')
+                break;
+        }
+
+        return new ParseInfo
+        {
+            Remainder = packet[offset..],
+            Literal = Convert.ToInt32(sb.ToString(), 2),
+            TotalParsed = offset
+        };
     }
 }

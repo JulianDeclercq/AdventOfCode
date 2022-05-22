@@ -10,8 +10,8 @@ public static class Helpers
     public static string Ordered(this string s) => string.Concat(s.OrderBy(c => c));
     public static bool OrderedEquals(this string lhs, string rhs) => lhs.Ordered().Equals(rhs.Ordered());
     public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.AsString(), rhs);
-    
-    public static void Print<T>(this IEnumerable<T> enumerable) 
+
+    public static void Print<T>(this IEnumerable<T> enumerable)
         => Console.WriteLine(new StringBuilder().AppendJoin('|', enumerable));
 
     public static char DigitToChar(int digit)
@@ -21,10 +21,18 @@ public static class Helpers
 
         return (char) (digit + 48);
     }
-    
+
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
     private static string AsString(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
     public static string Stringify(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(_ => true));
+
+    public static bool Verbose = true;
+
+    public static void WriteLine(string? value, bool verboseOnly = false)
+    {
+        if (!verboseOnly || Verbose)
+            Console.WriteLine(value);
+    }
 
 }
 

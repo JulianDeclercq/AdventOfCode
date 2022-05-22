@@ -17,14 +17,12 @@ public class Day16
 
     public void Part1()
     {
-        //const string hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
-        //const string hexInput = "D2FE28";
-        const string hexInput = "38006F45291200";
-        //const string hexInput = "EE00D40C823060";
+        Helpers.Verbose = false;
         //const string hexInput = "A0016C880162017C3686B18A3D4780";
+        var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
         ParsePacket(ToBinary(hexInput));
         
-        Console.WriteLine($"Day 16 part 1: {_part1}");
+        Helpers.WriteLine($"Day 16 part 1: {_part1}");
     }
 
     private static string ToBinary(string s)
@@ -40,7 +38,7 @@ public class Day16
     private class ParseInfo
     {
         public string Remainder = "";
-        public int Literal = int.MinValue;
+        public long Literal = long.MinValue;
         public int TotalParsed = 0;
 
         public override string ToString() => $"Remainder: {Remainder}\nLiteral {Literal}\nTotalParsed: {TotalParsed}";
@@ -56,43 +54,52 @@ public class Day16
         offset += 3;
         var typeId = Convert.ToInt32(packet[offset..6], 2);
         offset += 3;
-        Console.WriteLine($"packet version {packetVersion}, type id {typeId}");
+        Helpers.WriteLine($"packet version {packetVersion}, type id {typeId}", true);
 
         if (typeId == 4) // parse literal
         {
             var info = ParseLiteral(packet[offset..]);
             info.TotalParsed += offset;
-            Console.WriteLine($"Parsed literal {info}");
+            Helpers.WriteLine($"Parsed literal {info}", true);
             return info;
         }
 
-        if (packet[offset] == '0') // total length in bits of the sub-packets contained by this packet.
+        var lengthTypeId = packet[offset++];
+        switch (lengthTypeId)
         {
-            offset++;
-            
-            var totalSubpacketLength = Convert.ToInt32(packet[offset..(offset + 15)], 2);
-            offset += 15;
-            
-            // parse the next packet for now
-            var targetOffset = offset + totalSubpacketLength;
-            while (offset < targetOffset)
+            // total length in bits of the sub-packets contained by this packet.
+            case '0':
             {
-                var info = ParsePacket(packet[offset..]);
-                offset += info.TotalParsed;
-            }
-        }
-        /*else // number of sub-packets immediately contained by this packet.
-        {
-            offset++;
+                var totalSubpacketLength = Convert.ToInt32(packet[offset..(offset + 15)], 2);
+                offset += 15;
+            
+                // parse the next packet for now
+                var targetOffset = offset + totalSubpacketLength;
+                while (offset < targetOffset)
+                {
+                    var info = ParsePacket(packet[offset..]);
+                    offset += info.TotalParsed;
+                }
 
-            var nrOfSubpackets = Convert.ToInt32(packet[offset..(offset + 11)], 2);
-            offset += 11;
-            for (var i = 0; i < nrOfSubpackets; ++i)
-            {
-                subpackets.Add(packet[offset..(offset + subpacketLength)]);
-                offset += subpacketLength;
+                break;
             }
-        }*/
+            
+            // number of sub-packets immediately contained by this packet.
+            case '1':
+            {
+                var nrOfSubpackets = Convert.ToInt32(packet[offset..(offset + 11)], 2);
+                offset += 11;
+                for (var i = 0; i < nrOfSubpackets; ++i)
+                {
+                    var info = ParsePacket(packet[offset..]);
+                    offset += info.TotalParsed;
+                }
+
+                break;
+            }
+            default:
+                throw new Exception($"Invalid lengthTypeId: {lengthTypeId}");
+        }
         
         return new ParseInfo
         {
@@ -122,7 +129,7 @@ public class Day16
         return new ParseInfo
         {
             Remainder = packet[offset..],
-            Literal = Convert.ToInt32(sb.ToString(), 2),
+            Literal = Convert.ToInt64(sb.ToString(), 2),
             TotalParsed = offset
         };
     }

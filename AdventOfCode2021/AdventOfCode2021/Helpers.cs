@@ -27,13 +27,11 @@ public static class Helpers
     public static string Stringify(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(_ => true));
 
     public static bool Verbose = true;
-
     public static void WriteLine(string? value, bool verboseOnly = false)
     {
         if (!verboseOnly || Verbose)
             Console.WriteLine(value);
     }
-
 }
 
 public class Point : IEquatable<Point>
@@ -70,6 +68,16 @@ public class Point : IEquatable<Point>
     public override bool Equals(object? obj) => Equals(obj as Point);
     
     #endregion
+}
+
+public static class PointExtensions
+{
+    public static bool InArea(this Point p, (int min, int max) xBounds, (int min, int max) yBounds)
+    {
+        if (p.X < xBounds.min || p.X > xBounds.max) return false;
+        if (p.Y < yBounds.min || p.Y > yBounds.max) return false;
+        return true;
+    }
 }
 
 public class Line

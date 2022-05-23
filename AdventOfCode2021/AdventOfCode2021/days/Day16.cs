@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Text;
+﻿using System.Text;
 
 namespace AdventOfCode2021.days;
 
 public class Day16
 {
-    private static Dictionary<char, string> _lookup = new()
+    private static readonly Dictionary<char, string> Lookup = new()
     {
         {'0', "0000"}, {'1', "0001"}, {'2', "0010"}, {'3', "0011"},
         {'4', "0100"}, {'5', "0101"}, {'6', "0110"}, {'7', "0111"},
@@ -18,7 +17,6 @@ public class Day16
     public void Part1()
     {
         Helpers.Verbose = false;
-        //const string hexInput = "A0016C880162017C3686B18A3D4780";
         var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
         ParsePacket(ToBinary(hexInput));
         
@@ -27,9 +25,8 @@ public class Day16
     
     public void Part2()
     {
-        Helpers.Verbose = true;
-        const string hexInput = "04005AC33890";
-        //var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
+        Helpers.Verbose = false;
+        var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
         var info = ParsePacket(ToBinary(hexInput));
         
         Helpers.WriteLine($"Day 16 part 2: {info.Value}");
@@ -40,7 +37,7 @@ public class Day16
         var sb = new StringBuilder();
         
         foreach(var c in s)
-            sb.Append(_lookup[c]);
+            sb.Append(Lookup[c]);
 
         return sb.ToString();
     }
@@ -93,7 +90,6 @@ public class Day16
                     offset += info.TotalParsed;
                     subPacketValues.Add(info.Value);
                 }
-
                 break;
             }
             
@@ -114,30 +110,22 @@ public class Day16
                 throw new Exception($"Invalid lengthTypeId: {lengthTypeId}");
         }
 
-        var value = long.MaxValue;
-        
-        // TODO: check for any?
-        switch (typeId)
+        var value = typeId switch
         {
-            case 0: // sum packet
-                value = subPacketValues.Sum(); 
-                break;
-            case 1:
-                value = subPacketValues.Aggregate((total, next) => total * next);
-                break;
-            case 2: break;
-            case 3: break;
-            case 5: break;
-            case 6: break;
-            case 7: break;
-            default: throw new Exception($"Invalid type id {typeId}");
-        }
-        
+            0 => subPacketValues.Sum(),
+            1 => subPacketValues.Aggregate((total, next) => total * next),
+            2 => subPacketValues.Min(),
+            3 => subPacketValues.Max(),
+            5 => subPacketValues[0] > subPacketValues[1] ? 1 : 0,
+            6 => subPacketValues[0] < subPacketValues[1] ? 1 : 0,
+            7 => subPacketValues[0] == subPacketValues[1] ? 1 : 0,
+            _ => throw new Exception($"Invalid type id {typeId}")
+        };
+
         return new ParseInfo
         {
-            Remainder = "endofmethod",
             Value = value,
-            TotalParsed = offset // not sure if this is correct
+            TotalParsed = offset
         };
     }
 

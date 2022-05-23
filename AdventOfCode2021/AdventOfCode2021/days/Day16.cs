@@ -12,7 +12,7 @@ public class Day16
         {'C', "1100"}, {'D', "1101"}, {'E', "1110"}, {'F', "1111"}
     };
 
-    private static int _part1 = 0;
+    public static int SumOfVersionNumbers = 0;
 
     public void Part1()
     {
@@ -20,7 +20,7 @@ public class Day16
         var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
         ParsePacket(ToBinary(hexInput));
         
-        Helpers.WriteLine($"Day 16 part 1: {_part1}");
+        Helpers.WriteLine($"Day 16 part 1: {SumOfVersionNumbers}");
     }
     
     public void Part2()
@@ -32,7 +32,7 @@ public class Day16
         Helpers.WriteLine($"Day 16 part 2: {info.Value}");
     }
 
-    private static string ToBinary(string s)
+    public static string ToBinary(string s)
     {
         var sb = new StringBuilder();
         
@@ -41,22 +41,13 @@ public class Day16
 
         return sb.ToString();
     }
-
-    private class ParseInfo
-    {
-        public string Remainder = "";
-        public long Value = long.MinValue;
-        public int TotalParsed = 0;
-
-        public override string ToString() => $"Remainder: {Remainder}\nLiteral {Value}\nTotalParsed: {TotalParsed}";
-    }
-
-    private static ParseInfo ParsePacket(string packet)
+    
+    public static ParseInfo ParsePacket(string packet)
     {
         var offset = 0;
         var packetVersion = Convert.ToInt32(packet[offset..3], 2);
 
-        _part1 += packetVersion;
+        SumOfVersionNumbers += packetVersion;
         
         offset += 3;
         var typeId = Convert.ToInt32(packet[offset..6], 2);
@@ -153,4 +144,14 @@ public class Day16
             TotalParsed = offset
         };
     }
+    
+    public class ParseInfo
+    {
+        public string Remainder = "";
+        public long Value = long.MinValue;
+        public int TotalParsed = 0;
+
+        public override string ToString() => $"Remainder: {Remainder}\nLiteral {Value}\nTotalParsed: {TotalParsed}";
+    }
+
 }

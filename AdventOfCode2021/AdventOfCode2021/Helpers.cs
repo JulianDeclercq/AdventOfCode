@@ -288,7 +288,7 @@ public class RegexHelper
         _groupNames = groupNames;
     }
 
-    public bool Match(string line)
+    public bool Parse(string line)
     {
         if (!_regex.IsMatch(line))
             return false;

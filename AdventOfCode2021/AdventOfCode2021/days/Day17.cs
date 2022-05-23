@@ -7,54 +7,66 @@ public class Day17
     private readonly RegexHelper _regexHelper =
         new(new Regex(@"target area: x=(\d+)..(\d+), y=(-?\d+)..(-?\d+)"), "xMin", "xMax", "yMin", "yMax");
     
-    private const string testInput = "target area: x=20..30, y=-10..-5";
-    private const string input = "target area: x=257..286, y=-101..-57";
+    private (int min, int max) _xBounds;
+    private (int min, int max) _yBounds;
+
+    public void ParseInput(string input)
+    {
+        if (!_regexHelper.Parse(input))
+            throw new Exception($"Couldn't parse {input}");
+        
+        _xBounds = new(_regexHelper.GetInt("xMin"), _regexHelper.GetInt("xMax"));
+        _yBounds = new(_regexHelper.GetInt("yMin"), _regexHelper.GetInt("yMax"));
+    }
+
     public void Part1()
     {
         Helpers.Verbose = false;
+        //ParseInput("target area: x=20..30, y=-10..-5");
+        ParseInput("target area: x=257..286, y=-101..-57");
         
-        if (!_regexHelper.Match(input))
-            throw new Exception($"Couldn't parse {input}");
-
-        (int min, int max) xBounds = new(_regexHelper.GetInt("xMin"), _regexHelper.GetInt("xMax"));
-        (int min, int max) yBounds = new(_regexHelper.GetInt("yMin"), _regexHelper.GetInt("yMax"));
-
-        var highestY = int.MinValue;
+        var totalHighestY = int.MinValue;
         var initialVelocityWithHighestY = new Point(0, 0);
         const int maxVelocity = 1000;
         for (var i = 0; i < maxVelocity; ++i)
         {
             for (var j = 0; j < maxVelocity; ++j)
             {
-                var highestYReached = int.MinValue;
-                var position = new Point(0, 0);
                 var velocity = new Point(i, j);
+                if (!IsValidInitialVelocity(velocity, out var highest)) 
+                    continue;
+
+                if (highest <= totalHighestY) 
+                    continue;
                 
-                while (position.X <= xBounds.max && position.Y >= yBounds.max) // not overshot
-                {
-                    position += velocity;
-                    velocity = ApplyPhysics(velocity);
-                    
-                    if (position.Y > highestYReached)
-                        highestYReached = position.Y;
-                    
-                    if (position.InArea(xBounds, yBounds))
-                    {
-                        var validInitialVelocity = new Point(i, j);
-                        if (highestYReached > highestY)
-                        {
-                            highestY = highestYReached;
-                            initialVelocityWithHighestY = validInitialVelocity;
-                        }
-                        Helpers.WriteLine($"Valid initial velocity found: {validInitialVelocity}", true);
-                        break;
-                    }
-                }
+                totalHighestY = highest;
+                initialVelocityWithHighestY = velocity;
             }
         }
-        Helpers.WriteLine($"Day 17 part 1: {initialVelocityWithHighestY} {highestY}");
+        Helpers.WriteLine($"Day 17 part 1: {totalHighestY} ({initialVelocityWithHighestY})");
     }
+    
+    private bool IsValidInitialVelocity(Point velocity, out int highestY)
+    {
+        var position = new Point(0, 0);
+        highestY = int.MinValue;
+        
+        while (position.X <= _xBounds.max && position.Y >= _yBounds.max) // stop after overshooting
+        {
+            position += velocity;
+            velocity = ApplyPhysics(velocity);
 
+            highestY = Math.Max(highestY, position.Y);
+
+            if (!position.InArea(_xBounds, _yBounds))
+                continue;
+            
+            Helpers.WriteLine($"Valid initial velocity found: {velocity}", true);
+            return true;
+        }
+        return false;
+    }
+    
     private static Point ApplyPhysics(Point velocity)
     {
         var x = velocity.X switch
@@ -63,7 +75,6 @@ public class Day17
             > 0 => velocity.X - 1,
             _ => 0
         };
-
         return new Point(x, velocity.Y - 1);
     }
     

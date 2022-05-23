@@ -99,7 +99,7 @@ public class Day24
 
     private Action<int> ParseInstruction(string instruction)
     {
-        if (!_regexHelper.Match(instruction))
+        if (!_regexHelper.Parse(instruction))
             return (_) => throw new Exception($"Instruction {instruction} didn't match pattern.");
         
         var instructionType = _regexHelper.Get("instruction");

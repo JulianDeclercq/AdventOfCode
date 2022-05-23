@@ -12,7 +12,7 @@ public class Day16
         {'C', "1100"}, {'D', "1101"}, {'E', "1110"}, {'F', "1111"}
     };
 
-    public static int SumOfVersionNumbers = 0;
+    public int SumOfVersionNumbers = 0;
 
     public void Part1()
     {
@@ -42,7 +42,7 @@ public class Day16
         return sb.ToString();
     }
     
-    public static ParseInfo ParsePacket(string packet)
+    public ParseInfo ParsePacket(string packet)
     {
         var offset = 0;
         var packetVersion = Convert.ToInt32(packet[offset..3], 2);
@@ -153,5 +153,4 @@ public class Day16
 
         public override string ToString() => $"Remainder: {Remainder}\nLiteral {Value}\nTotalParsed: {TotalParsed}";
     }
-
 }

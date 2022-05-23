@@ -12,9 +12,9 @@ public class Day16Tests
     [InlineData("A0016C880162017C3686B18A3D4780", 31)]
     private static void Part1Tests(string transmission, int expected)
     {
-        Day16.SumOfVersionNumbers = 0;
-        Day16.ParsePacket(Day16.ToBinary(transmission));
-        Assert.Equal(expected, Day16.SumOfVersionNumbers);
+        var day = new Day16();
+        day.ParsePacket(Day16.ToBinary(transmission));
+        Assert.Equal(expected, day.SumOfVersionNumbers);
     }
     
     [Theory]
@@ -28,7 +28,8 @@ public class Day16Tests
     [InlineData("9C0141080250320F1802104A08", 1)]
     private static void Part2Tests(string transmission, int expected)
     {
-        var info = Day16.ParsePacket(Day16.ToBinary(transmission));
+        var day = new Day16();
+        var info = day.ParsePacket(Day16.ToBinary(transmission));
         Assert.Equal(expected, info.Value);
     }
 }

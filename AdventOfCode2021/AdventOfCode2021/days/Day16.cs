@@ -24,6 +24,16 @@ public class Day16
         
         Helpers.WriteLine($"Day 16 part 1: {_part1}");
     }
+    
+    public void Part2()
+    {
+        Helpers.Verbose = true;
+        const string hexInput = "04005AC33890";
+        //var hexInput = File.ReadAllText(@"..\..\..\input\day16.txt");
+        var info = ParsePacket(ToBinary(hexInput));
+        
+        Helpers.WriteLine($"Day 16 part 2: {info.Value}");
+    }
 
     private static string ToBinary(string s)
     {
@@ -38,10 +48,10 @@ public class Day16
     private class ParseInfo
     {
         public string Remainder = "";
-        public long Literal = long.MinValue;
+        public long Value = long.MinValue;
         public int TotalParsed = 0;
 
-        public override string ToString() => $"Remainder: {Remainder}\nLiteral {Literal}\nTotalParsed: {TotalParsed}";
+        public override string ToString() => $"Remainder: {Remainder}\nLiteral {Value}\nTotalParsed: {TotalParsed}";
     }
 
     private static ParseInfo ParsePacket(string packet)
@@ -56,7 +66,8 @@ public class Day16
         offset += 3;
         Helpers.WriteLine($"packet version {packetVersion}, type id {typeId}", true);
 
-        if (typeId == 4) // parse literal
+        // parse literal
+        if (typeId == 4)
         {
             var info = ParseLiteral(packet[offset..]);
             info.TotalParsed += offset;
@@ -64,6 +75,7 @@ public class Day16
             return info;
         }
 
+        var subPacketValues = new List<long>();
         var lengthTypeId = packet[offset++];
         switch (lengthTypeId)
         {
@@ -79,6 +91,7 @@ public class Day16
                 {
                     var info = ParsePacket(packet[offset..]);
                     offset += info.TotalParsed;
+                    subPacketValues.Add(info.Value);
                 }
 
                 break;
@@ -93,18 +106,37 @@ public class Day16
                 {
                     var info = ParsePacket(packet[offset..]);
                     offset += info.TotalParsed;
+                    subPacketValues.Add(info.Value);
                 }
-
                 break;
             }
             default:
                 throw new Exception($"Invalid lengthTypeId: {lengthTypeId}");
         }
+
+        var value = long.MaxValue;
+        
+        // TODO: check for any?
+        switch (typeId)
+        {
+            case 0: // sum packet
+                value = subPacketValues.Sum(); 
+                break;
+            case 1:
+                value = subPacketValues.Aggregate((total, next) => total * next);
+                break;
+            case 2: break;
+            case 3: break;
+            case 5: break;
+            case 6: break;
+            case 7: break;
+            default: throw new Exception($"Invalid type id {typeId}");
+        }
         
         return new ParseInfo
         {
             Remainder = "endofmethod",
-            Literal = int.MaxValue,
+            Value = value,
             TotalParsed = offset // not sure if this is correct
         };
     }
@@ -129,7 +161,7 @@ public class Day16
         return new ParseInfo
         {
             Remainder = packet[offset..],
-            Literal = Convert.ToInt64(sb.ToString(), 2),
+            Value = Convert.ToInt64(sb.ToString(), 2),
             TotalParsed = offset
         };
     }

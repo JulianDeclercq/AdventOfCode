@@ -51,16 +51,12 @@ public class Day17Tests
 
         var day = new Day17();
         day.ParseInput(ExampleInput);
+        var plausibleVelocities = day.GeneratePlausibleVelocities();
         var valid = new List<Point>();
-        const int maxVelocity = 1000;
-        for (var i = 0; i < maxVelocity; ++i)
+        foreach (var v in plausibleVelocities)
         {
-            for (var j = 0; j < maxVelocity * 2; ++j)
-            {
-                var velocity = new Point(i, -maxVelocity + j);
-                if (day.IsValidInitialVelocity(velocity, out var highest))
-                    valid.Add(velocity);
-            }
+            if (day.IsValidInitialVelocity(v, out var h))
+                valid.Add(v);
         }
 
         var test = expected.Except(valid);

@@ -21,68 +21,58 @@ public class Day17
 
     public void Part1()
     {
-        Helpers.Verbose = false;
         ParseInput("target area: x=257..286, y=-101..-57");
-        
-        var totalHighestY = int.MinValue;
-        var initialVelocityWithHighestY = new Point(0, 0);
-        const int maxVelocity = 1000;
-        for (var i = 0; i < maxVelocity; ++i)
-        {
-            for (var j = 0; j < maxVelocity * 2; ++j)
-            {
-                var velocity = new Point(i, -maxVelocity + j);
-                if (!IsValidInitialVelocity(velocity, out var highest)) 
-                    continue;
 
-                if (highest <= totalHighestY) 
-                    continue;
-                
-                totalHighestY = highest;
-                initialVelocityWithHighestY = velocity;
-            }
+        (int Y, Point Velocity) highestY = new (int.MinValue, new Point(0, 0));
+        var plausibleVelocities = GeneratePlausibleVelocities();
+        foreach (var v in plausibleVelocities)
+        {
+            if (!IsValidInitialVelocity(v, out var highest))
+                continue;
+            
+            if (highest > highestY.Y)
+                highestY = new(highest, v);
         }
-        Helpers.WriteLine($"Day 17 part 1: {totalHighestY} ({initialVelocityWithHighestY})");
+        Helpers.WriteLine($"Day 17 part 1: {highestY.Y} ({highestY.Velocity})");
     }
     
     public void Part2()
     {
-        Helpers.Verbose = false;
         ParseInput("target area: x=257..286, y=-101..-57");
+        Helpers.WriteLine(
+            $"Day 17 part 2: {GeneratePlausibleVelocities().Count(v => IsValidInitialVelocity(v, out var h))}");
+    }
 
-        var totalValid = 0;
-        const int maxVelocity = 1000;
-        for (var i = 0; i < maxVelocity; ++i)
+    // Generates all velocities that have a chance of being valid
+    public IEnumerable<Point> GeneratePlausibleVelocities()
+    {
+        var result = new List<Point>();
+        (int x, int y) maxVelocity = new(_xBounds.max + 1, Math.Abs(_yBounds.min) + 1);
+        for (var i = 0; i < maxVelocity.x; ++i)
         {
-            for (var j = 0; j < maxVelocity * 2; ++j)
+            // J ranges from -maxVelocity.y to maxVelocity.y
+            for (var j = 0; j < maxVelocity.y * 2; ++j)
             {
-                var velocity = new Point(i, -maxVelocity + j);
-                if (IsValidInitialVelocity(velocity, out var highest))
-                    totalValid++;
+               result.Add(new Point(i, j - maxVelocity.y));
             }
         }
-        Helpers.WriteLine($"Day 17 part 2: {totalValid}");
+        return result;
     }
-    
+
     public bool IsValidInitialVelocity(Point velocity, out int highestY)
     {
         var position = new Point(0, 0);
         highestY = int.MinValue;
 
-        while (position.X <= _xBounds.max && position.Y >= _yBounds.min) // stop after overshooting
+        // stop after overshooting
+        while (position.X <= _xBounds.max && position.Y >= _yBounds.min)
         {
             position += velocity;
             velocity = ApplyPhysics(velocity);
-            
-            Helpers.WriteLine($"Position: {position}, velocity: {velocity}", true);
-
             highestY = Math.Max(highestY, position.Y);
 
-            if (!position.InArea(_xBounds, _yBounds))
-                continue;
-            
-            Helpers.WriteLine($"Valid initial velocity found: {velocity}", true);
-            return true;
+            if (position.InArea(_xBounds, _yBounds))
+                return true;
         }
         return false;
     }

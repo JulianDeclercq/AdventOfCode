@@ -65,6 +65,7 @@ public class Point : IEquatable<Point>
     }
 
     public override int GetHashCode() => HashCode.Combine(X, Y);
+
     public override bool Equals(object? obj) => Equals(obj as Point);
     
     #endregion

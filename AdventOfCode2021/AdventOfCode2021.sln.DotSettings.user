@@ -7,6 +7,9 @@
     &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.Day16Tests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.HelperTests.Point_should_be_in_range&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.HelperTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.Day17Tests.Initial_velocity_should_be_valid&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.Day17Tests.Verify_valid_answer_for_example_part2&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::7919D127-70BF-4E14-A4EB-6222C80C996B::net6.0::Tests.Day17Tests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=subpacket/@EntryIndexedValue">True</s:Boolean>

@@ -22,7 +22,6 @@ public class Day17
     public void Part1()
     {
         Helpers.Verbose = false;
-        //ParseInput("target area: x=20..30, y=-10..-5");
         ParseInput("target area: x=257..286, y=-101..-57");
         
         var totalHighestY = int.MinValue;
@@ -30,9 +29,9 @@ public class Day17
         const int maxVelocity = 1000;
         for (var i = 0; i < maxVelocity; ++i)
         {
-            for (var j = 0; j < maxVelocity; ++j)
+            for (var j = 0; j < maxVelocity * 2; ++j)
             {
-                var velocity = new Point(i, j);
+                var velocity = new Point(i, -maxVelocity + j);
                 if (!IsValidInitialVelocity(velocity, out var highest)) 
                     continue;
 
@@ -46,15 +45,36 @@ public class Day17
         Helpers.WriteLine($"Day 17 part 1: {totalHighestY} ({initialVelocityWithHighestY})");
     }
     
-    private bool IsValidInitialVelocity(Point velocity, out int highestY)
+    public void Part2()
+    {
+        Helpers.Verbose = false;
+        ParseInput("target area: x=257..286, y=-101..-57");
+
+        var totalValid = 0;
+        const int maxVelocity = 1000;
+        for (var i = 0; i < maxVelocity; ++i)
+        {
+            for (var j = 0; j < maxVelocity * 2; ++j)
+            {
+                var velocity = new Point(i, -maxVelocity + j);
+                if (IsValidInitialVelocity(velocity, out var highest))
+                    totalValid++;
+            }
+        }
+        Helpers.WriteLine($"Day 17 part 2: {totalValid}");
+    }
+    
+    public bool IsValidInitialVelocity(Point velocity, out int highestY)
     {
         var position = new Point(0, 0);
         highestY = int.MinValue;
-        
-        while (position.X <= _xBounds.max && position.Y >= _yBounds.max) // stop after overshooting
+
+        while (position.X <= _xBounds.max && position.Y >= _yBounds.min) // stop after overshooting
         {
             position += velocity;
             velocity = ApplyPhysics(velocity);
+            
+            Helpers.WriteLine($"Position: {position}, velocity: {velocity}", true);
 
             highestY = Math.Max(highestY, position.Y);
 
@@ -78,8 +98,4 @@ public class Day17
         return new Point(x, velocity.Y - 1);
     }
     
-    public void Part2()
-    {
-        
-    }
 }

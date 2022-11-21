@@ -7,14 +7,32 @@ public class Day5
     public void Part1()
     {
         var input = File.ReadAllLines(@"..\..\..\input\day5.txt").Single();
+        var answer = FullyReact(input);
+        Console.WriteLine($"Day 5 part 1: {answer.Length}");
+    }
+    
+    public void Part2()
+    {
+        var input = File.ReadAllLines(@"..\..\..\input\day5.txt").Single();
+        var units = input.ToLower().ToHashSet();
+
+        var inputs = units.Select(unit => input.Where(c => unit != char.ToLower(c)).AsString()).ToList();
+
+        var answer = inputs.Select(FullyReact).MinBy(s => s.Length);
+        
+        Console.WriteLine($"Day 5 part 2: {answer!.Length}");
+    }
+
+    private static string FullyReact(string input)
+    {
         var previous = "";
         while (input != previous)
         {
             previous = input;
             input = RemovePolarities(input);
         }
-        
-        Console.WriteLine($"Day 5 part 1: {input.Length}");
+
+        return input;
     }
 
     private static string RemovePolarities(string input)
@@ -51,14 +69,14 @@ public class Day5
             if (char.ToLower(b) == a)
                 return true;
         }
-        
-        // if a is upper
-        if (char.IsLower(b))
+        else // if a is upper
         {
-            if (char.ToLower(a) == b)
-                return true;
+            if (char.IsLower(b))
+            {
+                if (char.ToLower(a) == b)
+                    return true;
+            }    
         }
-
         return false;
     }
 }

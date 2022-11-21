@@ -7,11 +7,9 @@ public static class Helpers
     public static int ToInt(Group m) => int.Parse(m.Value);
     public static string Ordered(this string s) => string.Concat(s.OrderBy(c => c));
     public static bool OrderedEquals(this string lhs, string rhs) => lhs.Ordered().Equals(rhs.Ordered());
-    public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.Str(), rhs);
-
+    public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.AsString(), rhs);
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
-    private static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
-
+    public static string AsString(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
     public static Dictionary<T, int> CountOccurrences<T>(IEnumerable<T> enumerable) where T : notnull
     {
         var ctr = new Dictionary<T, int>();
@@ -32,7 +30,6 @@ public class Point : IEquatable<Point>
         return new Point(Convert.ToInt16(p.X / distance), Convert.ToInt16(p.Y / distance));
     }
     public static Point Direction(Point from, Point to) => Normalized(to - from);
-
     public Point(int x, int y)
     {
         X = x;
@@ -40,7 +37,6 @@ public class Point : IEquatable<Point>
     }
 
     public readonly int X, Y;
-    
     public override string ToString() => $"{X}, {Y}";
     public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
     public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);

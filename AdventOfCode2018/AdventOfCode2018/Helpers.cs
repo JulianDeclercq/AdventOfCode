@@ -10,7 +10,7 @@ public static class Helpers
     public static bool OrderedEquals(this IEnumerable<char> lhs, string rhs) => OrderedEquals(lhs.Str(), rhs);
 
     public static bool InRangeInclusive(int min, int max, int value) => value >= min && value <= max;
-    private static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
+    public static string Str(this IEnumerable<char> cs) => string.Concat(cs.TakeWhile(char.IsLetter));
 
     public static Dictionary<T, int> CountOccurrences<T>(IEnumerable<T> enumerable) where T : notnull
     {

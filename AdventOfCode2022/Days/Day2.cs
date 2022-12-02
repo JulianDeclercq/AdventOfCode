@@ -3,11 +3,11 @@
 public class Day2
 {
     // "wins against"
-    private Dictionary<char, char> winsAgainst = new()
+    private Dictionary<char, char> lookup = new()
     {
-        ['X'] = 'C', // Rock wins against scissors
-        ['Y'] = 'A', // Paper wins against rock
-        ['Z'] = 'B', // Scissors wins against paper
+        ['A'] = 'Z', // Rock wins against scissors
+        ['B'] = 'X', // Paper wins against rock
+        ['C'] = 'Y', // Scissors wins against paper
     };
 
     private Dictionary<char, int> shapeScore = new()
@@ -45,8 +45,8 @@ public class Day2
             }
             
             // You win
-            var win = winsAgainst[myChoice] == enemyChoice;
-            if (win)
+            var enemyWins = lookup[enemyChoice] == myChoice;
+            if (!enemyWins)
                 score += 6;
         }
         Console.WriteLine(score);

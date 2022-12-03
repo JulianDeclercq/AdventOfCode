@@ -2,69 +2,58 @@
 
 public class Day2
 {
-    // "wins against"
-    private Dictionary<char, char> lookup = new()
-    {
-        ['A'] = 'Z', // Rock wins against scissors
-        ['B'] = 'X', // Paper wins against rock
-        ['C'] = 'Y', // Scissors wins against paper
-    };
-
     private Dictionary<char, int> shapeScore = new()
     {
         ['X'] = 1, ['A'] = 1, // Rock
         ['Y'] = 2, ['B'] = 2, // Paper
         ['Z'] = 3, ['C'] = 3, // Scissors
     };
+   
 
-    private Dictionary<char, char> equivalent = new()
+    private static int OutcomeScorePart1(char myChoice, char enemyChoice)
     {
-        ['A'] = 'X',
-        ['B'] = 'Y',
-        ['C'] = 'Z',
-    };
-
-    public void Solve()
-    {
-        //var lines = File.ReadAllLines(@"..\..\..\input\day2_example.txt");
-        var lines = File.ReadAllLines(@"..\..\..\input\day2.txt");
-
-        var score = 0;
-        foreach (var line in lines)
+        // "wins against"
+        var lookup = new Dictionary<char, char>()
         {
-            var enemyChoice = line[0];
-            var myChoice = line[2];
+            ['A'] = 'Z', // Rock wins against scissors
+            ['B'] = 'X', // Paper wins against rock
+            ['C'] = 'Y', // Scissors wins against paper
+        };
 
-            score += shapeScore[myChoice];
-
-            // Draw
-            if (myChoice == equivalent[enemyChoice])
-            {
-                score += 3;
-                continue;
-            }
+        var equivalent = new Dictionary<char, char>()
+        {
+            ['A'] = 'X',
+            ['B'] = 'Y',
+            ['C'] = 'Z',
+        };
+        
+        // Draw
+        if (myChoice == equivalent[enemyChoice])
+           return 3;
             
-            // You win
-            var enemyWins = lookup[enemyChoice] == myChoice;
-            if (!enemyWins)
-                score += 6;
-        }
-        Console.WriteLine(score);
+        var enemyWins = lookup[enemyChoice] == myChoice;
+        return enemyWins ? 0 : 6;
     }
-    
-    public void Solve2()
+
+    private static int OutcomeScorePart2(char matchResult)
     {
-        //var lines = File.ReadAllLines(@"..\..\..\input\day2_example.txt");
+        return matchResult switch
+        {
+            'Y' => 3,
+            'Z' => 6,
+            _ => 0
+        };
+    }
+
+    public void Solve(bool part1 = true)
+    {
         var lines = File.ReadAllLines(@"..\..\..\input\day2.txt");
 
         var score = 0;
         foreach (var line in lines)
         {
             var enemyChoice = line[0];
-            var matchResult = line[2];
-            
-            // Determine my choice
-            var myChoice = matchResult switch
+            var myChoice = part1 ? line[2] : line[2] switch
             {
                 // lose
                 'X' when enemyChoice is 'A' => 'C', // against rock
@@ -79,15 +68,9 @@ public class Day2
                 'Z' when enemyChoice is 'B' => 'C', // against paper
                 'Z' when enemyChoice is 'C' => 'A', // against scissors
             };
-
             score += shapeScore[myChoice];
-            score += matchResult switch
-            {
-                'X' => 0,
-                'Y' => 3,
-                'Z' => 6
-            };
+            score += part1 ? OutcomeScorePart1(myChoice, enemyChoice) : OutcomeScorePart2(line[2]);
         }
-        Console.WriteLine(score);
+        Console.WriteLine($"Day 2 part {(part1 ? 1 : 2)}: {score}.");
     }
 }

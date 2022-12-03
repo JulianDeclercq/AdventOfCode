@@ -10,9 +10,7 @@ public class Day3
         foreach (var line in lines)
         {
             var half = line.Length / 2;
-            var compartment1 = line[..half];
-            var compartment2 = line[^half..];
-            var sharedItem = compartment1.Intersect(compartment2).Single();
+            var sharedItem = line[..half].Intersect(line[^half..]).Single();
             result += Score(sharedItem);
         }
         Console.WriteLine(result);

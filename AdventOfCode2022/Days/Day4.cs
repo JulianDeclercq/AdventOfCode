@@ -17,7 +17,7 @@ public class Day4
         {
             var comma = line.IndexOf(',');
             _regexHelper.Parse(line);
-            if (AreSubsetOfEachother(
+            if (Overlap(
                     new(_regexHelper.GetInt("aStart"), _regexHelper.GetInt("aEnd")),
                     new(_regexHelper.GetInt("bStart"), _regexHelper.GetInt("bEnd"))))
             {
@@ -33,6 +33,17 @@ public class Day4
             return true;
         
         if (rhs.start <= lhs.start && rhs.end >= lhs.end)
+            return true;
+
+        return false;
+    }
+    
+    private bool Overlap((int start, int end) lhs, (int start, int end) rhs)
+    {
+        if (lhs.start <= rhs.end && lhs.end >= rhs.end)
+            return true;
+        
+        if (rhs.start <= lhs.end && rhs.end >= lhs.end)
             return true;
 
         return false;

@@ -9,25 +9,26 @@ public class Day4
 
     public void Solve()
     {
-        // var lines = File.ReadAllLines(@"..\..\..\input\day4_example.txt");
         var lines = File.ReadAllLines(@"..\..\..\input\day4.txt");
 
-        var result = 0;
+        int part1 = 0, part2 = 0;
         foreach (var line in lines)
         {
-            var comma = line.IndexOf(',');
             _regexHelper.Parse(line);
-            if (Overlap(
-                    new(_regexHelper.GetInt("aStart"), _regexHelper.GetInt("aEnd")),
-                    new(_regexHelper.GetInt("bStart"), _regexHelper.GetInt("bEnd"))))
-            {
-                result++;
-            }
+            var lhs = new ValueTuple<int, int>(_regexHelper.GetInt("aStart"), _regexHelper.GetInt("aEnd"));
+            var rhs = new ValueTuple<int, int>(_regexHelper.GetInt("bStart"), _regexHelper.GetInt("bEnd"));
+            
+            if (AreSubsetOfEachOther(lhs, rhs))
+                part1++;
+            
+            if (Overlap(lhs, rhs))
+                part2++;
         }
-        Console.WriteLine(result);
+        Console.WriteLine($"Day 4 Part 1: {part1}");
+        Console.WriteLine($"Day 4 Part 2: {part2}");
     }
 
-    private bool AreSubsetOfEachother((int start, int end) lhs, (int start, int end) rhs)
+    private static bool AreSubsetOfEachOther((int start, int end) lhs, (int start, int end) rhs)
     {
         if (lhs.start <= rhs.start && lhs.end >= rhs.end)
             return true;
@@ -38,7 +39,7 @@ public class Day4
         return false;
     }
     
-    private bool Overlap((int start, int end) lhs, (int start, int end) rhs)
+    private static bool Overlap((int start, int end) lhs, (int start, int end) rhs)
     {
         if (lhs.start <= rhs.end && lhs.end >= rhs.end)
             return true;

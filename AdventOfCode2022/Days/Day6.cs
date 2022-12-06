@@ -4,7 +4,7 @@ public class Day6
 {
     public void Solve()
     {
-        // var input = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
+        // var input = "mjqjpqmgbljsphdztnvjfqwrcgsmlb";
         var input = File.ReadAllLines(@"..\..\..\input\day6.txt").Single();
 
         var different = new List<char>();
@@ -17,7 +17,7 @@ public class Day6
             
             different.Add(input[i]);
 
-            if (different.Count != 4)
+            if (different.Count != 14)
                 continue;
             
             Console.WriteLine(string.Join("", different));

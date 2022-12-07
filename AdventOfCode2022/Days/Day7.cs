@@ -29,7 +29,6 @@ public class Day7
     public void Solve(bool part1 = true)
     {
         var lines = File.ReadAllLines(@"..\..\..\input\day7.txt");
-
         var currentPath = RootDirectory;
 
         foreach (var line in lines)

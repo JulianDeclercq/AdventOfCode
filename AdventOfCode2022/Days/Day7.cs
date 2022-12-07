@@ -25,87 +25,10 @@ public class Day7
         public ItemType Type = ItemType.None;
         public int Size = 0;
     }
-    
-    Dictionary<string, List<Item>> _fileSystem = new();
-    Dictionary<string, int> _directorySizes = new();
-    
-    public void Solve()
-    {
-        var currentPath = "";
-        // var lines = File.ReadAllLines(@"..\..\..\input\day7_example.txt");
-        var lines = File.ReadAllLines(@"..\..\..\input\day7.txt");
 
-        foreach (var line in lines)
-        {
-            // command
-            if (line.First() == '$')
-            {
-                _commandRegex.Parse(line);
-                var cmd = _commandRegex.Get("command");
-                switch (cmd)
-                {
-                    case "cd":
-                    {
-                        var destination = _commandRegex.Get("destination");
-                        switch (destination)
-                        {
-                            case "/" :
-                                currentPath = "";
-                                break;
-                            case ".." :
-                                currentPath = currentPath[..currentPath.LastIndexOf('/')];
-                                break;
-                            default:
-                                currentPath += $"/{destination}";
-                                break;
-                        }
-                    }
-                        break;
-                        // case "ls": lsMode = true;
-                        break;
-                }
-            }
-            else // not a command but a listing instead
-            {
-                // define item
-                Item item;
-                if (_directoryRegex.Parse(line))
-                {
-                    item = new Item
-                    {
-                        Name = $"{currentPath}/{_directoryRegex.Get("name")}",
-                        Type = ItemType.Directory
-                    };
-                }
-                else if (_fileRegex.Parse(line))
-                {
-                    item = new Item
-                    {
-                        Name = _fileRegex.Get("name"),
-                        Size = _fileRegex.GetInt("size"),
-                        Type = ItemType.Item
-                    };
-                }
-                else throw new Exception($"Couldn't parse ${line}");
-                
-                // add item
-                if (!_fileSystem.TryGetValue(currentPath, out var currentDir))
-                {
-                    _fileSystem.Add(currentPath, new List<Item>
-                    {
-                        item
-                    });
-                }
-                else
-                {
-                    _fileSystem[currentPath].Add(item);
-                }
-            }
-        }
-
-        var result = _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size <= 100_000).Sum();
-        Console.WriteLine($"Day 7 part 1: {result}");
-    }
+    private const string RootDirectory = "";
+    private readonly Dictionary<string, List<Item>> _fileSystem = new();
+    private readonly Dictionary<string, int> _directorySizes = new();
     
     private int CalculateDirectorySize(string directoryName)
     {
@@ -125,13 +48,12 @@ public class Day7
             ItemType.Directory => CalculateDirectorySize(item.Name),
         });
     }
-    
-     public void Solve2()
+
+    public void Solve(bool part1 = true)
     {
-        var currentPath = "";
-        // var lines = File.ReadAllLines(@"..\..\..\input\day7_example.txt");
         var lines = File.ReadAllLines(@"..\..\..\input\day7.txt");
 
+        var currentPath = RootDirectory;
         foreach (var line in lines)
         {
             // command
@@ -139,69 +61,61 @@ public class Day7
             {
                 _commandRegex.Parse(line);
                 var cmd = _commandRegex.Get("command");
-                switch (cmd)
+                if (cmd != "cd") // ls doesn't need to be handled specifically
+                    continue;
+
+                var destination = _commandRegex.Get("destination");
+                switch (destination)
                 {
-                    case "cd":
-                    {
-                        var destination = _commandRegex.Get("destination");
-                        switch (destination)
-                        {
-                            case "/" :
-                                currentPath = "";
-                                break;
-                            case ".." :
-                                currentPath = currentPath[..currentPath.LastIndexOf('/')];
-                                break;
-                            default:
-                                currentPath += $"/{destination}";
-                                break;
-                        }
-                    }
+                    case "/":
+                        currentPath = RootDirectory;
                         break;
-                        // case "ls": lsMode = true;
+                    case "..":
+                        currentPath = currentPath[..currentPath.LastIndexOf('/')];
+                        break;
+                    default:
+                        currentPath += $"/{destination}";
                         break;
                 }
+
+                continue;
             }
-            else // not a command but a listing instead
+
+            // list mode
+            Item item;
+            if (_directoryRegex.Parse(line))
             {
-                // define item
-                Item item;
-                if (_directoryRegex.Parse(line))
+                item = new Item
                 {
-                    item = new Item
-                    {
-                        Name = $"{currentPath}/{_directoryRegex.Get("name")}",
-                        Type = ItemType.Directory
-                    };
-                }
-                else if (_fileRegex.Parse(line))
-                {
-                    item = new Item
-                    {
-                        Name = _fileRegex.Get("name"),
-                        Size = _fileRegex.GetInt("size"),
-                        Type = ItemType.Item
-                    };
-                }
-                else throw new Exception($"Couldn't parse ${line}");
-                
-                // add item
-                if (!_fileSystem.TryGetValue(currentPath, out var currentDir))
-                {
-                    _fileSystem.Add(currentPath, new List<Item>
-                    {
-                        item
-                    });
-                }
-                else
-                {
-                    _fileSystem[currentPath].Add(item);
-                }
+                    Name = $"{currentPath}/{_directoryRegex.Get("name")}",
+                    Type = ItemType.Directory
+                };
             }
+            else if (_fileRegex.Parse(line))
+            {
+                item = new Item
+                {
+                    Name = _fileRegex.Get("name"),
+                    Size = _fileRegex.GetInt("size"),
+                    Type = ItemType.Item
+                };
+            }
+            else throw new Exception($"Couldn't parse ${line}");
+
+            // add item
+            if (!_fileSystem.TryGetValue(currentPath, out var currentDir))
+            {
+                _fileSystem.Add(currentPath, new List<Item> {item});
+            }
+            else currentDir.Add(item);
         }
 
-        var result = _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size <= 100_000).Sum();
-        Console.WriteLine($"Day 7 part 1: {result}");
+        if (part1)
+        {
+            var result = _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size <= 100_000).Sum();
+            Console.WriteLine($"Day 7 part 1: {result}");
+            return;
+        }
 
         const int totalSpace = 70_000_000;
         const int requiredSpace = 30_000_000;

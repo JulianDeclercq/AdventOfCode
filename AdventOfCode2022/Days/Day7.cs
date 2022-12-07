@@ -55,7 +55,7 @@ public class Day7
     private int Part2()
     {
         const int totalSpace = 70_000_000, requiredSpace = 30_000_000;
-        var usedSpace = CalculateSize("");
+        var usedSpace = CalculateSize(RootDirectory);
         var unusedSpace = totalSpace - usedSpace;
         var minimumDeletionSize = requiredSpace - unusedSpace;
          

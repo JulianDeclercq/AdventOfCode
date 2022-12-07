@@ -26,103 +26,107 @@ public class Day7
     private readonly Dictionary<string, List<Item>> _fileSystem = new();
     private readonly Dictionary<string, int> _directorySizes = new();
     
-     public void Solve(bool part1 = true)
+    public void Solve(bool part1 = true)
     {
         var lines = File.ReadAllLines(@"..\..\..\input\day7.txt");
 
         var currentPath = RootDirectory;
+
         foreach (var line in lines)
         {
-            // command
+            // command mode
             if (line.First() == '$')
             {
-                _commandRegex.Parse(line);
-                var cmd = _commandRegex.Get("command");
-                if (cmd != "cd") // ls doesn't need to be handled specifically
-                    continue;
-
-                var destination = _commandRegex.Get("destination");
-                switch (destination)
-                {
-                    case "/":
-                        currentPath = RootDirectory;
-                        break;
-                    case "..":
-                        currentPath = currentPath[..currentPath.LastIndexOf('/')];
-                        break;
-                    default:
-                        currentPath += $"/{destination}";
-                        break;
-                }
-
-                continue;
+                currentPath = HandleCommand(line, currentPath);
             }
-
-            // list mode
-            Item item;
-            if (_directoryRegex.Parse(line))
+            else // list mode
             {
-                item = new Item
-                {
-                    Name = $"{currentPath}/{_directoryRegex.Get("name")}",
-                    Type = ItemType.Directory
-                };
+                HandleListedItem(line, currentPath);
             }
-            else if (_fileRegex.Parse(line))
-            {
-                item = new Item
-                {
-                    Name = _fileRegex.Get("name"),
-                    Size = _fileRegex.GetInt("size"),
-                    Type = ItemType.Item
-                };
-            }
-            else throw new Exception($"Couldn't parse ${line}");
-
-            // add item
-            if (!_fileSystem.TryGetValue(currentPath, out var currentDir))
-            {
-                _fileSystem.Add(currentPath, new List<Item> {item});
-            }
-            else currentDir.Add(item);
         }
-        Console.WriteLine($"Day 7 part {(part1 ? 1 : 2)}: {(part1 ? Part1() : Part2())}");
+        
+        Console.WriteLine($"Day 7 part {(part1 ? 1 : 2)}: {(part1 ? Part1() : Part2())}");   
     }
 
-     private int Part1()
-     {
-         return _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size <= 100_000).Sum();
-     }
+    private int Part1()
+    {
+        return _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size <= 100_000).Sum();
+    }
 
-     private int Part2()
-     {
-         const int totalSpace = 70_000_000, requiredSpace = 30_000_000;
-         var usedSpace = CalculateDirectorySize("");
-         var unusedSpace = totalSpace - usedSpace;
-         var minimumDeletionSize = requiredSpace - unusedSpace;
+    private int Part2()
+    {
+        const int totalSpace = 70_000_000, requiredSpace = 30_000_000;
+        var usedSpace = CalculateSize("");
+        var unusedSpace = totalSpace - usedSpace;
+        var minimumDeletionSize = requiredSpace - unusedSpace;
          
-         return _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size > minimumDeletionSize)
-             .OrderBy(size => size).First();
-     }
+        return _fileSystem.Select(path => CalculateSize(path.Value)).Where(size => size > minimumDeletionSize)
+            .OrderBy(size => size).First();
+    }
+     
+    private string HandleCommand(string command, string currentPath)
+    {
+        _commandRegex.Parse(command);
+        var cmd = _commandRegex.Get("command");
+        if (cmd != "cd") // ls doesn't need to be handled specifically
+            return currentPath;
+     
+        var destination = _commandRegex.Get("destination");
+        return destination switch
+        {
+            "/" => RootDirectory,
+            ".." => currentPath[..currentPath.LastIndexOf('/')],
+            _ => $"{currentPath}/{destination}"
+        };
+    }
+     
+    private void HandleListedItem(string itemDescription, string currentPath)
+    {
+        Item item;
+        if (_directoryRegex.Parse(itemDescription))
+        {
+            item = new Item
+            {
+                Name = $"{currentPath}/{_directoryRegex.Get("name")}",
+                Type = ItemType.Directory
+            };
+        }
+        else if (_fileRegex.Parse(itemDescription))
+        {
+            item = new Item
+            {
+                Name = _fileRegex.Get("name"),
+                Size = _fileRegex.GetInt("size"),
+                Type = ItemType.Item
+            };
+        }
+        else throw new Exception($"Couldn't parse ${itemDescription}");
+     
+        // add item
+        if (!_fileSystem.TryGetValue(currentPath, out var currentDir))
+        {
+            _fileSystem.Add(currentPath, new List<Item> {item});
+        }
+        else currentDir.Add(item);
+    }
+
+    private int CalculateSize(IEnumerable<Item> items)
+    {
+        return items.Sum(item => item.Type switch
+        {
+            ItemType.Item => item.Size,
+            ItemType.Directory => CalculateSize(item.Name),
+        });
+    }
     
-    private int CalculateDirectorySize(string directoryName)
+    private int CalculateSize(string directoryName)
     {
         if (_directorySizes.TryGetValue(directoryName, out var foundSize))
             return foundSize;
 
         var size = CalculateSize(_fileSystem[directoryName]);
         _directorySizes.Add(directoryName, size);
+        
         return size;
     }
-
-    private int CalculateSize(IEnumerable<Item> path) // path = directory?
-    {
-        return path.Sum(item => item.Type switch
-        {
-            ItemType.Item => item.Size,
-            ItemType.Directory => CalculateDirectorySize(item.Name),
-        });
-    }
-
-   
 }

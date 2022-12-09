@@ -4,7 +4,7 @@ namespace AdventOfCode2022.Days;
 
 public class Day5
 {
-    private readonly Helpers.RegexHelper _regexHelper =
+    private readonly RegexHelper _regexHelper =
         new(new Regex(@"move (\d+) from (\d+) to (\d+)"), "amount", "source", "destination");
 
     public void Solve(bool part1 = true)

@@ -4,9 +4,9 @@ namespace AdventOfCode2022.Days;
 
 public class Day7
 {
-    private readonly Helpers.RegexHelper _commandRegex = new(new Regex(@"\$ (\w+) ?(.+)?"), "command", "destination");
-    private readonly Helpers.RegexHelper _directoryRegex = new(new Regex(@"dir (\w+)"), "name");
-    private readonly Helpers.RegexHelper _fileRegex = new(new Regex(@"(\d+) (.+)"), "size", "name");
+    private readonly RegexHelper _commandRegex = new(new Regex(@"\$ (\w+) ?(.+)?"), "command", "destination");
+    private readonly RegexHelper _directoryRegex = new(new Regex(@"dir (\w+)"), "name");
+    private readonly RegexHelper _fileRegex = new(new Regex(@"(\d+) (.+)"), "size", "name");
 
     private enum ItemType
     {

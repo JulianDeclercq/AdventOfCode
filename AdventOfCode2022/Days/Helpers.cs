@@ -2,37 +2,44 @@
 
 namespace AdventOfCode2022.Days;
 
-public class Helpers
+public static class Helpers
 {
-    public class RegexHelper
+    
+}
+
+public class Point : IEquatable<Point>
+{
+    private static Point Normalized(Point p)
     {
-        public RegexHelper(Regex r, params string[] groupNames)
-        {
-            _regex = r;
-            _groupNames = groupNames;
-        }
-
-        public bool Parse(string line)
-        {
-            if (!_regex.IsMatch(line))
-                return false;
-     
-            _groups.Clear();
-        
-            var match = _regex.Match(line);
-            for (var i = 0; i < _groupNames.Length; ++i)
-                _groups.Add(_groupNames[i], match.Groups[i + 1].ToString());
-
-            return true;
-        }
-
-        public string Get(string groupName) => _groups[groupName];
-        public int GetInt(string groupName) => int.Parse(_groups[groupName]);
-        public bool IsEmpty(string groupName) => string.IsNullOrEmpty(_groups[groupName]);
-        public bool TryGetInt(string groupName, out int value) => int.TryParse(_groups[groupName], out value);
-
-        private Regex _regex;
-        private Dictionary<string, string> _groups = new();
-        private string[] _groupNames;
+        var distance = Math.Sqrt(p.X * p.X + p.Y * p.Y);
+        return new Point(Convert.ToInt16(p.X / distance), Convert.ToInt16(p.Y / distance));
     }
+    public static Point Direction(Point from, Point to) => Normalized(to - from);
+
+    public Point(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public readonly int X, Y;
+    
+    public override string ToString() => $"{X},{Y}";
+    public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
+    public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
+
+    #region IEquatable
+    
+    public bool Equals(Point? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return X == other.X && Y == other.Y;
+    }
+
+    public override int GetHashCode() => HashCode.Combine(X, Y);
+
+    public override bool Equals(object? obj) => Equals(obj as Point);
+    
+    #endregion
 }

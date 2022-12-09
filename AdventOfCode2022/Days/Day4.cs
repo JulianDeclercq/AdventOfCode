@@ -4,7 +4,7 @@ namespace AdventOfCode2022.Days;
 
 public class Day4
 {
-    private readonly Helpers.RegexHelper _regexHelper =
+    private readonly RegexHelper _regexHelper =
         new(new Regex(@"(\d+)-(\d+),(\d+)-(\d+)"), "aStart", "aEnd", "bStart", "bEnd");
 
     public void Solve()

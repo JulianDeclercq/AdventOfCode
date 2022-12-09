@@ -61,6 +61,17 @@ public class Grid<T>
     public void Set(int idx, T value) => _cells[idx] = value;  
     
     public IEnumerable<T> All() => _cells;
+    
+    // returns a dictionary with key = location
+    public Dictionary<Point, T> AllExtended()
+    {
+        var extended = new Dictionary<Point, T>();
+
+        for (var i = 0; i < _cells.Count; ++i)
+            extended.Add(FromIndex(i), _cells[i]);
+
+        return extended;
+    }
 
     private T Get(int x, int y)
     {

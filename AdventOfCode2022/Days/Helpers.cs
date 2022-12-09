@@ -5,6 +5,11 @@ namespace AdventOfCode2022.Days;
 public static class Helpers
 {
     public static int ToInt(char c) => int.Parse(c.ToString());
+
+    public static bool AllSmallerThan(this IEnumerable<int> collection, int target)
+    {
+        return collection.All(x => x < target);
+    }
 }
 
 public class Point : IEquatable<Point>

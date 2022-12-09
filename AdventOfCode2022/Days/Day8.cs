@@ -2,11 +2,8 @@
 
 public class Day8
 {
-    // DISCLAIMER: I HEAVILY OVERCOMPLICATED / OVER-ENGINEERED THIS DAY JUST BECAUSE I WANTED TO USE MY OLD
-    // GRID COMPONENT FROM PREVIOUS YEARS.. I HAD FUN AT LEAST!
-    public void Solve()
+    public static void Solve()
     {
-        // var input = File.ReadAllLines(@"..\..\..\input\day8_example.txt");
         var input = File.ReadAllLines(@"..\..\..\input\day8.txt");
 
         int width = input[0].Length, height = input.Length;

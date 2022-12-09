@@ -20,6 +20,33 @@ public class Grid<T>
     public T At(int x, int y) => Get(x, y);
     public T At(int idx) => _cells[idx];
 
+    public IEnumerable<GridElement<T>> Column(int x)
+    {
+        var list = new List<GridElement<T>>();
+
+        for (var i = 0; i < Height; ++i)
+        {
+            var index = x + Width * i;
+            list.Add(new GridElement<T>(FromIndex(index), _cells[index]));
+        }
+        
+        return list;
+    }
+
+    public IEnumerable<GridElement<T>> Row(int y)
+    {
+        var list = new List<GridElement<T>>();
+
+        var offset = Width * y;
+        for (var i = 0; i < Width; ++i)
+        {
+            var index = offset + i;
+            list.Add(new GridElement<T>(FromIndex(index), _cells[index]));
+        }
+
+        return list;
+    }
+
     public bool Set(Point p, T value) => Set(p.X, p.Y, value);
     public bool Set(int x, int y, T value)
     {
@@ -35,17 +62,6 @@ public class Grid<T>
     
     public IEnumerable<T> All() => _cells;
 
-    // returns a dictionary with key = location
-    public Dictionary<Point, T> AllExtended()
-    {
-        var extended = new Dictionary<Point, T>();
-
-        for (var i = 0; i < _cells.Count; ++i)
-            extended.Add(FromIndex(i), _cells[i]);
-
-        return extended;
-    }
-    
     private T Get(int x, int y)
     {
         var idx = Index(x, y);

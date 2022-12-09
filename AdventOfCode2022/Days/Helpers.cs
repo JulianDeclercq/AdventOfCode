@@ -4,7 +4,7 @@ namespace AdventOfCode2022.Days;
 
 public static class Helpers
 {
-    
+    public static int ToInt(char c) => int.Parse(c.ToString());
 }
 
 public class Point : IEquatable<Point>

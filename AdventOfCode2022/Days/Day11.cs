@@ -88,12 +88,15 @@ public class Day11
         var rhs = _operationPattern.Get("rhs");
         var rhsInt = rhs.Equals("old") ? worryLevel : ulong.Parse(rhs);
 
-        return _operationPattern.Get("operator") switch
+        checked
         {
-            "+" => lhsInt + rhsInt,
-            "*" => lhsInt * rhsInt,
-            _ => 0
-        };
+            return _operationPattern.Get("operator") switch
+            {
+                "+" => lhsInt + rhsInt,
+                "*" => lhsInt * rhsInt,
+                _ => 0
+            };
+        }
     }
 
     private static ulong Gcd(ulong n1, ulong n2)

@@ -12,9 +12,6 @@ public class Day11
 
     private class Monkey
     {
-        public Monkey() { }
-
-        public int Number = 0;
         public Queue<int> Items = new();
         public string Operation = "";
         public int TestDivider = 0;
@@ -25,8 +22,8 @@ public class Day11
     
     public void Solve()
     {
-        var input = File.ReadAllLines(@"..\..\..\input\day11.txt").ToList();
         const int monkeyDefinitionLength = 6;
+        var input = File.ReadAllLines(@"..\..\..\input\day11_example.txt").ToList();
         var amountOfMonkeys = input.Count(s => s.StartsWith("Monkey"));
         
         var monkeys = new List<Monkey>();
@@ -38,7 +35,6 @@ public class Day11
             _monkeyPattern.Parse(string.Join("", monkeyDefinition));
             monkeys.Add(new Monkey
             {
-                Number = _monkeyPattern.GetInt("number"),
                 Items = new Queue<int>(_monkeyPattern.Get("items")
                     .Split(',', StringSplitOptions.TrimEntries)
                     .Select(int.Parse)),
@@ -48,7 +44,9 @@ public class Day11
                 FalseTarget = _monkeyPattern.GetInt("falseTarget"),
             });
         }
-        
+
+        var dividers = monkeys.Select(m => m.TestDivider).ToArray();
+        var lcm = Lcm(dividers);
         const int rounds = 20;
         for (var i = 0; i < rounds; ++i)
         {
@@ -58,10 +56,11 @@ public class Day11
                 {
                     // inspect worry level of the next item
                     var worryLevel = monkey.Items.Dequeue();
-                    monkey.TotalInspectCount++;
+                    monkey.TotalInspectCount += 1;
                     
                     // execute operation and calculate new value after relief
-                    var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel) / 3;
+                    // var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel) / 3; // part 1
+                    var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel) % lcm;
                     
                     // hand over the item with new worry level to the correct monkey
                     var targetIdx = newWorryLevel % monkey.TestDivider == 0 ? monkey.TrueTarget : monkey.FalseTarget; 
@@ -70,12 +69,16 @@ public class Day11
             }
         }
 
+        for (var i = 0; i < monkeys.Count; ++i)
+            Console.WriteLine($"Monkey {i} inspected items {monkeys[i].TotalInspectCount} times.");
+
+        const int start = 1;
         var result = monkeys.Select(m => m.TotalInspectCount)
                             .OrderByDescending(m => m)
                             .Take(2)
-                            .Aggregate(1, (current, next) => current * next);
+                            .Aggregate(start, (current, next) => current * next);
         
-        Console.WriteLine($"Day 11 part 1: {result}");
+        Console.WriteLine($"Day 11 part 2: {result}");
     }
 
     private int ExecuteOperation(string operation, int worryLevel)
@@ -93,5 +96,21 @@ public class Day11
             "*" => lhsInt * rhsInt,
             _ => 0
         };
+    }
+
+    private static int Gcd(int n1, int n2)
+    {
+        while (true)
+        {
+            if (n2 == 0) return n1;
+            var n3 = n1;
+            n1 = n2;
+            n2 = n3 % n2;
+        }
+    }
+
+    private static int Lcm(IEnumerable<int> numbers)
+    {
+        return numbers.Aggregate((s, val) => s * val / Gcd(s, val));
     }
 }

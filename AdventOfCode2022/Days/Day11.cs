@@ -17,7 +17,7 @@ public class Day11
         public ulong TestDivider = 0;
         public int TrueTarget = 0;
         public int FalseTarget = 0;
-        public uint TotalInspectCount = 0;
+        public ulong TotalInspectCount = 0;
     }
     
     public void Solve(bool part1 = true)
@@ -46,6 +46,8 @@ public class Day11
         }
 
         var rounds = part1 ? 20 : 10000;
+        
+        // Credit to https://nickymeuleman.netlify.app/garden/aoc2022-day11 for the common multiple idea
         var lcm = Lcm(monkeys.Select(m => m.TestDivider));
         for (var i = 0; i < rounds; ++i)
         {

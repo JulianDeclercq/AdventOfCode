@@ -12,18 +12,18 @@ public class Day11
 
     private class Monkey
     {
-        public Queue<int> Items = new();
+        public Queue<ulong> Items = new();
         public string Operation = "";
-        public int TestDivider = 0;
+        public ulong TestDivider = 0;
         public int TrueTarget = 0;
         public int FalseTarget = 0;
-        public int TotalInspectCount = 0;
+        public uint TotalInspectCount = 0;
     }
     
     public void Solve()
     {
         const int monkeyDefinitionLength = 6;
-        var input = File.ReadAllLines(@"..\..\..\input\day11_example.txt").ToList();
+        var input = File.ReadAllLines(@"..\..\..\input\day11.txt").ToList();
         var amountOfMonkeys = input.Count(s => s.StartsWith("Monkey"));
         
         var monkeys = new List<Monkey>();
@@ -35,11 +35,11 @@ public class Day11
             _monkeyPattern.Parse(string.Join("", monkeyDefinition));
             monkeys.Add(new Monkey
             {
-                Items = new Queue<int>(_monkeyPattern.Get("items")
+                Items = new Queue<ulong>(_monkeyPattern.Get("items")
                     .Split(',', StringSplitOptions.TrimEntries)
-                    .Select(int.Parse)),
+                    .Select(ulong.Parse)),
                 Operation = _monkeyPattern.Get("operation"),
-                TestDivider = _monkeyPattern.GetInt("testDivider"),
+                TestDivider = ulong.Parse(_monkeyPattern.Get("testDivider")),
                 TrueTarget = _monkeyPattern.GetInt("trueTarget"),
                 FalseTarget = _monkeyPattern.GetInt("falseTarget"),
             });
@@ -47,7 +47,7 @@ public class Day11
 
         var dividers = monkeys.Select(m => m.TestDivider).ToArray();
         var lcm = Lcm(dividers);
-        const int rounds = 20;
+        const int rounds = 10000;
         for (var i = 0; i < rounds; ++i)
         {
             foreach (var monkey in monkeys)
@@ -72,7 +72,7 @@ public class Day11
         for (var i = 0; i < monkeys.Count; ++i)
             Console.WriteLine($"Monkey {i} inspected items {monkeys[i].TotalInspectCount} times.");
 
-        const int start = 1;
+        const ulong start = 1;
         var result = monkeys.Select(m => m.TotalInspectCount)
                             .OrderByDescending(m => m)
                             .Take(2)
@@ -81,14 +81,14 @@ public class Day11
         Console.WriteLine($"Day 11 part 2: {result}");
     }
 
-    private int ExecuteOperation(string operation, int worryLevel)
+    private ulong ExecuteOperation(string operation, ulong worryLevel)
     {
         _operationPattern.Parse(operation);
         var lhs = _operationPattern.Get("lhs");
-        var lhsInt = lhs.Equals("old") ? worryLevel : int.Parse(lhs);
+        var lhsInt = lhs.Equals("old") ? worryLevel : ulong.Parse(lhs);
         
         var rhs = _operationPattern.Get("rhs");
-        var rhsInt = rhs.Equals("old") ? worryLevel : int.Parse(rhs);
+        var rhsInt = rhs.Equals("old") ? worryLevel : ulong.Parse(rhs);
 
         return _operationPattern.Get("operator") switch
         {
@@ -98,7 +98,7 @@ public class Day11
         };
     }
 
-    private static int Gcd(int n1, int n2)
+    private static ulong Gcd(ulong n1, ulong n2)
     {
         while (true)
         {
@@ -109,7 +109,7 @@ public class Day11
         }
     }
 
-    private static int Lcm(IEnumerable<int> numbers)
+    private static ulong Lcm(IEnumerable<ulong> numbers)
     {
         return numbers.Aggregate((s, val) => s * val / Gcd(s, val));
     }

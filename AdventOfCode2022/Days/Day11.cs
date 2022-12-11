@@ -20,7 +20,7 @@ public class Day11
         public uint TotalInspectCount = 0;
     }
     
-    public void Solve()
+    public void Solve(bool part1 = true)
     {
         const int monkeyDefinitionLength = 6;
         var input = File.ReadAllLines(@"..\..\..\input\day11.txt").ToList();
@@ -45,9 +45,8 @@ public class Day11
             });
         }
 
-        var dividers = monkeys.Select(m => m.TestDivider).ToArray();
-        var lcm = Lcm(dividers);
-        const int rounds = 10000;
+        var rounds = part1 ? 20 : 10000;
+        var lcm = Lcm(monkeys.Select(m => m.TestDivider));
         for (var i = 0; i < rounds; ++i)
         {
             foreach (var monkey in monkeys)
@@ -59,8 +58,8 @@ public class Day11
                     monkey.TotalInspectCount += 1;
                     
                     // execute operation and calculate new value after relief
-                    // var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel) / 3; // part 1
-                    var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel) % lcm;
+                    var newWorryLevel = ExecuteOperation(monkey.Operation, worryLevel);
+                    newWorryLevel = part1 ? newWorryLevel / 3 : newWorryLevel % lcm;
                     
                     // hand over the item with new worry level to the correct monkey
                     var targetIdx = newWorryLevel % monkey.TestDivider == 0 ? monkey.TrueTarget : monkey.FalseTarget; 
@@ -69,16 +68,13 @@ public class Day11
             }
         }
 
-        for (var i = 0; i < monkeys.Count; ++i)
-            Console.WriteLine($"Monkey {i} inspected items {monkeys[i].TotalInspectCount} times.");
-
         const ulong start = 1;
         var result = monkeys.Select(m => m.TotalInspectCount)
                             .OrderByDescending(m => m)
                             .Take(2)
                             .Aggregate(start, (current, next) => current * next);
         
-        Console.WriteLine($"Day 11 part 2: {result}");
+        Console.WriteLine($"Day 11 part {(part1 ? 1 : 2)}: {result}");
     }
 
     private ulong ExecuteOperation(string operation, ulong worryLevel)

@@ -20,6 +20,46 @@ public class Day13
         }
     }
 
+    private enum ListElementType
+    {
+        None = 0,
+        Integer = 1,
+        List = 2
+    }
+    
+    public static void Solve()
+    {
+        var pairs = File.ReadAllLines(@"..\..\..\input\day13.txt")
+            .Where(l => !string.IsNullOrEmpty(l))
+            .Select(ParseElement)
+            .Chunk(2)
+            .ToArray();
+
+        var orderedPairsIndicesSum = pairs
+            .Select((p, i) => IsOrdered(p.First(), p.Last())!.Value ? i + 1 : 0)
+            .Sum();
+        
+        Console.WriteLine($"Day 13 part 1: {orderedPairsIndicesSum}");
+    }
+    
+    public static void Solve2()
+    {
+        var comparer = new ElementComparer();
+        const string divider1 = "[[2]]", divider2 = "[[6]]";
+        
+        var packets = File.ReadAllLines(@"..\..\..\input\day13.txt")
+            .Where(l => !string.IsNullOrEmpty(l))
+            .Concat(new[] {divider1, divider2})
+            .Select(ParseElement)
+            .OrderBy(x => x, comparer)
+            .Select(x => x.ToString())
+            .ToList();
+        
+        var decoderKey = (packets.IndexOf(divider1) + 1) * (packets.IndexOf(divider2) + 1);
+        Console.WriteLine($"Day 13 part 2: {decoderKey}");
+    }
+    
+    
     private class ElementComparer : IComparer<Element>
     {
         public int Compare(Element left, Element right)
@@ -69,45 +109,6 @@ public class Day13
         
             return 1;
         }
-    }
-
-    private enum ListElementType
-    {
-        None = 0,
-        Integer = 1,
-        List = 2
-    }
-    
-    public static void Solve()
-    {
-        var pairs = File.ReadAllLines(@"..\..\..\input\day13.txt")
-            .Where(l => !string.IsNullOrEmpty(l))
-            .Select(ParseElement)
-            .Chunk(2)
-            .ToArray();
-
-        var orderedPairsIndicesSum = pairs
-            .Select((p, i) => IsOrdered(p.First(), p.Last())!.Value ? i + 1 : 0)
-            .Sum();
-        
-        Console.WriteLine($"Day 13 part 1: {orderedPairsIndicesSum}");
-    }
-    
-    public static void Solve2()
-    {
-        var comparer = new ElementComparer();
-        const string divider1 = "[[2]]", divider2 = "[[6]]";
-        
-        var packets = File.ReadAllLines(@"..\..\..\input\day13.txt")
-            .Where(l => !string.IsNullOrEmpty(l))
-            .Concat(new[] {divider1, divider2})
-            .Select(ParseElement)
-            .OrderBy(x => x, comparer)
-            .Select(x => x.ToString())
-            .ToList();
-        
-        var decoderKey = (packets.IndexOf(divider1) + 1) * (packets.IndexOf(divider2) + 1);
-        Console.WriteLine($"Day 13 part 2: {decoderKey}");
     }
 
     private static bool? IsOrdered(Element left, Element right)

@@ -9,6 +9,71 @@ public class Day13
         public int Value = 0;
         public List<Element> Contents = new();
         public ListElementType Type = ListElementType.None;
+
+        public override string ToString()
+        {
+            return Type switch
+            {
+                ListElementType.None => "INVALID",
+                ListElementType.Integer => Value.ToString(),
+                ListElementType.List => $"[{string.Join(',', Contents)}]",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
+
+    private class ElementComparer : IComparer<Element>
+    {
+        public int Compare(Element left, Element right)
+        {
+            if (left.Type is ListElementType.Integer && right.Type is ListElementType.Integer)
+            {
+                if (left.Value < right.Value)
+                    return -1;
+            
+                if (left.Value > right.Value)
+                    return 1;
+        
+                return 0;
+            }
+        
+            if (left.Type is ListElementType.List && right.Type is ListElementType.List)
+            {
+                var loopLength = Math.Max(left.Contents.Count, right.Contents.Count);
+                for (var i = 0; i < loopLength; ++i)
+                {
+                    // if undecided and left runs out of items first, the inputs are in the right order
+                    if (i >= left.Contents.Count)
+                        return -1;
+                
+                    // if undecided and right runs out of items first, the inputs are not in the right order
+                    if (i >= right.Contents.Count)
+                        return 1;
+                
+                    var ordered = Compare(left.Contents[i], right.Contents[i]);
+                    if (ordered != 0)
+                        return ordered;
+                }
+            
+                // If the lists are the same length and no comparison makes a decision about the order, continue checking the next part of the input.
+                if (left.Contents.Count != right.Contents.Count)
+                    throw new Exception("THIS SHOULD REALLY NEVER HAPPEN");
+        
+                return 0;
+            }
+        
+            /* If exactly one value is an integer, convert the integer to a list which contains that integer as its only value,
+             * then retry the comparison. For example, if comparing [0,0,0] and 2, convert the right value to [2] (a list containing 2);
+             * the result is then found by instead comparing [0,0,0] and [2]. */
+        
+            if (left.Type is ListElementType.Integer)
+                return Compare(ConvertIntegerToList(left), right);
+        
+            if (right.Type is ListElementType.Integer)
+                return Compare(left, ConvertIntegerToList(right));
+        
+            return 1;
+        }
     }
 
     private enum ListElementType
@@ -40,6 +105,23 @@ public class Day13
                 sum += i + 1;
         }
         Console.WriteLine($"Day 13 part 1: {sum}");
+    }
+    
+    public void Solve2()
+    {
+        const string divider1 = "[[2]]", divider2 = "[[6]]";
+        var comparer = new ElementComparer();
+        
+        var packets = File.ReadAllLines(@"..\..\..\input\day13.txt")
+            .Where(l => !string.IsNullOrEmpty(l))
+            .Concat(new[] {divider1, divider2})
+            .Select(ParseElement)
+            .OrderBy(x => x, comparer)
+            .Select(x => x.ToString())
+            .ToList();
+        
+        var decoderKey = (packets.IndexOf(divider1) + 1) * (packets.IndexOf(divider2) + 1);
+        Console.WriteLine($"Day 13 part 2: {decoderKey}");
     }
 
     private static bool? IsOrdered(Element left, Element right)
@@ -92,7 +174,7 @@ public class Day13
 
         return false;
     }
-
+    
     private static Element ConvertIntegerToList(Element element)
     {
         if (element.Type is not ListElementType.Integer)
@@ -125,14 +207,14 @@ public class Day13
                 case ']': 
                     var itemStart = stack.Pop();
                     depth--;
-                    if (depth == 1) // TODO: 0?
+                    if (depth == 1)
                         elements.Add(ParseElement(element[itemStart..(i+1)]));
                     break;
                 case ',':
                     if (string.IsNullOrEmpty(currentInt))
                         break;
 
-                    if (depth == 1) // TODO: 0?
+                    if (depth == 1)
                     {
                         elements.Add(new Element
                         {

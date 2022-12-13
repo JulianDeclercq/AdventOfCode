@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace AdventOfCode2022.Days;
+﻿namespace AdventOfCode2022.Days;
 
 public class Day13
 {
@@ -55,16 +53,13 @@ public class Day13
                         return ordered;
                 }
             
-                // If the lists are the same length and no comparison makes a decision about the order, continue checking the next part of the input.
-                if (left.Contents.Count != right.Contents.Count)
-                    throw new Exception("THIS SHOULD REALLY NEVER HAPPEN");
-        
+                // if the lists are the same length and no comparison makes a decision about the order,
+                // continue checking the next part of the input.
                 return 0;
             }
         
-            /* If exactly one value is an integer, convert the integer to a list which contains that integer as its only value,
-             * then retry the comparison. For example, if comparing [0,0,0] and 2, convert the right value to [2] (a list containing 2);
-             * the result is then found by instead comparing [0,0,0] and [2]. */
+            // if exactly one value is an integer, convert the integer to a list which contains that integer as
+            // its only value, then retry the comparison.
         
             if (left.Type is ListElementType.Integer)
                 return Compare(ConvertIntegerToList(left), right);
@@ -83,34 +78,25 @@ public class Day13
         List = 2
     }
     
-    public void Solve()
+    public static void Solve()
     {
         var pairs = File.ReadAllLines(@"..\..\..\input\day13.txt")
             .Where(l => !string.IsNullOrEmpty(l))
+            .Select(ParseElement)
             .Chunk(2)
             .ToArray();
 
-        var sum = 0;
-        for (var i = 0; i < pairs.Length; ++i)
-        {
-            var pair = pairs[i];
-            var left = ParseElement(pair.First());
-            var right = ParseElement(pair.Last());
-            var isOrdered = IsOrdered(left, right);
-            
-            if (isOrdered == null)
-                throw new Exception("Indecisive comparison");
-            
-            if (isOrdered.Value)
-                sum += i + 1;
-        }
-        Console.WriteLine($"Day 13 part 1: {sum}");
+        var orderedPairsIndicesSum = pairs
+            .Select((p, i) => IsOrdered(p.First(), p.Last())!.Value ? i + 1 : 0)
+            .Sum();
+        
+        Console.WriteLine($"Day 13 part 1: {orderedPairsIndicesSum}");
     }
     
-    public void Solve2()
+    public static void Solve2()
     {
-        const string divider1 = "[[2]]", divider2 = "[[6]]";
         var comparer = new ElementComparer();
+        const string divider1 = "[[2]]", divider2 = "[[6]]";
         
         var packets = File.ReadAllLines(@"..\..\..\input\day13.txt")
             .Where(l => !string.IsNullOrEmpty(l))
@@ -126,53 +112,12 @@ public class Day13
 
     private static bool? IsOrdered(Element left, Element right)
     {
-        if (left.Type is ListElementType.Integer && right.Type is ListElementType.Integer)
+        return new ElementComparer().Compare(left, right) switch
         {
-            if (left.Value < right.Value)
-                return true;
-            
-            if (left.Value > right.Value)
-                return false;
-
-            return null;
-        }
-
-        if (left.Type is ListElementType.List && right.Type is ListElementType.List)
-        {
-            var loopLength = Math.Max(left.Contents.Count, right.Contents.Count);
-            for (var i = 0; i < loopLength; ++i)
-            {
-                // if undecided and left runs out of items first, the inputs are in the right order
-                if (i >= left.Contents.Count)
-                    return true;
-                
-                // if undecided and right runs out of items first, the inputs are not in the right order
-                if (i >= right.Contents.Count)
-                    return false;
-                
-                var ordered = IsOrdered(left.Contents[i], right.Contents[i]);
-                if (ordered != null)
-                    return ordered;
-            }
-            
-            // If the lists are the same length and no comparison makes a decision about the order, continue checking the next part of the input.
-            if (left.Contents.Count != right.Contents.Count)
-                throw new Exception("THIS SHOULD REALLY NEVER HAPPEN");
-
-            return null;
-        }
-        
-        /* If exactly one value is an integer, convert the integer to a list which contains that integer as its only value,
-         * then retry the comparison. For example, if comparing [0,0,0] and 2, convert the right value to [2] (a list containing 2);
-         * the result is then found by instead comparing [0,0,0] and [2]. */
-
-        if (left.Type is ListElementType.Integer)
-            return IsOrdered(ConvertIntegerToList(left), right);
-
-        if (right.Type is ListElementType.Integer)
-            return IsOrdered(left, ConvertIntegerToList(right));
-
-        return false;
+            -1 => true,
+            1 => false,
+            _ => null
+        };
     }
     
     private static Element ConvertIntegerToList(Element element)
@@ -187,7 +132,6 @@ public class Day13
         };
     }
 
-    // Parses one level
     private static Element ParseElement(string element)
     {
         var stack = new Stack<int>();
@@ -196,7 +140,6 @@ public class Day13
         var currentInt = "";
         for (var i = 0; i < element.Length; ++i)
         {
-            var debug = element[i..];
             var c = element[i];
             switch (c)
             {

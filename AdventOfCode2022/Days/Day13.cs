@@ -59,7 +59,6 @@ public class Day13
         Console.WriteLine($"Day 13 part 2: {decoderKey}");
     }
     
-    
     private class ElementComparer : IComparer<Element>
     {
         public int Compare(Element left, Element right)

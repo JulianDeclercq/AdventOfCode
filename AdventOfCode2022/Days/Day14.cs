@@ -69,21 +69,19 @@ public class Day14
             Console.WriteLine($"Day 14 part 1: {steps}");
         }
     }
-    
+
     public void Solve2()
     {
-        const int margin = 250;
-        var rockFormation = File.ReadAllLines(@"..\..\..\input\day14.txt")
+        const int fakeInfinity = 250;
+        const string inputPath = @"..\..\..\input\day14.txt";
+        
+        var maximumYValue = RetrieveMaximumYValue(inputPath);
+        var rockFormations = File.ReadAllLines(inputPath)
             .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
-//            .Append(new []{"-infinity,11", "infinity,11"})
-//            .Append(new []{"480,11", "520,11"})
-//            .Append(new []{"450,11", "550,11"})
-            // .Append(new []{"400,172", "600,172"})
-            .Append(new []{$"{480 - margin},172", $"{480 + margin},172"})
+            .Append(new []{$"{500 - fakeInfinity},{maximumYValue + 2}", $"{500 + fakeInfinity},{maximumYValue + 2}"})
             .ToArray();
 
-        var coordinates = rockFormation.SelectMany(p => p).Select(p => p.Split(',')).ToArray();
-
+        var coordinates = rockFormations.SelectMany(p => p).Select(p => p.Split(',')).ToArray();
         var xCoordinates = coordinates.Select(c => int.Parse(c.First())).OrderBy(c => c).ToArray();
         var yCoordinates = coordinates.Select(c => int.Parse(c.Last())).OrderBy(c => c).ToArray();
 
@@ -98,7 +96,7 @@ public class Day14
         var sourcePoint = new Point(500 - xMin, 0);
         grid.Set(sourcePoint, source);
         
-        foreach (var formation in rockFormation)
+        foreach (var formation in rockFormations)
         {
             for (var i = 0; i < formation.Length - 1; ++i)
             {
@@ -114,58 +112,45 @@ public class Day14
         Write(grid);
         
         var steps = 0;
-        try
+        for (;; ++steps)
         {
-            for (;; ++steps)
+            var sandPos = new Point(sourcePoint);
+            for (;;)
             {
-                var sandPos = new Point(sourcePoint);
-                for (;;)
+                var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
+                if (target.Value is rock or sand)
                 {
-                    var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
+                    target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
                     if (target.Value is rock or sand)
                     {
-                        target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
+                        target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
                         if (target.Value is rock or sand)
                         {
-                            target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
-                            if (target.Value is rock or sand)
+                            // come to rest
+                            grid.Set(sandPos, sand);
+                                
+                            if (sandPos.Equals(sourcePoint))
                             {
-                                // come to rest
-                                grid.Set(sandPos, sand);
-                                
-                                if (sandPos.Equals(sourcePoint))
-                                {
-                                    Console.WriteLine($"Day 14 part 2: {steps + 1}");
-                                    Write(grid, steps, force: true);
-                                    return;
-                                }
-                                
-                                break;
+                                Console.WriteLine($"Day 14 part 2: {steps + 1}");
+                                Write(grid, steps);
+                                return;
                             }
+                            break;
                         }
                     }
-                    sandPos = target.Position;
-                    Write(grid, steps);
                 }
+                sandPos = target.Position;
+                Write(grid, steps);
             }
         }
-        catch (ArgumentOutOfRangeException e)
-        {
-            Write(grid, steps, force: true);
-            Console.WriteLine("crashywashy");
-        }
-        
-        Console.WriteLine("finished");
     }
 
-    private void Write(Grid<char> grid, int steps = 0, bool force = false)
+    private static void Write(Grid<char> grid, int steps = 0)
     {
-        if (!force)
-            return;
-        
+        return;
         var s = $"\n\n{steps}\n\n{grid}";
         File.AppendAllText(@"..\..\..\output\day14_example.txt", s);
-        // Console.WriteLine(s);
+        Console.WriteLine(s);
     }
 
     private static Point ToPoint(int[] parsed, int offset) => new(parsed.First() - offset, parsed.Last());
@@ -186,5 +171,15 @@ public class Day14
         else throw new Exception("Invalid path.");
 
         return path;
+    }
+    
+    private static int RetrieveMaximumYValue(string inputPath)
+    {
+        return File.ReadAllLines(inputPath)
+            .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            .SelectMany(p => p)
+            .Select(p => p.Split(','))
+            .Select(c => int.Parse(c.Last()))
+            .Max();
     }
 }

@@ -4,7 +4,7 @@ public class Day14
 {
     public void Solve()
     {
-        var rockFormation = File.ReadAllLines(@"..\..\..\input\day14_example.txt")
+        var rockFormation = File.ReadAllLines(@"..\..\..\input\day14.txt")
             .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             .ToArray();
 
@@ -22,7 +22,8 @@ public class Day14
         const char rock = '#', air = '.', source = '+', sand = 'o';
 
         // offset x axis (grid x doesnt start at 0) TODO: implement offset inside the grid itself
-        grid.Set(new Point(500 - xMin, 0), source);
+        var sourcePoint = new Point(500 - xMin, 0);
+        grid.Set(sourcePoint, source);
         foreach (var formation in rockFormation)
         {
             for (var i = 0; i < formation.Length - 1; ++i)
@@ -33,9 +34,39 @@ public class Day14
                 var path = GeneratePath(ToPoint(current, xMin), ToPoint(next, xMin));
                 foreach (var p in path)
                     grid.Set(p, rock);
-
-                Console.WriteLine(grid);
             }
+        }
+
+        var steps = 0;
+        try
+        {
+            for (;; ++steps)
+            {
+                var sandPos = new Point(sourcePoint);
+                for (;;)
+                {
+                    var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
+                    if (target.Value is rock or sand)
+                    {
+                        target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
+                        if (target.Value is rock or sand)
+                        {
+                            target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
+                            if (target.Value is rock or sand)
+                            {
+                                // come to rest
+                                grid.Set(sandPos, sand);
+                                break;
+                            }
+                        }
+                    }
+                    sandPos = target.Position;
+                }
+            }
+        }
+        catch (ArgumentOutOfRangeException e)
+        {
+            Console.WriteLine($"Day 14 part 1: {steps}");
         }
     }
 

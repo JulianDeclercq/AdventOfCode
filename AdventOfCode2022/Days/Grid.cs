@@ -2,7 +2,7 @@
 
 public class Grid<T>
 {
-     public Grid(int width, int height, IEnumerable<T> elements, T invalid)
+    public Grid(int width, int height, IEnumerable<T> elements, T invalid)
     {
         if (width < 1 || height < 1)
             throw new Exception("Can't create grid with no rows or columns");
@@ -113,6 +113,27 @@ public class Grid<T>
         return neighbours.Where(n => n != null && !n.Equals(_invalid));
     }
 
+    public GridElement<T> GetNeighbour(Point p, GridNeighbourType type)
+    {
+        var neighbour = type switch
+        {
+            GridNeighbourType.N => new Point(p.X, p.Y - 1),
+            GridNeighbourType.Ne => new Point(p.X + 1, p.Y - 1),
+            GridNeighbourType.E => new Point(p.X + 1, p.Y),
+            GridNeighbourType.Se => new Point(p.X + 1, p.Y + 1),
+            GridNeighbourType.S => new Point(p.X, p.Y + 1),
+            GridNeighbourType.Sw => new Point(p.X -1, p.Y + 1),
+            GridNeighbourType.W => new Point(p.X - 1, p.Y),
+            GridNeighbourType.Nw => new Point(p.X - 1, p.Y - 1),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+
+        if (!ValidPoint(neighbour))
+            throw new ArgumentOutOfRangeException($"{type} neighbour of {p} was outside of the grid boundaries.");
+        
+        return new GridElement<T>(neighbour, At(neighbour));
+    }
+
     public IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true)
     {
         var neighbours = new List<Point>()
@@ -132,6 +153,11 @@ public class Grid<T>
         }
 
         return neighbours.Where(ValidPoint);
+    }
+
+    public IEnumerable<GridElement<T>> NeighbouringPointsExtended(Point p, bool includeDiagonals = true)
+    {
+        return NeighbouringPoints(p, includeDiagonals).Select(np => new GridElement<T>(np, At(np)));
     }
 
     // wraps
@@ -184,14 +210,17 @@ public class Grid<T>
     }
 }
 
-public class GridElement<T>
+public record GridElement<T>(Point Position, T Value);
+
+public enum GridNeighbourType
 {
-    public GridElement(Point p, T value)
-    {
-        Position = p;
-        Value = value;
-    }
-    
-    public readonly Point Position;
-    public readonly T Value;
+    None = 0,
+    N = 1,
+    Ne = 2,
+    E = 3,
+    Se = 4,
+    S = 5,
+    Sw = 6,
+    W = 7,
+    Nw = 8
 }

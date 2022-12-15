@@ -27,6 +27,12 @@ public class Point : IEquatable<Point>
         Y = y;
     }
 
+    public Point(Point source)
+    {
+        X = source.X;
+        Y = source.Y;
+    }
+
     public readonly int X, Y;
     
     public override string ToString() => $"{X},{Y}";

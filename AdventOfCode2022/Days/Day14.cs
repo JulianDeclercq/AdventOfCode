@@ -2,6 +2,8 @@
 
 public class Day14
 {
+    private const char Rock = '#', Air = '.', Source = '+', Sand = 'o';
+
     public void Solve()
     {
         var rockFormation = File.ReadAllLines(@"..\..\..\input\day14.txt")
@@ -17,13 +19,12 @@ public class Day14
         int yMin = yCoordinates.Min(), yMax = yCoordinates.Max();
         int width = (xMax - xMin) + 1, height = yMax + 1;
 
-        var grid = new Grid<char>(width, height, Enumerable.Range(0, width * height).Select(_ => '.'), '$');
-
-        const char rock = '#', air = '.', source = '+', sand = 'o';
-
+        var grid = new Grid<char>(width, height, Enumerable.Range(0, width * height).Select(_ => Air), '$');
+        
         // offset x axis (grid x doesnt start at 0) TODO: implement offset inside the grid itself
         var sourcePoint = new Point(500 - xMin, 0);
-        grid.Set(sourcePoint, source);
+        grid.Set(sourcePoint, Source);
+        
         foreach (var formation in rockFormation)
         {
             for (var i = 0; i < formation.Length - 1; ++i)
@@ -33,7 +34,7 @@ public class Day14
 
                 var path = GeneratePath(ToPoint(current, xMin), ToPoint(next, xMin));
                 foreach (var p in path)
-                    grid.Set(p, rock);
+                    grid.Set(p, Rock);
             }
         }
 
@@ -41,32 +42,35 @@ public class Day14
         try
         {
             for (;; ++steps)
-            {
-                var sandPos = new Point(sourcePoint);
-                for (;;)
-                {
-                    var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
-                    if (target.Value is rock or sand)
-                    {
-                        target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
-                        if (target.Value is rock or sand)
-                        {
-                            target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
-                            if (target.Value is rock or sand)
-                            {
-                                // come to rest
-                                grid.Set(sandPos, sand);
-                                break;
-                            }
-                        }
-                    }
-                    sandPos = target.Position;
-                }
-            }
+                Step(sourcePoint, grid);
         }
         catch (ArgumentOutOfRangeException e)
         {
             Console.WriteLine($"Day 14 part 1: {steps}");
+        }
+    }
+
+    private static void Step(Point source, Grid<char> grid, bool part1 = true)
+    {
+        var sandPos = new Point(source);
+        for (;;)
+        {
+            var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
+            if (target.Value is Rock or Sand)
+            {
+                target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
+                if (target.Value is Rock or Sand)
+                {
+                    target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
+                    if (target.Value is Rock or Sand)
+                    {
+                        // come to rest
+                        grid.Set(sandPos, Sand);
+                        break;
+                    }
+                }
+            }
+            sandPos = target.Position;
         }
     }
 

@@ -1,4 +1,4 @@
 ﻿using AdventOfCode2022.Days;
 
-new Day14().Solve();
-new Day14().Solve2();
+Day14.Solve();
+Day14.Solve(part1: false);

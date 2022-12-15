@@ -4,13 +4,29 @@ public class Day14
 {
     private const char Rock = '#', Air = '.', Source = '+', Sand = 'o';
 
-    public void Solve()
+    public static void Solve(bool part1 = true)
     {
-        var rockFormation = File.ReadAllLines(@"..\..\..\input\day14.txt")
-            .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
-            .ToArray();
+        const string inputPath = @"..\..\..\input\day14.txt";
+        string[][] rockFormations;
 
-        var coordinates = rockFormation.SelectMany(p => p).Select(p => p.Split(',')).ToArray();
+        if (part1)
+        {
+            rockFormations = File.ReadAllLines(inputPath)
+                .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                .ToArray();    
+        }
+        else
+        {
+            const int fakeInfinity = 250;
+            var maximumYValue = RetrieveMaximumYValue(inputPath);
+            
+            rockFormations = File.ReadAllLines(inputPath)
+                .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                .Append(new []{$"{500 - fakeInfinity},{maximumYValue + 2}", $"{500 + fakeInfinity},{maximumYValue + 2}"})
+                .ToArray();
+        }
+
+        var coordinates = rockFormations.SelectMany(p => p).Select(p => p.Split(',')).ToArray();
 
         var xCoordinates = coordinates.Select(c => int.Parse(c.First())).OrderBy(c => c).ToArray();
         var yCoordinates = coordinates.Select(c => int.Parse(c.Last())).OrderBy(c => c).ToArray();
@@ -25,7 +41,7 @@ public class Day14
         var sourcePoint = new Point(500 - xMin, 0);
         grid.Set(sourcePoint, Source);
         
-        foreach (var formation in rockFormation)
+        foreach (var formation in rockFormations)
         {
             for (var i = 0; i < formation.Length - 1; ++i)
             {
@@ -39,119 +55,59 @@ public class Day14
         }
 
         var steps = 0;
-        try
+        var finished = false;
+        for (; !finished; ++steps)
         {
-            for (;; ++steps)
-                Step(sourcePoint, grid);
+            // Write(grid, steps);
+            finished = Step(sourcePoint, grid, part1);
         }
-        catch (ArgumentOutOfRangeException e)
-        {
-            Console.WriteLine($"Day 14 part 1: {steps}");
-        }
+        
+        // part 1: how many come to rest BEFORE overflowing into abyss (doesn't include last step where the sand falls into the abyss, so steps -1)
+        // part 2: how many come to rest UNTIL the source is blocked (includes last step where the source itself gets blocked)
+        Console.WriteLine($"Day 14 part {(part1 ? 1 : 2)}: {(part1 ? steps - 1 : steps)}");
     }
 
-    private static void Step(Point source, Grid<char> grid, bool part1 = true)
+    private static bool Step(Point source, Grid<char> grid, bool part1 = true)
     {
         var sandPos = new Point(source);
-        for (;;)
+        try
         {
-            var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
-            if (target.Value is Rock or Sand)
-            {
-                target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
-                if (target.Value is Rock or Sand)
-                {
-                    target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
-                    if (target.Value is Rock or Sand)
-                    {
-                        // come to rest
-                        grid.Set(sandPos, Sand);
-                        break;
-                    }
-                }
-            }
-            sandPos = target.Position;
-        }
-    }
-
-    public void Solve2()
-    {
-        const int fakeInfinity = 250;
-        const string inputPath = @"..\..\..\input\day14.txt";
-        
-        var maximumYValue = RetrieveMaximumYValue(inputPath);
-        var rockFormations = File.ReadAllLines(inputPath)
-            .Select(s => s.Split("->", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
-            .Append(new []{$"{500 - fakeInfinity},{maximumYValue + 2}", $"{500 + fakeInfinity},{maximumYValue + 2}"})
-            .ToArray();
-
-        var coordinates = rockFormations.SelectMany(p => p).Select(p => p.Split(',')).ToArray();
-        var xCoordinates = coordinates.Select(c => int.Parse(c.First())).OrderBy(c => c).ToArray();
-        var yCoordinates = coordinates.Select(c => int.Parse(c.Last())).OrderBy(c => c).ToArray();
-
-        int xMin = xCoordinates.Min(), xMax = xCoordinates.Max();
-        int yMin = yCoordinates.Min(), yMax = yCoordinates.Max();
-        int width = (xMax - xMin) + 1, height = yMax + 1;
-
-        const char rock = '#', air = '.', source = '+', sand = 'o';
-        var grid = new Grid<char>(width, height, Enumerable.Range(0, width * height).Select(_ => air), '$');
-
-        // offset x axis (grid x doesnt start at 0) TODO: implement offset inside the grid itself
-        var sourcePoint = new Point(500 - xMin, 0);
-        grid.Set(sourcePoint, source);
-        
-        foreach (var formation in rockFormations)
-        {
-            for (var i = 0; i < formation.Length - 1; ++i)
-            {
-                var current = formation[i].Split(',').Select(int.Parse).ToArray();
-                var next = formation[i + 1].Split(',').Select(int.Parse).ToArray();
-
-                var path = GeneratePath(ToPoint(current, xMin), ToPoint(next, xMin));
-                foreach (var p in path)
-                    grid.Set(p, rock);
-            }
-        }
-
-        Write(grid);
-        
-        var steps = 0;
-        for (;; ++steps)
-        {
-            var sandPos = new Point(sourcePoint);
             for (;;)
             {
                 var target = grid.GetNeighbour(sandPos, GridNeighbourType.S)!;
-                if (target.Value is rock or sand)
+                if (target.Value is Rock or Sand)
                 {
                     target = grid.GetNeighbour(sandPos, GridNeighbourType.Sw)!;
-                    if (target.Value is rock or sand)
+                    if (target.Value is Rock or Sand)
                     {
                         target = grid.GetNeighbour(sandPos, GridNeighbourType.Se)!;
-                        if (target.Value is rock or sand)
+                        if (target.Value is Rock or Sand)
                         {
                             // come to rest
-                            grid.Set(sandPos, sand);
-                                
-                            if (sandPos.Equals(sourcePoint))
-                            {
-                                Console.WriteLine($"Day 14 part 2: {steps + 1}");
-                                Write(grid, steps);
-                                return;
-                            }
+                            grid.Set(sandPos, Sand);
+                        
+                            // part 2 is finished when the source of the sand is blocked
+                            if (!part1 && sandPos.Equals(source))
+                                return true;
+                        
                             break;
                         }
                     }
                 }
                 sandPos = target.Position;
-                Write(grid, steps);
             }
         }
+        catch (ArgumentOutOfRangeException e)
+        {
+            // part 1 is finished when going out of bounds
+            return true;
+        }
+
+        return false;
     }
 
     private static void Write(Grid<char> grid, int steps = 0)
     {
-        return;
         var s = $"\n\n{steps}\n\n{grid}";
         File.AppendAllText(@"..\..\..\output\day14_example.txt", s);
         Console.WriteLine(s);

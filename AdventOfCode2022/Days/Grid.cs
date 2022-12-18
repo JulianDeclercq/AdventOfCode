@@ -94,7 +94,7 @@ public class Grid<T>
     public IEnumerable<T> Neighbours(Point p, bool includeDiagonals = true) => Neighbours(p.X, p.Y, includeDiagonals);
     public IEnumerable<T> Neighbours(int x, int y, bool includeDiagonals = true)
     {
-        var neighbours = new List<T>()
+        var neighbours = new List<T>
         {
             Get(x, y - 1),
             Get(x + 1, y),

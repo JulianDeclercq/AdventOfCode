@@ -20,7 +20,7 @@ public class Grid3D<T>
     private readonly T _invalid;
     private readonly List<Grid<T>> _grids = new();
     
-    private bool ValidDepth(int z) => z > 0 && z < Depth - 1; // TODO verify -1
+    private bool ValidDepth(int z) => z >= 0 && z < Depth;
 
     public T At(int x, int y, int z)
     {

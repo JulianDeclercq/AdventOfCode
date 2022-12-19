@@ -22,6 +22,8 @@ public class Grid3D<T>
     
     private bool ValidDepth(int z) => z >= 0 && z < Depth;
 
+    public T At(Point3D p) => At(p.X, p.Y, p.Z); 
+
     public T At(int x, int y, int z)
     {
         return ValidDepth(z) ? _grids[z].At(x, y) : _invalid;
@@ -51,6 +53,9 @@ public class Grid3D<T>
 
         return neighbours;
     }
+    
+    public IEnumerable<T> NeighboursOLD(Point3D p, bool includeDiagonals = false)
+        => NeighboursOLD(p.X, p.Y, p.Z, includeDiagonals);
 
     private IEnumerable<T> NeighboursOLD(int x, int y, int z, bool includeDiagonals)
     {
@@ -82,4 +87,20 @@ public class Grid3D<T>
     
     public override string ToString()
         => $"{_grids.Aggregate(string.Empty, (current, grid) => current + $"{grid}\n")}\n";
+
+    public IEnumerable<Point3D> AllPoints()
+    {
+        var points = new List<Point3D>();
+        for (var x = 0; x < Width; ++x)
+        {
+            for (var y = 0; y < Height; ++y)
+            {
+                for (var z = 0; z < Depth; ++z)
+                {
+                    points.Add(new Point3D(x, y, z));
+                }    
+            }   
+        }
+        return points;
+    }
 }

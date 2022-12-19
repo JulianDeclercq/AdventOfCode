@@ -4,15 +4,16 @@ public class Day18
 {
     public void Solve()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day18_test.txt");
+        // var lines = File.ReadAllLines(@"..\..\..\input\day18_test.txt");
         // var lines = File.ReadAllLines(@"..\..\..\input\day18_example.txt");
+        var lines = File.ReadAllLines(@"..\..\..\input\day18.txt");
 
         var droplets = lines
             .Select(line => line.Split(','))
             .Select(x => x.Select(int.Parse).ToArray())
             .Select(integers => new Point3D(integers[0], integers[1], integers[2])).ToArray();
 
-        const int dim = 7; // x, y and z (TODO: Make dynamic)
+        const int dim = 30; // x, y and z (TODO: Make dynamic)
         const char lava = 'o', empty = '.', invalid = '$';
         
         var elements = Enumerable.Range(0, dim)
@@ -23,9 +24,10 @@ public class Day18
         foreach (var droplet in droplets)
             grid.Set(droplet, lava);
         
-        Console.WriteLine(grid);
+        // Console.WriteLine(grid);
         
         // Collect all neighbours
+        // var neighbours = grid.Neighbours(new Point3D(1, 1, 1));
         var lavaNeighbours = droplets.SelectMany(x => grid.Neighbours(x, false)).Count(n => n == lava);
         Console.WriteLine($"Day 18 part 1: {droplets.Length * 6 - lavaNeighbours}");
     }

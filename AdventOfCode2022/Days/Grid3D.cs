@@ -34,20 +34,41 @@ public class Grid3D<T>
 
     public bool Set(Point3D p, T value) => Set(p.X, p.Y, p.Z, value);
 
-    public IEnumerable<T> Neighbours(Point3D p, bool includeDiagonals = true)
+    public IEnumerable<T> Neighbours(Point3D p, bool includeDiagonals = false)
         => Neighbours(p.X, p.Y, p.Z, includeDiagonals);
 
-    public IEnumerable<T> Neighbours(int x, int y, int z, bool includeDiagonals = true)
+    private IEnumerable<T> Neighbours(int x, int y, int z, bool includeDiagonals)
     {
         var neighbours = _grids[z].Neighbours(x, y, includeDiagonals).ToList();
 
         // higher neighbours
         if (ValidDepth(z - 1))
-            neighbours.AddRange(_grids[z - 1].Neighbours(x, y, includeDiagonals));
+            neighbours.Add(_grids[z - 1].At(x, y));
         
         // lower neighbours
         if (ValidDepth(z + 1))
-            neighbours.AddRange(_grids[z + 1].Neighbours(x, y, includeDiagonals));
+            neighbours.Add(_grids[z + 1].At(x, y));
+
+        return neighbours;
+    }
+
+    private IEnumerable<T> NeighboursOLD(int x, int y, int z, bool includeDiagonals)
+    {
+        var neighbours = _grids[z].Neighbours(x, y, includeDiagonals).ToList();
+
+        // higher neighbours
+        if (ValidDepth(z - 1))
+        {
+            var temp = _grids[z - 1].Neighbours(x, y, includeDiagonals);
+            neighbours.AddRange(temp);
+        }
+        
+        // lower neighbours
+        if (ValidDepth(z + 1))
+        {
+            var temp = _grids[z + 1].Neighbours(x, y, includeDiagonals);
+            neighbours.AddRange(temp);
+        }
 
         return neighbours;
     }

@@ -16,7 +16,6 @@ public class Day21
     readonly Dictionary<string, MonkeyOperation> _operationByMonkey = new();
     public void Solve()
     {
-        // var lines = File.ReadAllLines(@"..\..\..\input\day21_example.txt");
         var lines = File.ReadAllLines(@"..\..\..\input\day21.txt");
 
         foreach (var line in lines)
@@ -38,15 +37,10 @@ public class Day21
 
     private long MonkeyValue(string monkey)
     {
-        // check if the value for this monkey is already known
         if (_numberByMonkey.TryGetValue(monkey, out var number))
             return number;
         
-        // fetch the operation
         var operation = _operationByMonkey[monkey];
-        
-        // TODO: One of these might not exist yet so need to find a way of waiting for it somehow
-        // however i do load in all of them first, it might just work
         var lhs = MonkeyValue(operation.Lhs);
         var rhs = MonkeyValue(operation.Rhs);
 

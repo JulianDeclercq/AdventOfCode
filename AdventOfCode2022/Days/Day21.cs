@@ -14,9 +14,10 @@ public class Day21
 
     readonly Dictionary<string, long> _numberByMonkey = new();
     readonly Dictionary<string, MonkeyOperation> _operationByMonkey = new();
+    private const string MyMonkey = "humn";
     public void Solve()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day21.txt");
+        var lines = File.ReadAllLines(@"..\..\..\input\day21.txt").ToArray();
 
         foreach (var line in lines)
         {
@@ -32,28 +33,99 @@ public class Day21
             else throw new Exception($"Invalid input line {line}");
         }
 
-        Console.WriteLine($"Day 21 part 1: {MonkeyValue("root")}");
+        long last = 0;
+        // var input = 5_000_000_000_000;
+        var input = 3_665_520_865_950;
+        
+        var f1 = 3_665_520_865_942; // EQUAL, but submit says it's too high
+        var f2 = 3_665_520_865_941; // EQUAL, but submit says it's also too high 
+        var f3 = 3_665_520_865_940; // correct answer
+
+        for (;;)
+        {
+            var status = Cycle(input);
+
+            var halfDif = Math.Max(1, Math.Abs(last - input) / 2);
+            last = input;
+            
+            switch (status)
+            {
+                case Status.TooLow:
+                    input += halfDif;               
+                    break;
+                case Status.Equal:
+                    Console.WriteLine($"Day 21 part 2: {input}");
+                    return;
+                case Status.TooHigh:
+                    input -= halfDif;
+                    break;
+            }
+        }
+    }
+
+    public enum Status
+    {
+        None = 0,
+        TooLow = 1,
+        Equal = 2,
+        TooHigh = 3
+    }
+    
+    private Status Cycle(long input)
+    {
+        _numberByMonkey[MyMonkey] = input;
+
+        var operation = _operationByMonkey["root"];
+        var lhs = MonkeyValue(operation.Lhs);
+        var rhs = MonkeyValue(operation.Rhs);
+        var dif = rhs - lhs;
+        Console.WriteLine($"{lhs} | {rhs} | {dif}");
+
+        return dif switch
+        {
+            < 0 => Status.TooLow,
+            0 => Status.Equal,
+            > 0 => Status.TooHigh
+        };
+    }
+
+    private bool CycleOld(long input)
+    {
+        Console.WriteLine($"Trying {input}");
+        
+        _numberByMonkey[MyMonkey] = input;
+
+        var operation = _operationByMonkey["root"];
+        var lhs = MonkeyValue(operation.Lhs);
+        var rhs = MonkeyValue(operation.Rhs);
+        // Console.WriteLine($"{lhs} | {rhs} | {lhs - rhs}");
+        Console.WriteLine(lhs);
+        Console.WriteLine(rhs);
+        Console.WriteLine(lhs - rhs);
+        return MonkeyValue(operation.Lhs) == MonkeyValue(operation.Rhs);
     }
 
     private long MonkeyValue(string monkey)
     {
         if (_numberByMonkey.TryGetValue(monkey, out var number))
             return number;
-        
+
         var operation = _operationByMonkey[monkey];
         var lhs = MonkeyValue(operation.Lhs);
         var rhs = MonkeyValue(operation.Rhs);
 
-        var value = operation.Operator switch
+        checked
         {
-            "+" => lhs + rhs,
-            "-" => lhs - rhs,
-            "*" => lhs * rhs,
-            "/" => lhs / rhs,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-        _numberByMonkey.Add(monkey, value);
-        return value;
+            var value = operation.Operator switch
+            {
+                "+" => lhs + rhs,
+                "-" => lhs - rhs,
+                "*" => lhs * rhs,
+                "/" => lhs / rhs,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            return value;
+        }
     }
 }

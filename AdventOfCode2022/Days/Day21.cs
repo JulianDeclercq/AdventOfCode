@@ -12,7 +12,7 @@ public class Day21
 
     private record MonkeyOperation(string Lhs, string Operator, string Rhs);
 
-    readonly Dictionary<string, int> _numberByMonkey = new();
+    readonly Dictionary<string, long> _numberByMonkey = new();
     readonly Dictionary<string, MonkeyOperation> _operationByMonkey = new();
     public void Solve()
     {
@@ -36,7 +36,7 @@ public class Day21
         Console.WriteLine($"Day 21 part 1: {MonkeyValue("root")}");
     }
 
-    private int MonkeyValue(string monkey)
+    private long MonkeyValue(string monkey)
     {
         // check if the value for this monkey is already known
         if (_numberByMonkey.TryGetValue(monkey, out var number))

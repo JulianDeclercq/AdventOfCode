@@ -32,7 +32,7 @@ public class Day11
             var monkeyDefinition = input.Skip(i * (monkeyDefinitionLength + 1)) // +1 for the empty line after definition
                                         .Take(monkeyDefinitionLength);
 
-            _monkeyPattern.Parse(string.Join("", monkeyDefinition));
+            _monkeyPattern.Match(string.Join("", monkeyDefinition));
             monkeys.Add(new Monkey
             {
                 Items = new Queue<ulong>(_monkeyPattern.Get("items")
@@ -81,7 +81,7 @@ public class Day11
 
     private ulong ExecuteOperation(string operation, ulong worryLevel)
     {
-        _operationPattern.Parse(operation);
+        _operationPattern.Match(operation);
         var lhs = _operationPattern.Get("lhs");
         var lhsInt = lhs.Equals("old") ? worryLevel : ulong.Parse(lhs);
         

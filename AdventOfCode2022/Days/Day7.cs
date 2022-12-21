@@ -65,7 +65,7 @@ public class Day7
      
     private string HandleCommand(string command, string currentPath)
     {
-        _commandRegex.Parse(command);
+        _commandRegex.Match(command);
         var cmd = _commandRegex.Get("command");
         if (cmd != "cd") // ls doesn't need to be handled specifically
             return currentPath;
@@ -82,7 +82,7 @@ public class Day7
     private void HandleListedItem(string itemDescription, string currentPath)
     {
         Item item;
-        if (_directoryRegex.Parse(itemDescription))
+        if (_directoryRegex.Match(itemDescription))
         {
             item = new Item
             {
@@ -90,7 +90,7 @@ public class Day7
                 Type = ItemType.Directory
             };
         }
-        else if (_fileRegex.Parse(itemDescription))
+        else if (_fileRegex.Match(itemDescription))
         {
             item = new Item
             {

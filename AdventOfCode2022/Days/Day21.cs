@@ -20,11 +20,11 @@ public class Day21
 
         foreach (var line in lines)
         {
-            if (_numberPattern.Parse(line))
+            if (_numberPattern.Match(line))
             {
                 _numberByMonkey[_numberPattern.Get("monkey")] = _numberPattern.GetInt("number");
             }
-            else if (_operationPattern.Parse(line))
+            else if (_operationPattern.Match(line))
             {
                 _operationByMonkey[_operationPattern.Get("monkey")] = new MonkeyOperation(
                     _operationPattern.Get("lhs"), _operationPattern.Get("operator"), _operationPattern.Get("rhs"));

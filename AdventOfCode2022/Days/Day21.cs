@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data;
+using System.Text.RegularExpressions;
 
 namespace AdventOfCode2022.Days;
 
@@ -49,76 +50,63 @@ public class Day21
         ParseInput();
         Console.WriteLine($"Day 21 part 1: {MonkeyValue("root")}");
     }
+
+    private static long NextInputWhenInvalid(long currentInput, Status lastStatus)
+    {
+        return lastStatus switch
+        {
+            Status.Invalid => currentInput + 1, // in case of starting with an invalid input
+            Status.TooLow => currentInput + 1,
+            Status.TooHigh => currentInput - 1,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    private static long NextInput(long lastInput, long currentInput, Status status)
+    {
+        var halfDif = Math.Max(1, Math.Abs(lastInput - currentInput) / 2);
+
+        checked
+        {
+            return status switch
+            {
+                Status.TooLow => currentInput + halfDif,
+                Status.TooHigh => currentInput - halfDif,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
     
     public void Solve2()
     {
         ParseInput();
-
-        long last = 0, input = 5_000_000_000_000;
-        //input = 3_665_520_865_950;
-        // input = 3_665_520_865_941;
-        // input = 3_665_520_865_940;
-
-        long invalidCtr = 0;
         
-        var answer1 = 3_665_520_865_942; // EQUAL, but submit says it's too high
-        var answer2 = 3_665_520_865_941; // EQUAL, but submit says it's also too high 
-        var answer3 = 3_665_520_865_940; // correct answer
-
-        var prevention = new HashSet<long>();
-
+        long lastInput = 0, input = 5_000_000_000_000;
         Console.WriteLine($"Starting input: {input}");
-        
-        // to prevent going back up / down again to the last check that failed and getting stuck in an infinite loop
+
         var lastStatus = Status.Invalid;
         for (;;)
         {
-            if (prevention.Contains(input))
-            {
-                Console.WriteLine($"Caught duplicate {input}, exiting..");
-                return;
-            }
-            prevention.Add(input);
-
             var status = Cycle(input);
-            var halfDif = Math.Max(1, Math.Abs(last - input) / 2);
-
-            if (status is Status.Invalid)
+            switch (status)
             {
-                switch (lastStatus)
-                {
-                    case Status.Invalid:
-                    case Status.TooLow:
-                        input++;
-                        break;
-                    case Status.TooHigh:
-                        input--;
-                        break;
-                    default: throw new ArgumentOutOfRangeException();
-                }
-                ++invalidCtr;
-                continue;
+                case Status.Equal:
+                    Console.WriteLine($"Day 21 part 2: {input}");
+                    return;
+                case Status.Invalid:
+                    input = NextInputWhenInvalid(input, lastStatus);
+                    continue;
+                case Status.TooLow:
+                case Status.TooHigh:
+                    var newInput = NextInput(lastInput, input, status);
+                    lastInput = input;
+                    input = newInput;
+                    lastStatus = status;
+                    Console.WriteLine($"Trying {input} next.");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            last = input;
-
-            checked
-            {
-                switch (status)
-                {
-                    case Status.TooLow:
-                        input += halfDif;
-                        break;
-                    case Status.Equal:
-                        Console.WriteLine($"Day 21 part 2: {input}");
-                        return;
-                    case Status.TooHigh:
-                        input -= halfDif;
-                        break;
-                }
-            }
-
-            lastStatus = status;
-            Console.WriteLine($"Trying {input} next.");
         }
     }
 
@@ -127,7 +115,7 @@ public class Day21
         _numberByMonkey[MyMonkey] = input;
 
         var operation = _operationByMonkey["root"];
-        var lhs = MonkeyValue(operation.Lhs); // cmmh was negative??
+        var lhs = MonkeyValue(operation.Lhs);
         var rhs = MonkeyValue(operation.Rhs);
 
         if (lhs == null || rhs == null)
@@ -146,6 +134,8 @@ public class Day21
             0 => Status.Equal,
             > 0 => Status.TooHigh
         };
+        
+        if (lhs.Value)
         
         Console.WriteLine($"Input: {input}, status: {status}, lhs:{lhs}, rhs: {rhs}, dif: {dif}");
         return status;
@@ -167,27 +157,17 @@ public class Day21
                 "+" => lhs + rhs,
                 "-" => lhs - rhs,
                 "*" => lhs * rhs,
-                // "/" => lhs / rhs,
                 "/" => Division(lhs, rhs),
                 _ => throw new ArgumentOutOfRangeException()
             };
-
-            if (value < 0)
-            {
-                int brkpt = 5;
-            }
-            
             return value;
         }
     }
 
-    // Avoid pursuing paths that have implicit flooring because of integer division 
+    // Avoid pursuing paths that have implicit flooring because of integer division .
     private static long? Division(long? lhs, long? rhs)
     {
         var answer = lhs / rhs;
-        if (answer * rhs == lhs)
-            return answer;
-        
-        return null;
+        return answer * rhs == lhs ? answer : null;
     }
 }

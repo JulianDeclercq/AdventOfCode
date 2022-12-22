@@ -11,13 +11,22 @@ public class Day21
         "monkey", "lhs", "operator", "rhs");
 
     private record MonkeyOperation(string Lhs, string Operator, string Rhs);
+    
+    private enum Status
+    {
+        None = 0,
+        TooLow = 1,
+        Equal = 2,
+        TooHigh = 3
+    }
 
     readonly Dictionary<string, long> _numberByMonkey = new();
     readonly Dictionary<string, MonkeyOperation> _operationByMonkey = new();
     private const string MyMonkey = "humn";
-    public void Solve()
+
+    private void ParseInput()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day21.txt").ToArray();
+        var lines = File.ReadAllLines(@"..\..\..\input\day21.txt");
 
         foreach (var line in lines)
         {
@@ -32,14 +41,25 @@ public class Day21
             }
             else throw new Exception($"Invalid input line {line}");
         }
+    }
+
+    public void Solve()
+    {
+        ParseInput();
+        Console.WriteLine($"Day 21 part 1: {MonkeyValue("root")}");
+    }
+    
+    public void Solve2()
+    {
+        ParseInput();    
 
         long last = 0;
         // var input = 5_000_000_000_000;
         var input = 3_665_520_865_950;
         
-        var f1 = 3_665_520_865_942; // EQUAL, but submit says it's too high
-        var f2 = 3_665_520_865_941; // EQUAL, but submit says it's also too high 
-        var f3 = 3_665_520_865_940; // correct answer
+        var answer1 = 3_665_520_865_942; // EQUAL, but submit says it's too high
+        var answer2 = 3_665_520_865_941; // EQUAL, but submit says it's also too high 
+        var answer3 = 3_665_520_865_940; // correct answer
 
         for (;;)
         {
@@ -51,7 +71,7 @@ public class Day21
             switch (status)
             {
                 case Status.TooLow:
-                    input += halfDif;               
+                    input += halfDif;
                     break;
                 case Status.Equal:
                     Console.WriteLine($"Day 21 part 2: {input}");
@@ -63,14 +83,6 @@ public class Day21
         }
     }
 
-    public enum Status
-    {
-        None = 0,
-        TooLow = 1,
-        Equal = 2,
-        TooHigh = 3
-    }
-    
     private Status Cycle(long input)
     {
         _numberByMonkey[MyMonkey] = input;
@@ -79,7 +91,7 @@ public class Day21
         var lhs = MonkeyValue(operation.Lhs);
         var rhs = MonkeyValue(operation.Rhs);
         var dif = rhs - lhs;
-        Console.WriteLine($"{lhs} | {rhs} | {dif}");
+        // Console.WriteLine($"{lhs} | {rhs} | {dif}");
 
         return dif switch
         {
@@ -87,22 +99,6 @@ public class Day21
             0 => Status.Equal,
             > 0 => Status.TooHigh
         };
-    }
-
-    private bool CycleOld(long input)
-    {
-        Console.WriteLine($"Trying {input}");
-        
-        _numberByMonkey[MyMonkey] = input;
-
-        var operation = _operationByMonkey["root"];
-        var lhs = MonkeyValue(operation.Lhs);
-        var rhs = MonkeyValue(operation.Rhs);
-        // Console.WriteLine($"{lhs} | {rhs} | {lhs - rhs}");
-        Console.WriteLine(lhs);
-        Console.WriteLine(rhs);
-        Console.WriteLine(lhs - rhs);
-        return MonkeyValue(operation.Lhs) == MonkeyValue(operation.Rhs);
     }
 
     private long MonkeyValue(string monkey)

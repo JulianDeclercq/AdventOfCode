@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AdventOfCode2022.Days;
 
@@ -50,32 +49,6 @@ public class Day21
         ParseInput();
         Console.WriteLine($"Day 21 part 1: {MonkeyValue("root")}");
     }
-
-    private static long NextInputWhenInvalid(long currentInput, Status lastStatus)
-    {
-        return lastStatus switch
-        {
-            Status.Invalid => currentInput + 1, // in case of starting with an invalid input
-            Status.TooLow => currentInput + 1,
-            Status.TooHigh => currentInput - 1,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
-
-    private static long NextInput(long lastInput, long currentInput, Status status)
-    {
-        var halfDif = Math.Max(1, Math.Abs(lastInput - currentInput) / 2);
-
-        checked
-        {
-            return status switch
-            {
-                Status.TooLow => currentInput + halfDif,
-                Status.TooHigh => currentInput - halfDif,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-    }
     
     public void Solve2()
     {
@@ -109,7 +82,7 @@ public class Day21
             }
         }
     }
-
+    
     private Status Cycle(long input)
     {
         _numberByMonkey[MyMonkey] = input;
@@ -121,13 +94,13 @@ public class Day21
         if (lhs == null || rhs == null)
             return Status.Invalid;
 
-        long dif = 0;
+        long dif;
         checked
         {
             //dif = lhs.Value - rhs.Value; // WORKS FOR EXAMPLE BUT NOT FOR INPUT
             dif = rhs.Value - lhs.Value; // WORKS FOR INPUT BUT NOT FOR EXAMPLE
         }
-
+        
         var status = dif switch
         {
             < 0 => Status.TooLow,
@@ -135,10 +108,34 @@ public class Day21
             > 0 => Status.TooHigh
         };
         
-        if (lhs.Value)
-        
         Console.WriteLine($"Input: {input}, status: {status}, lhs:{lhs}, rhs: {rhs}, dif: {dif}");
         return status;
+    }
+    
+    private static long NextInput(long lastInput, long currentInput, Status status)
+    {
+        var halfDif = Math.Max(1, Math.Abs(lastInput - currentInput) / 2);
+
+        checked
+        {
+            return status switch
+            {
+                Status.TooLow => currentInput + halfDif,
+                Status.TooHigh => currentInput - halfDif,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
+
+    private static long NextInputWhenInvalid(long currentInput, Status lastStatus)
+    {
+        return lastStatus switch
+        {
+            Status.Invalid => currentInput + 1, // in case of starting with an invalid input
+            Status.TooLow => currentInput + 1,
+            Status.TooHigh => currentInput - 1,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     private long? MonkeyValue(string monkey)
@@ -164,7 +161,7 @@ public class Day21
         }
     }
 
-    // Avoid pursuing paths that have implicit flooring because of integer division .
+    // Avoid pursuing paths that have implicit flooring because of integer division.
     private static long? Division(long? lhs, long? rhs)
     {
         var answer = lhs / rhs;

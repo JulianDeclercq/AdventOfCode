@@ -11,24 +11,23 @@ public class Day25
         ['='] = -2,
     };
 
+    private List<long> _powersOf5 = new();
+
     public void Solve()
     {
         var answer = File.ReadAllLines(@"..\..\..\input\day25.txt").Select(ToDecimal).Sum();
-
-        long[] powersOf5;
+        
         checked
         {
-            powersOf5 = Enumerable.Range(0, 20).Select(x => (long) Math.Pow(5, x)).Reverse().ToArray();
+            _powersOf5 = Enumerable.Range(0, 21).Select(x => (long) Math.Pow(5, x)).Reverse().ToList();
         }
-
-        foreach (var p in powersOf5)
-            Console.WriteLine(p);
         
         Console.WriteLine($"Day 25 part 1 in decimal: {answer}");
+        Console.WriteLine($"Day 25 part 1: {ToSnafu(answer)}");
+        
         /*
-            I couldn't figure out the code for decimal to snafu so I did it manually..
-            I think I did figure out the logic I could put into code while making this manually,
-            might give that a go in next commit.
+            I couldn't figure out the code for decimal to snafu  at first so I did it manually..
+            Found the answer, then came back and implemented ToSnafu!
             
             ////// EXAMPLE //////
             Powers of 5:
@@ -85,5 +84,87 @@ public class Day25
         {
             return snafu.Reverse().Select((t, i) => (long) Math.Pow(5, i) * _lookup[t]).Sum();
         }
+    }
+
+    private long _lastPower = long.MinValue;
+    private string ToSnafu(long number)
+    {
+        var firstHigherPower = _powersOf5.LastOrDefault(p => p > number);
+        if (firstHigherPower == default)
+            throw new Exception("Not enough power of 5's generated.");
+                
+        var closestHigher = ClosestPossibility(firstHigherPower, number);
+
+        var firstLowerPower = _powersOf5.FirstOrDefault(p => p < number);
+        if (firstLowerPower == default)
+            return "1";
+        
+        var closestLower = ClosestPossibility(firstLowerPower, number);
+        
+        var correct = new[] { closestLower, closestHigher }.MinBy(p => p.DiffWithTarget)!;
+        
+        // e.g. input 2022:
+        // If closestLower is closer than closestHigher but the difference is bigger than 2 (max operand) times
+        // the next lower power you still have to go with closestHigher since you can't make it otherwise
+        if (GetNextPower(firstLowerPower) * 2 < closestLower.DiffWithTarget)
+            correct = closestHigher;
+
+        _lastPower = correct.Value;
+
+        var answer = correct.Operand.ToString(); 
+        var curr = NextCorrectPossibility(number, _lookup[correct.Operand] * correct.Value)!;
+        for(;;)
+        {
+            if (curr == null)
+                break;
+            
+            answer += curr.Operand;
+            curr = NextCorrectPossibility(number, curr!.Value);
+        }
+
+        return answer.TrimStart('0');
+    }
+
+    private long GetNextPower(long currentPower) => _powersOf5.FirstOrDefault(p => p < currentPower);
+    
+    private Possibility? NextCorrectPossibility(long original, long current)
+    {
+        var nextPower = GetNextPower(_lastPower);
+
+        if (nextPower == default)
+            return null;
+        
+        // take all possibilities and add their value to the current number, the closest of those wins
+        var possibilities = Possibilities(nextPower).Select(p => p with
+        {
+            Value = current + p.Value,
+            DiffWithTarget = Math.Abs(original - (current + p.Value))
+        });
+
+        _lastPower = nextPower;
+        return possibilities.MinBy(p => p.DiffWithTarget);
+    }
+
+    private record Possibility(char Operand, long Value, long DiffWithTarget);
+
+    private Possibility ClosestPossibility(long powerOfFive, long closestTo)
+    {
+        var possibilities = _lookup.Select(x => new Possibility(
+                x.Key,
+                powerOfFive,
+                Math.Abs(closestTo - (x.Value * powerOfFive))));
+
+        return possibilities.MinBy(p => p.DiffWithTarget)!;
+    }
+
+    private IEnumerable<Possibility> Possibilities(long number)
+    {
+        var p = new List<Possibility>();
+        foreach (var x in _lookup)
+        {
+            var total = x.Value * number;
+            p.Add(new Possibility(x.Key, total, 11111111)); // TODO: Figure out diff
+        }
+        return p;
     }
 }

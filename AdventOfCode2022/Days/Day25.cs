@@ -2,6 +2,8 @@
 
 public class Day25
 {
+    private record Possibility(char Operand, long Value, long? DiffWithTarget);
+
     private readonly Dictionary<char, long> _lookup = new()
     {
         ['2'] = 2,
@@ -22,7 +24,11 @@ public class Day25
             _powersOf5 = Enumerable.Range(0, 21).Select(x => (long) Math.Pow(5, x)).Reverse().ToList();
         }
         
-        Console.WriteLine($"Day 25 part 1 in decimal: {answer}");
+        new List<long>
+        {
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 2022, 12345, 314159265
+        }.ForEach(n => Console.WriteLine($"Decimal {n} in snafu is {ToSnafu(n)}"));
+
         Console.WriteLine($"Day 25 part 1: {ToSnafu(answer)}");
         
         /*
@@ -119,7 +125,7 @@ public class Day25
                 break;
             
             answer += curr.Operand;
-            curr = NextCorrectPossibility(number, curr!.Value);
+            curr = NextCorrectPossibility(number, curr.Value);
         }
 
         return answer.TrimStart('0');
@@ -127,44 +133,33 @@ public class Day25
 
     private long GetNextPower(long currentPower) => _powersOf5.FirstOrDefault(p => p < currentPower);
     
-    private Possibility? NextCorrectPossibility(long original, long current)
+    private Possibility? NextCorrectPossibility(long target, long currentValue)
     {
         var nextPower = GetNextPower(_lastPower);
 
         if (nextPower == default)
             return null;
         
-        // take all possibilities and add their value to the current number, the closest of those wins
+        // take all possibilities and add their value to the current number
+        // then check their distance, closest candidate wins
         var possibilities = Possibilities(nextPower).Select(p => p with
         {
-            Value = current + p.Value,
-            DiffWithTarget = Math.Abs(original - (current + p.Value))
+            Value = currentValue + p.Value,
+            DiffWithTarget = Math.Abs(target - (currentValue + p.Value))
         });
 
         _lastPower = nextPower;
         return possibilities.MinBy(p => p.DiffWithTarget);
     }
-
-    private record Possibility(char Operand, long Value, long DiffWithTarget);
-
-    private Possibility ClosestPossibility(long powerOfFive, long closestTo)
+    
+    private Possibility ClosestPossibility(long power, long closestTo)
     {
-        var possibilities = _lookup.Select(x => new Possibility(
-                x.Key,
-                powerOfFive,
-                Math.Abs(closestTo - (x.Value * powerOfFive))));
-
+        var possibilities = _lookup.Select(x => new Possibility(x.Key, power, Math.Abs(closestTo - (x.Value * power))));
         return possibilities.MinBy(p => p.DiffWithTarget)!;
     }
 
     private IEnumerable<Possibility> Possibilities(long number)
     {
-        var p = new List<Possibility>();
-        foreach (var x in _lookup)
-        {
-            var total = x.Value * number;
-            p.Add(new Possibility(x.Key, total, 11111111)); // TODO: Figure out diff
-        }
-        return p;
+        return _lookup.Select(x => new Possibility(x.Key, x.Value * number, null));
     }
 }

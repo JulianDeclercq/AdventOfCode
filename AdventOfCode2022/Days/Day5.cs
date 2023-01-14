@@ -25,7 +25,7 @@ public class Day5
         var instructions = lines.SkipWhile(l => !string.IsNullOrEmpty(l)).Skip(1);
         foreach (var instruction in instructions)
         {
-             _regexHelper.Parse(instruction);
+             _regexHelper.Match(instruction);
              var amount = _regexHelper.GetInt("amount");
              var source = _regexHelper.GetInt("source") - 1; // -1 since index is 0-based in list but not in input
              var destination = _regexHelper.GetInt("destination") - 1; // -1 since index is 0-based in list but not in input

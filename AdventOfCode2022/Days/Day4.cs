@@ -14,7 +14,7 @@ public class Day4
         int part1 = 0, part2 = 0;
         foreach (var line in lines)
         {
-            _regexHelper.Parse(line);
+            _regexHelper.Match(line);
             var lhs = new ValueTuple<int, int>(_regexHelper.GetInt("aStart"), _regexHelper.GetInt("aEnd"));
             var rhs = new ValueTuple<int, int>(_regexHelper.GetInt("bStart"), _regexHelper.GetInt("bEnd"));
             

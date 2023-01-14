@@ -10,7 +10,7 @@ public class RegexHelper
         _groupNames = groupNames;
     }
 
-    public bool Parse(string line)
+    public bool Match(string line)
     {
         if (!_regex.IsMatch(line))
             return false;

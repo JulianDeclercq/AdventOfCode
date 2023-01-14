@@ -4,8 +4,8 @@ public class Day18
 {
     public void Solve()
     {
-        var lines = File.ReadAllLines(@"..\..\..\input\day18_test.txt");
-        // var lines = File.ReadAllLines(@"..\..\..\input\day18_example.txt");
+        //var lines = File.ReadAllLines(@"..\..\..\input\day18_test.txt");
+        var lines = File.ReadAllLines(@"..\..\..\input\day18_example.txt");
 
         var droplets = lines
             .Select(line => line.Split(','))
@@ -26,6 +26,7 @@ public class Day18
         Console.WriteLine(grid);
         
         // Collect all neighbours
+        var test = grid.Neighbours(new Point3D(1, 1, 1));
         var lavaNeighbours = droplets.SelectMany(x => grid.Neighbours(x, false)).Count(n => n == lava);
         Console.WriteLine($"Day 18 part 1: {droplets.Length * 6 - lavaNeighbours}");
     }

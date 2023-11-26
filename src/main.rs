@@ -8,13 +8,13 @@ struct Config {
     session_token: String,
 }
 
-fn main() -> reqwest::Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = fs::read_to_string("config.json").expect("failed to read config");
-    let config: Config = serde_json::from_str(&file).unwrap();
+    let config: Config = serde_json::from_str(&file)?;
     let input_url = "https://adventofcode.com/2015/day/6/input";
 
     let cookie = format!("session={}", config.session_token);
-    let url = input_url.parse::<Url>().unwrap();
+    let url = input_url.parse::<Url>()?;
 
     let jar = Jar::default();
     jar.add_cookie_str(cookie.as_str(), &url);
@@ -27,6 +27,6 @@ fn main() -> reqwest::Result<()> {
 
     let input = client.get(input_url).send()?.text()?;
 
-    println!("input: {:?}", input);
+    println!("input: {}", input);
     Ok(())
 }

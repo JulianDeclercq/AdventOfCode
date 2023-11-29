@@ -29,7 +29,7 @@ public class Day7
         get
         {
             if (_instructions.Count == 0)
-                _instructions = ParseInput(@"..\..\..\input\day7.txt");
+                _instructions = ParseInput(@"..\..\..\input\Day7.txt");
 
             return _instructions;
         }
@@ -93,7 +93,6 @@ public class Day7
                 continue;
             }
             
-            // TODO: merge this with NOT and check for not?
             var assignmentRegex = new Regex(@"(\w+) -> (\w+)");
             match = assignmentRegex.Match(line);
             if (match.Success)
@@ -108,7 +107,6 @@ public class Day7
             }
             Console.WriteLine($"Invalid input {line}"); 
         }
-
         return instructions;
     }
 

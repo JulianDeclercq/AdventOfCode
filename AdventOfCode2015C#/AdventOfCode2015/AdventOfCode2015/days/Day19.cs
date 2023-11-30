@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AdventOfCode2015.Days;
 
@@ -7,9 +6,9 @@ public class Day19
 {
     public void Part1()
     {
-        const string start = "HOH";
         var regex = new Regex(@"(\w+) => (\w+)");
-        var input = File.ReadAllLines(@"..\..\..\input\Day9_example.txt");
+        var input = File.ReadAllLines(@"..\..\..\input\Day9.txt");
+        var start = input.Last();
         
         var replacementsLookup = new Dictionary<string, List<string>>();
         foreach (var line in input.TakeWhile(s => !string.IsNullOrWhiteSpace(s)))
@@ -24,15 +23,42 @@ public class Day19
         }
         
         var answer = new HashSet<string>();
+        
+        var parts = new List<string>();
         for (var i = 0; i < start.Length; ++i)
         {
-            if (!replacementsLookup.TryGetValue($"{start[i]}", out var replacements))
+            if (i == start.Length - 1)
+            {
+                parts.Add($"{start[i]}");
+                break;
+            }
+
+            if (char.IsLower(start[i + 1]))
+            {
+                parts.Add(start.Substring(i, 2));
+                i++;
+            }
+            else
+            {
+                parts.Add($"{start[i]}");
+            }
+        }
+
+        for (var i = 0; i < parts.Count; ++i)
+        {
+            if (!replacementsLookup.TryGetValue($"{parts[i]}", out var replacements))
                 continue;
 
             var idx = i;
-            var possibilities = replacements.Select(r => $"{start[..idx]}{r}{start[(idx + 1)..]}");
-            answer.UnionWith(possibilities);
+            answer.UnionWith(
+                replacements
+                    .Select(r => string.Join("", parts
+                    .Take(idx)
+                    .Append(r)
+                    .Concat(parts
+                        .Skip(idx + 1)))));
         }
+        
         Console.WriteLine($"Day 19 Part 1: {answer.Count}");
     }
     

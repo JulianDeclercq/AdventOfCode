@@ -22,9 +22,8 @@ public class Day19
             replacementsLookup[lhs] = possibilities;
         }
         
-        var answer = new HashSet<string>();
-        
         var parts = new List<string>();
+        var answer = new HashSet<string>();
         for (var i = 0; i < start.Length; ++i)
         {
             if (i == start.Length - 1)
@@ -50,17 +49,15 @@ public class Day19
                 continue;
 
             var idx = i;
-            answer.UnionWith(
-                replacements
-                    .Select(r => string.Join("", parts
-                    .Take(idx)
-                    .Append(r)
-                    .Concat(parts
-                        .Skip(idx + 1)))));
+            answer.UnionWith(replacements.Select(replacement => {
+                        var before = parts.Take(idx);
+                        var after = parts.Skip(idx + 1);
+                        return string.Join("", before.Append(replacement).Concat(after));
+                    }));
         }
         
         Console.WriteLine($"Day 19 Part 1: {answer.Count}");
     }
-    
+
     public void Part2(){}
 }

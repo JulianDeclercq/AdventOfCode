@@ -1,2 +1,5 @@
 target/
 config.json
+.idea/
+AdventOfCode2023/bin/
+AdventOfCode2023/obj/

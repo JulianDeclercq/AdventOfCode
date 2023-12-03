@@ -91,7 +91,7 @@ public class Day3
     private class Info
     {
         public readonly List<int> Numbers = new();
-        public readonly List<Point> Points = new(); // The points from which the numbers were taken
+        public readonly List<Point> Points = new(); // The points from which the digits were taken
     }
 
     private class NumberBuilder

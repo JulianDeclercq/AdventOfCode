@@ -16,3 +16,6 @@ AdventOfCode2015C#/AdventOfCode2015/.idea/
 2015/C++/AdventOfCode1/x64/
 2015/C++/AdventOfCode1/.vs/
 2015/C++/AdventOfCode1/.idea/
+2016/Day_5/Release/
+*.user
+*.enc

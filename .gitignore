@@ -23,3 +23,13 @@ AdventOfCode2017/Debug/
 AdventOfCode2017/.vs/
 AdventOfCode2017/AdventOfCode2017.VC.VC.opendb
 AdventOfCode2017/Release/
+2017/x64/Debug/Day5.obj
+2017/x64/
+*.ipch
+2017/.idea/
+2017/.vs/
+*.db
+*.vspx
+*.vcxproj
+*.filters
+*.psess

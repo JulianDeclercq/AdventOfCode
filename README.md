@@ -1,2 +1,1 @@
-# AdventOfCode2015
-Migrated from Bitbucket.
+Advent of Code

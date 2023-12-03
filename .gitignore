@@ -1,3 +1,5 @@
+*.user
+*.enc
 2023/.idea/
 2023/AdventOfCode2023/bin/
 2023/AdventOfCode2023/obj/
@@ -17,5 +19,7 @@ AdventOfCode2015C#/AdventOfCode2015/.idea/
 2015/C++/AdventOfCode1/.vs/
 2015/C++/AdventOfCode1/.idea/
 2016/Day_5/Release/
-*.user
-*.enc
+AdventOfCode2017/Debug/
+AdventOfCode2017/.vs/
+AdventOfCode2017/AdventOfCode2017.VC.VC.opendb
+AdventOfCode2017/Release/

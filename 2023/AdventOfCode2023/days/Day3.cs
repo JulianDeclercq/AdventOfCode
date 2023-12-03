@@ -51,7 +51,25 @@ public class Day3
         Console.WriteLine(sum);
     }
 
-    private static bool IsGear(GridElement<char> ge) => ge.Value.Equals('*'); 
+    private static bool IsGear(GridElement<char> ge) => ge.Value.Equals('*');
+
+    private class Info
+    {
+        public List<int> Numbers = new();
+        public List<Point> Consumed = new(); // to avoid adding the same number twice
+    }
+
+    private class NumberBuilder
+    {
+        public string Current = "";
+        public HashSet<Point> Points = new(); // The points from which the digits were taken
+
+        public void Clear()
+        {
+            Current = "";
+            Points.Clear();
+        }
+    }
     
     public void Part2()
     {
@@ -61,18 +79,19 @@ public class Day3
         var grid = new Grid<char>(lines.First().Length, lines.Length, lines.SelectMany(l => l), 'A');
 
         var neighbours = new List<GridElement<char>>();
-        var gears = new Dictionary<Point, List<int>>();
+        var gears = new Dictionary<Point, Info>();
         for (var i = 0; i < grid.Height; ++i)
         {
             var row = grid.Row(i).ToArray();
-            var current = "";
+            var builder = new NumberBuilder();
             for (var j = 0; j < row.Length; ++j)
             {
                 var cell = row[j];
                 
                 if (char.IsDigit(cell.Value))
                 {
-                    current += cell.Value;
+                    builder.Current += cell.Value;
+                    builder.Points.Add(cell.Position);
                     neighbours.AddRange(grid.NeighbouringPointsExtended(cell.Position));
                     
                     if (j == row.Length - 1) // handle last
@@ -80,36 +99,43 @@ public class Day3
                         var neighbouringGears = neighbours.Where(IsGear).ToArray();
                         foreach (var gear in neighbouringGears)
                         {
-                            var numbers = gears.TryGetValue(gear.Position, out var n) ? n : new List<int>();
-                            numbers.Add(int.Parse(current));
-                            gears[gear.Position] = numbers;
+                            var info = gears.TryGetValue(gear.Position, out var existing) ? existing : new Info();
+                            if (!builder.Points.Overlaps(info.Consumed))
+                            {
+                                info.Numbers.Add(int.Parse(builder.Current));
+                                info.Consumed.AddRange(builder.Points);
+                                gears[gear.Position] = info;
+                            }
                         }
                         neighbours.Clear();
-                        current = "";
+                        builder.Clear();
                     }
                     continue;
                 }
 
-                if (!string.IsNullOrWhiteSpace(current))
+                if (!string.IsNullOrWhiteSpace(builder.Current))
                 {
                     var neighbouringGears = neighbours.Where(IsGear).ToArray();
                     foreach (var gear in neighbouringGears)
                     {
-                        var numbers = gears.TryGetValue(gear.Position, out var n) ? n : new List<int>();
-                        numbers.Add(int.Parse(current));
-                        gears[gear.Position] = numbers;
+                        var info = gears.TryGetValue(gear.Position, out var existing) ? existing : new Info();
+                        if (!builder.Points.Overlaps(info.Consumed))
+                        {
+                            info.Numbers.Add(int.Parse(builder.Current));
+                            info.Consumed.AddRange(builder.Points);
+                            gears[gear.Position] = info;
+                        }
                     }
                     neighbours.Clear();
-                    current = "";
+                    builder.Clear();
                 }
             }
         }
 
-        // TODO: MAYBE IN THE INPUT DISTINCT IS TOO NAIVE, IF THE GEAR IS ON THE BORDER OF 2 IDENTICAL VALUE, BUT DIFFERENT NUMBERS
         var answer = gears
-            .Select(g => g.Value.Distinct().ToArray())
-            .Where(g => g.Length == 2)
-            .Sum(g => g.Aggregate(1, (curr, next) => curr * next));
+            .Where(g => g.Value.Numbers.Count == 2)
+            .Sum(g => g.Value.Numbers.Aggregate(1, (curr, next) => curr * next));
+
         Console.WriteLine(answer);
     }
 

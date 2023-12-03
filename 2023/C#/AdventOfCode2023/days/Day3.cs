@@ -50,9 +50,7 @@ public class Day3
         }
         Console.WriteLine(sum);
     }
-
-    private static bool IsGear(GridElement<char> ge) => ge.Value.Equals('*');
-
+    
     private class Info
     {
         public List<int> Numbers = new();
@@ -80,14 +78,14 @@ public class Day3
 
         var neighbours = new List<GridElement<char>>();
         var gears = new Dictionary<Point, Info>();
-        for (var i = 0; i < grid.Height; ++i)
+
+        foreach (var element in grid.Rows())
         {
-            var row = grid.Row(i).ToArray();
             var builder = new NumberBuilder();
+            var row = element.ToArray();
             for (var j = 0; j < row.Length; ++j)
             {
                 var cell = row[j];
-                
                 if (char.IsDigit(cell.Value))
                 {
                     builder.Current += cell.Value;
@@ -95,41 +93,14 @@ public class Day3
                     neighbours.AddRange(grid.NeighbouringPointsExtended(cell.Position));
                     
                     if (j == row.Length - 1) // handle last
-                    {
-                        var neighbouringGears = neighbours.Where(IsGear).ToArray();
-                        foreach (var gear in neighbouringGears)
-                        {
-                            var info = gears.TryGetValue(gear.Position, out var existing) ? existing : new Info();
-                            if (!builder.Points.Overlaps(info.Consumed))
-                            {
-                                info.Numbers.Add(int.Parse(builder.Current));
-                                info.Consumed.AddRange(builder.Points);
-                                gears[gear.Position] = info;
-                            }
-                        }
-                        neighbours.Clear();
-                        builder.Clear();
-                    }
-                    continue;
+                        ProcessNumber(gears, neighbours, builder);
                 }
-
-                if (!string.IsNullOrWhiteSpace(builder.Current))
+                else // no more digits, parse the number
                 {
-                    var neighbouringGears = neighbours.Where(IsGear).ToArray();
-                    foreach (var gear in neighbouringGears)
-                    {
-                        var info = gears.TryGetValue(gear.Position, out var existing) ? existing : new Info();
-                        if (!builder.Points.Overlaps(info.Consumed))
-                        {
-                            info.Numbers.Add(int.Parse(builder.Current));
-                            info.Consumed.AddRange(builder.Points);
-                            gears[gear.Position] = info;
-                        }
-                    }
-                    neighbours.Clear();
-                    builder.Clear();
+                    if (!string.IsNullOrWhiteSpace(builder.Current))
+                        ProcessNumber(gears, neighbours, builder);    
                 }
-            }
+            }            
         }
 
         var answer = gears
@@ -139,6 +110,25 @@ public class Day3
         Console.WriteLine(answer);
     }
 
+    private static void ProcessNumber(IDictionary<Point, Info> gears, ICollection<GridElement<char>> neighbours,
+        NumberBuilder builder)
+    {
+        var neighbouringGears = neighbours.Where(IsGear).ToArray();
+        foreach (var gear in neighbouringGears)
+        {
+            var info = gears.TryGetValue(gear.Position, out var existing) ? existing : new Info();
+            if (!builder.Points.Overlaps(info.Consumed))
+            {
+                info.Numbers.Add(int.Parse(builder.Current));
+                info.Consumed.AddRange(builder.Points);
+                gears[gear.Position] = info;
+            }
+        }
+        neighbours.Clear();
+        builder.Clear();
+    }
+
     private static readonly HashSet<char> Symbols = new() { '/', '*', '%', '$', '@', '&', '=', '+', '#', '-'};
     private static bool IsSymbol(char c) => Symbols.Contains(c);
+    private static bool IsGear(GridElement<char> ge) => ge.Value.Equals('*');
 }

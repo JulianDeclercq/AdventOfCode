@@ -47,6 +47,11 @@ public class Grid<T>
         return list;
     }
 
+    public IEnumerable<IEnumerable<GridElement<T>>> Rows()
+    {
+        return Enumerable.Range(0, Height).Select(Row);
+    }
+
     public bool Set(Point p, T value) => Set(p.X, p.Y, value);
     public bool Set(int x, int y, T value)
     {

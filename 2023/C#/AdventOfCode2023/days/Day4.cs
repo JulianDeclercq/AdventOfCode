@@ -8,50 +8,14 @@ public partial class Day4
     [GeneratedRegex(".+: (.+) \\| (.+)")]
     private static partial Regex InputRegex();
     
-    public void Part1()
-    {
-        var pointValues = new List<int>();
-        var helper = new RegexHelper(InputRegex(), "winning", "candidates");
-        foreach (var line in File.ReadAllLines("../../../input/Day4.txt"))
-        {
-            if (!helper.Match(line))
-            {
-                Console.WriteLine($"Failed to match line {line}");
-                continue;
-            }
-
-            var winning = helper.Get("winning")
-                .Split(' ')
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(int.Parse)
-                .ToHashSet();
-
-            var candidates = helper.Get("candidates")
-                .Split(' ')
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(int.Parse)
-                .ToHashSet();
-
-            winning.IntersectWith(candidates);
-
-            if (winning.Count == 0)
-                continue;
-
-            var answer = 0.5;
-            for (var i = 0; i < winning.Count; ++i) answer *= 2;
-            pointValues.Add((int)answer);
-        }
-        Console.WriteLine(pointValues.Sum());
-    }
-    
-    public void Part2()
+    public static void Solve()
     {
         var helper = new RegexHelper(InputRegex(), "winning", "candidates");
         var lines = File.ReadAllLines("../../../input/Day4.txt");
+        var part1 = 0;
         
         // Start with one card of each number
         var occurrences = Enumerable.Range(1, lines.Length).ToDictionary(k => k, _ => 1);
-        
         for (var i = 0; i < lines.Length; ++i)
         {
             var line = lines[i];
@@ -78,6 +42,11 @@ public partial class Day4
             if (winning.Count == 0)
                 continue;
             
+            // Part 1
+            var pointValue = Enumerable.Range(0, winning.Count).Aggregate(0.5, (x, _) => x * 2);
+            part1 += (int)pointValue;
+            
+            // Part 2
             var cardNumber = i + 1;
             var copiesWon = Enumerable.Range(cardNumber + 1, winning.Count).ToList();
 
@@ -86,6 +55,7 @@ public partial class Day4
             foreach (var wonCopy in copiesWon)
                 occurrences[wonCopy] += occurrences[cardNumber];
         }
-        Console.WriteLine(occurrences.Values.Sum());
+        Console.WriteLine($"Day 4 part 1: {part1}");
+        Console.WriteLine($"Day 4 part 2: {occurrences.Values.Sum()}");
     }
 }

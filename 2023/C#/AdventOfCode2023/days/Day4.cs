@@ -5,6 +5,9 @@ namespace AdventOfCode2023.days;
 
 public partial class Day4
 {
+    [GeneratedRegex(".+: (.+) \\| (.+)")]
+    private static partial Regex InputRegex();
+    
     public void Part1()
     {
         var pointValues = new List<int>();
@@ -43,10 +46,12 @@ public partial class Day4
     
     public void Part2()
     {
-        var pointValues = new List<int>();
         var helper = new RegexHelper(InputRegex(), "winning", "candidates");
-
-        var lines = File.ReadAllLines("../../../input/Day4_example.txt");
+        var lines = File.ReadAllLines("../../../input/Day4.txt");
+        
+        // Start with one card of each number
+        var occurrences = Enumerable.Range(1, lines.Length).ToDictionary(k => k, _ => 1);
+        
         for (var i = 0; i < lines.Length; ++i)
         {
             var line = lines[i];
@@ -73,25 +78,14 @@ public partial class Day4
             if (winning.Count == 0)
                 continue;
             
-            // TODO: Be careful for indices vs card nrs, and in general with off by 1 here lol.
-            var cardsLeft = lines.Length - 1 - i;
-            var winners = Math.Min(winning.Count, cardsLeft); // TODO: Check if this check is needed / makes sense
-            var idx = i;
-            RegisterCopies(Enumerable.Range(i + 2, winners).Select(x => x + idx));
-        }
-        Console.WriteLine(pointValues.Sum());
-    }
+            var cardNumber = i + 1;
+            var copiesWon = Enumerable.Range(cardNumber + 1, winning.Count).ToList();
 
-    private readonly Dictionary<int, int> _cardOccurrences = new(); // key: cardNr, value: occurrences
-    private void RegisterCopies(IEnumerable<int> cardNrs)
-    {
-        foreach (var cardNr in cardNrs)
-        {
-            var occurrences = _cardOccurrences.TryGetValue(cardNr, out var o) ? o : 0;
-            _cardOccurrences[cardNr] = occurrences + 1;
+            // Add the won cards for every card of the current number
+            // (e.g. if card 2 wins 3 and 4 and there's 50 copies of card 2, add 50 card 3's and card 4's)
+            foreach (var wonCopy in copiesWon)
+                occurrences[wonCopy] += occurrences[cardNumber];
         }
+        Console.WriteLine(occurrences.Values.Sum());
     }
-    
-    [GeneratedRegex(".+: (.+) \\| (.+)")]
-    private static partial Regex InputRegex();
 }

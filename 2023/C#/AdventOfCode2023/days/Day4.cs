@@ -7,6 +7,11 @@ public partial class Day4
 {
     [GeneratedRegex(".+: (.+) \\| (.+)")]
     private static partial Regex InputRegex();
+
+    private static HashSet<int> ParseNumbers(string input)
+    {
+        return input.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).Select(int.Parse).ToHashSet();
+    }
     
     public static void Solve()
     {
@@ -25,17 +30,8 @@ public partial class Day4
                 continue;
             }
 
-            var winning = helper.Get("winning")
-                .Split(' ')
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(int.Parse)
-                .ToHashSet();
-
-            var candidates = helper.Get("candidates")
-                .Split(' ')
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(int.Parse)
-                .ToHashSet();
+            var winning = ParseNumbers(helper.Get("winning"));
+            var candidates = ParseNumbers(helper.Get("candidates"));
 
             winning.IntersectWith(candidates);
 

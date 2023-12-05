@@ -2,9 +2,9 @@
 
 public class Day5
 {
-    private class RangeMap
+    private class SubMap
     {
-        public RangeMap(long destinationStart, long sourceStart, long length)
+        public SubMap(long destinationStart, long sourceStart, long length)
         {
             _destinationStart = destinationStart;
             _sourceStart = sourceStart;
@@ -15,15 +15,80 @@ public class Day5
         private readonly long _sourceStart;
         private readonly long _length;
 
-        public (bool inRange, long result) Map(long sourceNr)
+        public (bool inRange, long result) MapToDestination(long sourceNr)
         {
-            if (sourceNr < _sourceStart || sourceNr > _sourceStart + _length)
+            if (sourceNr < _sourceStart || sourceNr >= _sourceStart + _length)
                 return new(false, sourceNr);
 
             return new(true, _destinationStart + (sourceNr - _sourceStart));
         }
 
+        public bool InBounds(long sourceNr)
+        {
+            if (sourceNr < _sourceStart || sourceNr >= _sourceStart + _length)
+                return false;
+
+            return true;
+        }
+
+        public long MinimumSource => _sourceStart;
+        public long MaximumSource => _sourceStart + _length - 1;
     }
+
+    private class Map
+    {
+        public Map(List<SubMap> orderedSubmaps)
+        {
+            OrderedSubMaps = orderedSubmaps;
+        }
+        
+        private long MinElement => OrderedSubMaps.First().MinimumSource;
+        private long MaxElement => OrderedSubMaps.Last().MaximumSource;
+
+        public bool InRange(long nr) => MinElement <= nr && nr <= MaxElement;
+        public List<SubMap> OrderedSubMaps;
+
+        public SubMap? AdaptedBinarySearchCorrectMap(long value)
+        {
+            var left = 0;
+            var right = OrderedSubMaps.Count - 1;
+            while (left <= right)
+            {
+                var m = (left + right) / 2;
+
+                var subMap = OrderedSubMaps[m];
+                if (subMap.MinimumSource < value)
+                {
+                    if (subMap.MaximumSource >= value)
+                        return subMap;
+
+                    left = m + 1;
+                } else if (subMap.MinimumSource > value)
+                {
+                    right = m - 1;
+                }
+                else return subMap; // only checks for match with minimumscore
+            }
+            return null;
+        }
+    }
+
+    private static Map ParseMap(IEnumerable<string> lines, ref int offset)
+    {
+        var subMaps = lines
+            .Skip(offset) // skip previous maps
+            .TakeWhile(l => !string.IsNullOrWhiteSpace(l)) // go until next map
+            .Select(l => l.Split(' '))
+            .Select(x => new SubMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
+            .OrderBy(x => x.MinimumSource) // this sort is safe because no ranges overlap in the input.
+            .ToList();
+
+        offset += subMaps.Count + 2; // +2 to skip the empty line and the "X-to-X map:" line
+        return new Map(subMaps);
+    }
+
+    private Map? _seedToSoil, _soilToFertilizer, _fertilizerToWater, _waterToLight, _lightToTemperature,
+        _temperatureToHumidity, _humidityToLocation;
     public void Solve()
     {
         var offset = 0;
@@ -39,73 +104,22 @@ public class Day5
         
         for (long i = 0; i < seedRanges[3]; ++i)
             seeds.Add(seedRanges[2] + i);
-        
-        var seedToSoil = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var seedToSoilMaps = seedToSoil
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += seedToSoil.Length + 2; // skip the empty line and the "X-to-X map:" line
 
-        var soilToFertilizer = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var soilToFertilizerMaps = soilToFertilizer
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += soilToFertilizer.Length + 2;
-        
-        var fertilizerToWater = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var fertilizerToWaterMaps = fertilizerToWater
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += fertilizerToWater.Length + 2;
-        
-        var waterToLight = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var waterToLightMaps = waterToLight
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += waterToLight.Length + 2;
-        
-        var lightToTemperature = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var lightToTemperatureMaps = lightToTemperature
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += lightToTemperature.Length + 2;
-        
-        var temperatureToHumidity = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var temperatureToHumidityMaps = temperatureToHumidity
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-        offset += temperatureToHumidity.Length + 2;
-        
-        var humidityToLocation = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
-        var humidityToLocationMaps = humidityToLocation
-            .Select(l => l.Split(' '))
-            .Select(x => new RangeMap(long.Parse(x[0]), long.Parse(x[1]), long.Parse(x[2])))
-            .ToArray();
-
-        // AssertEqual(81, GetValueFromMaps(79, seedToSoilMaps));
-        // AssertEqual(14, GetValueFromMaps(14, seedToSoilMaps));
-        // AssertEqual(57, GetValueFromMaps(55, seedToSoilMaps));
-        // AssertEqual(13, GetValueFromMaps(13, seedToSoilMaps));
-        //
-        // AssertEqual(82, SeedToLocation(79, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
-        // AssertEqual(43, SeedToLocation(14, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
-        // AssertEqual(86, SeedToLocation(55, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
-        // AssertEqual(35, SeedToLocation(13, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
+        _seedToSoil = ParseMap(lines, ref offset);
+        _soilToFertilizer = ParseMap(lines, ref offset);
+        _fertilizerToWater = ParseMap(lines, ref offset);
+        _waterToLight = ParseMap(lines, ref offset);
+        _lightToTemperature = ParseMap(lines, ref offset);
+        _temperatureToHumidity = ParseMap(lines, ref offset);
+        _humidityToLocation = ParseMap(lines, ref offset);
 
         var answer = long.MaxValue;
         foreach (var seed in seeds)
         {
-            if (_iterations % 100 == 0)
-                Console.WriteLine($"{_iterations}/{seeds.Count} {(float)_iterations/seeds.Count}%");
-            
-            var location = SeedToLocation(seed, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps,
-                waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps);
+            if (_iterations % 1_000_000 == 0)
+                Console.WriteLine($"{_iterations}/{seeds.Count} {((float)_iterations/seeds.Count)*100}%");
+
+            var location = SeedToLocation(seed);
 
             if (location < answer)
                 answer = location;
@@ -114,32 +128,40 @@ public class Day5
     }
 
     private int _iterations = 0;
-    private long SeedToLocation(long seed, IEnumerable<RangeMap> sts, IEnumerable<RangeMap> stf, IEnumerable<RangeMap> ftw,
-        IEnumerable<RangeMap> wtl, IEnumerable<RangeMap> ltt, IEnumerable<RangeMap> tth, IEnumerable<RangeMap> htl)
+    
+    private long SeedToLocation(long seed)
     {
-        var soil = GetValueFromMaps(seed, sts);
-        var fertilizer = GetValueFromMaps(soil, stf);
-        var water = GetValueFromMaps(fertilizer, ftw);
-        var light = GetValueFromMaps(water, wtl);
-        var temperature = GetValueFromMaps(light, ltt);
-        var humidity = GetValueFromMaps(temperature, tth);
-        var location = GetValueFromMaps(humidity, htl);
+        var soil = GetValue(_seedToSoil!, seed);
+        var fertilizer = GetValue(_soilToFertilizer!, soil);
+        var water = GetValue(_fertilizerToWater!, fertilizer);
+        var light = GetValue(_waterToLight!, water);
+        var temperature = GetValue(_lightToTemperature!, light);
+        var humidity = GetValue(_temperatureToHumidity!, temperature);
+        var location = GetValue(_humidityToLocation!, humidity);
 
         _iterations++;
         return location;
     }
-
-    private static void AssertEqual(long expected, long value)
+    
+    private static long GetValue(Map map, long value)
     {
-        if (value != expected)
-            throw new Exception($"got: {value}, expected: {expected}");
-    }
+        if (!map.InRange(value))
+            return value;
 
-    private static long GetValueFromMaps(long value, IEnumerable<RangeMap> maps)
-    {
-        var inRange = maps.Select(x => x.Map(value)).FirstOrDefault(x => x.inRange);
-        return inRange == default ? value : inRange.result;
+        var submap = map.AdaptedBinarySearchCorrectMap(value);
+        if (submap == null)
+            return value;
+        
+        var (inRange, result) = submap.MapToDestination(value);
+
+        if (!inRange) throw new Exception("Incorrect submap");
+
+        return result;
     }
     
-    public void Part2(){}
+    private static void AssertEqual<T>(T expected, T value)
+    {
+        if (!value.Equals(expected))
+            throw new Exception($"got: {value}, expected: {expected}");
+    }
 }

@@ -24,13 +24,21 @@ public class Day5
         }
 
     }
-    public void Part1()
+    public void Solve()
     {
         var offset = 0;
-//        var lines = File.ReadAllLines("../../../input/Day5_example.txt");
+        //var lines = File.ReadAllLines("../../../input/Day5_example.txt");
         var lines = File.ReadAllLines("../../../input/Day5.txt");
-        var seeds = lines.First()["seeds: ".Length..].Split(' ').Select(long.Parse);
+        var seedRanges = lines.First()["seeds: ".Length..].Split(' ').Select(long.Parse).ToArray();
         offset += 3;
+        
+        var seeds = new List<long>();
+        
+        for (long i = 0; i < seedRanges[1]; ++i)
+            seeds.Add(seedRanges[0] + i);
+        
+        for (long i = 0; i < seedRanges[3]; ++i)
+            seeds.Add(seedRanges[2] + i);
         
         var seedToSoil = lines.Skip(offset).TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
         var seedToSoilMaps = seedToSoil
@@ -90,13 +98,23 @@ public class Day5
         // AssertEqual(86, SeedToLocation(55, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
         // AssertEqual(35, SeedToLocation(13, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps, waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps));
 
-        var answer = seeds.Select(s => SeedToLocation(s, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps,
-            waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps)).Min();
-        
+        var answer = long.MaxValue;
+        foreach (var seed in seeds)
+        {
+            if (_iterations % 100 == 0)
+                Console.WriteLine($"{_iterations}/{seeds.Count} {(float)_iterations/seeds.Count}%");
+            
+            var location = SeedToLocation(seed, seedToSoilMaps, soilToFertilizerMaps, fertilizerToWaterMaps,
+                waterToLightMaps, lightToTemperatureMaps, temperatureToHumidityMaps, humidityToLocationMaps);
+
+            if (location < answer)
+                answer = location;
+        }
         Console.WriteLine(answer);
     }
 
-    private static long SeedToLocation(long seed, IEnumerable<RangeMap> sts, IEnumerable<RangeMap> stf, IEnumerable<RangeMap> ftw,
+    private int _iterations = 0;
+    private long SeedToLocation(long seed, IEnumerable<RangeMap> sts, IEnumerable<RangeMap> stf, IEnumerable<RangeMap> ftw,
         IEnumerable<RangeMap> wtl, IEnumerable<RangeMap> ltt, IEnumerable<RangeMap> tth, IEnumerable<RangeMap> htl)
     {
         var soil = GetValueFromMaps(seed, sts);
@@ -106,6 +124,8 @@ public class Day5
         var temperature = GetValueFromMaps(light, ltt);
         var humidity = GetValueFromMaps(temperature, tth);
         var location = GetValueFromMaps(humidity, htl);
+
+        _iterations++;
         return location;
     }
 

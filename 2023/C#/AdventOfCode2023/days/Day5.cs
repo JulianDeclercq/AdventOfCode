@@ -20,16 +20,12 @@ public class Day5
     
     private class Map
     {
-        public Map(List<SubMap> orderedSubmaps)
+        public Map(List<SubMap> submaps)
         {
-            OrderedSubMaps = orderedSubmaps;
+            SubMaps = submaps;
         }
-        
-        private long MinElement => OrderedSubMaps.First().MinimumSource;
-        private long MaxElement => OrderedSubMaps.Last().MaximumSource;
 
-        public bool InRange(long nr) => MinElement <= nr && nr <= MaxElement;
-        public readonly List<SubMap> OrderedSubMaps;
+        public readonly List<SubMap> SubMaps;
     }
       
     private class SubMap
@@ -45,20 +41,20 @@ public class Day5
         private readonly long _sourceStart;
         private readonly long _length;
 
-        public (bool inRange, long result) MapToDestination(long sourceNr)
+        public long MapToDestination(long sourceNr)
         {
             if (sourceNr < _sourceStart || sourceNr >= _sourceStart + _length)
-                return new(false, sourceNr);
+                return sourceNr;
 
-            return new(true, _destinationStart + (sourceNr - _sourceStart));
+            return _destinationStart + (sourceNr - _sourceStart);
         }
 
-        public (bool inRange, long result) MapToSource(long destinationNr)
+        public long MapToSource(long destinationNr)
         {
             if (destinationNr < _destinationStart || destinationNr >= _destinationStart + _length)
-                return new(false, destinationNr);
+                return destinationNr;
 
-            return new(true, _sourceStart + (destinationNr - _destinationStart));
+            return _sourceStart + (destinationNr - _destinationStart);
         }
 
         public bool InBounds(long sourceNr)
@@ -70,7 +66,6 @@ public class Day5
         }
 
         public long MinimumSource => _sourceStart;
-        public long MaximumSource => _sourceStart + _length - 1;
         public long MinimumDestination => _destinationStart;
         public long MaximumDestination => _destinationStart + _length - 1;
     }
@@ -92,10 +87,8 @@ public class Day5
     private Map? _seedToSoil, _soilToFertilizer, _fertilizerToWater, _waterToLight, _lightToTemperature,
         _temperatureToHumidity, _humidityToLocation;
     
-    public void Solve()
+    public void Solve(bool part1)
     {
-        const bool part1 = true;
-        
         var offset = 0;
         //var lines = File.ReadAllLines("../../../input/Day5_example.txt");
         var lines = File.ReadAllLines("../../../input/Day5.txt");
@@ -127,29 +120,16 @@ public class Day5
         for (long i = 0;; ++i)
         {
             if (i != 0 && i % 1_000_000 == 0)
-                Qonsole.OverWrite($"{i / 1_000_000} million iterations");
+                Qonsole.OverWrite($"{i / 1_000_000} million iterations{string.Concat(Enumerable.Repeat('.', (int)(i / 1_000_000) % 3))}");
 
             var seed = LocationToSeed(i);
             if (ranges.Any(range => range.Contains(seed)))
             {
-                Qonsole.WriteLine($"answer is {i}");
+                Qonsole.OverWrite($"answer is {i}");
                 break;
             }    
         }
         
-    }
-
-    private long LocationToSeed(long location)
-    {
-        var humidity = GetSource(_humidityToLocation!, location);
-        var temperature = GetSource(_temperatureToHumidity!, humidity);
-        var light = GetSource(_lightToTemperature!, temperature);
-        var water = GetSource(_waterToLight!, light);
-        var fertilizer = GetSource(_fertilizerToWater!, water);
-        var soil = GetSource(_soilToFertilizer!, fertilizer);
-        var seed = GetSource(_seedToSoil!, soil);
-
-        return seed;
     }
     
     private long SeedToLocation(long seed)
@@ -164,27 +144,32 @@ public class Day5
         return location;
     }
 
+    private long LocationToSeed(long location)
+    {
+        var humidity = GetSource(_humidityToLocation!, location);
+        var temperature = GetSource(_temperatureToHumidity!, humidity);
+        var light = GetSource(_lightToTemperature!, temperature);
+        var water = GetSource(_waterToLight!, light);
+        var fertilizer = GetSource(_fertilizerToWater!, water);
+        var soil = GetSource(_soilToFertilizer!, fertilizer);
+        var seed = GetSource(_seedToSoil!, soil);
+
+        return seed;
+    }
+
     private static long GetDestination(Map map, long source)
     {
-        if (!map.InRange(source))
-            return source;
-
-        var submap = map.OrderedSubMaps.FirstOrDefault(osm => osm.InBounds(source));
-        if (submap == null)
-            return source;
-        
-        var (_, result) = submap.MapToDestination(source);
-        return result;
+        var submap = map.SubMaps.FirstOrDefault(osm => osm.InBounds(source));
+        return submap?.MapToDestination(source) ?? source;
     }
     
     private static long GetSource(Map map, long destination)
     {
-        foreach (var el in map.OrderedSubMaps)
+        foreach (var el in map.SubMaps)
         {
             if (el.MinimumDestination <= destination && destination <= el.MaximumDestination)
             {
-                var (_, result) = el.MapToSource(destination);
-                return result;
+                return el.MapToSource(destination);
             }
         }
         

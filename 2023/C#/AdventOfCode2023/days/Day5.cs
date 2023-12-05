@@ -87,6 +87,12 @@ public class Day5
         return new Map(subMaps);
     }
 
+    private void AddSeeds(List<long> seeds, long start, long length)
+    {
+        for (long i = 0; i < length; ++i)
+            seeds.Add(start + i);
+    }
+
     private Map? _seedToSoil, _soilToFertilizer, _fertilizerToWater, _waterToLight, _lightToTemperature,
         _temperatureToHumidity, _humidityToLocation;
     public void Solve()
@@ -97,14 +103,12 @@ public class Day5
         var seedRanges = lines.First()["seeds: ".Length..].Split(' ').Select(long.Parse).ToArray();
         offset += 3;
         
-        var seeds = new List<long>();
-        
-        for (long i = 0; i < seedRanges[1]; ++i)
-            seeds.Add(seedRanges[0] + i);
-        
-        for (long i = 0; i < seedRanges[3]; ++i)
-            seeds.Add(seedRanges[2] + i);
+        var seeds = new List<long>(2_000_000_000);
+        if (seedRanges.Length % 2 != 0) throw new Exception("cant make ranges");
 
+        for (var i = 0; i < seedRanges.Length - 1; i += 2)
+            AddSeeds(seeds, seedRanges[i], seedRanges[i + 1]);
+        
         _seedToSoil = ParseMap(lines, ref offset);
         _soilToFertilizer = ParseMap(lines, ref offset);
         _fertilizerToWater = ParseMap(lines, ref offset);

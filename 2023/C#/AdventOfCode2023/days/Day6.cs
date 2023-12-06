@@ -8,8 +8,7 @@ public class Day6
     {
         var lines = File.ReadAllLines("../../../input/Day6.txt");
         var times = Regex.Replace(lines.First(), @"\s+", " ")["Time: ".Length..].Split(' ').Select(ulong.Parse).ToArray();
-        var distances = Regex.Replace(lines.Last(), @"\s+", " ")["Distance: ".Length..].Split(' ').Select(ulong.Parse)
-            .ToArray();
+        var distances = Regex.Replace(lines.Last(), @"\s+", " ")["Distance: ".Length..].Split(' ').Select(ulong.Parse).ToArray();
 
         if (!part1)
         {
@@ -17,34 +16,26 @@ public class Day6
             distances = new []{ulong.Parse(string.Join("", distances))};
         }
 
-        var wins = 0;
-        var winners = Enumerable.Repeat((ulong)0, times.Length).ToArray();
-        for (var i = 0; i < times.Length; ++i)
+        var amountOfRaces = times.Length;
+        var winners = Enumerable.Repeat((ulong)0, amountOfRaces).ToArray();
+        for (var i = 0; i < amountOfRaces; ++i) 
         {
-            // populate, speed = amount of seconds held since 1 second increases the speed by 1
-            var speeds = new List<ulong>(); // 
+            // speed = amount of seconds held (charge time) since 1 second increases the speed by 1
+            var speeds = new List<ulong>();
             for (ulong ul = 0; ul < times[i] + 1; ++ul)
                 speeds.Add(ul);
 
-            var timeLeft = speeds.ToArray().Reverse().ToArray();
-            for (var j = 0; j < speeds.Count; ++j)
+            foreach (var speed in speeds)
             {
-                var distance = speeds[j] * timeLeft[j];
+                // time left for this game is the total time of the game minus the time spent charging
+                var timeLeft = times[i] - speed;
+                var distance = speed * timeLeft;
                 if (distance > distances[i])
-                {
-                    if (part1)
-                    {
-                        winners[i]++; // amount of winners
-                    }
-                    else
-                    {
-                        wins++;
-                    }
-                }
+                    winners[i]++; // amount of winners for this race
             }
         }
 
-        var answer = part1 ? winners.Aggregate((ulong)1, (x, y) => x * y) : (ulong)wins;
+        var answer = part1 ? winners.Aggregate((ulong)1, (x, y) => x * y) : winners.First();
         Console.WriteLine(answer);
     }
 }

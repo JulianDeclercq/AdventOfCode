@@ -1,3 +1,5 @@
+using AdventOfCode2023.helpers;
+
 namespace AdventOfCode2023.days;
 
 public class Day7
@@ -5,14 +7,15 @@ public class Day7
     private record Hand(string Cards, ulong Bet);
     public void Part1()
     {
-        //var hands = File.ReadAllLines("../../../input/Day7_example.txt").Select(LineToHand).OrderBy(HandScore).ToList();
-        var hands = File.ReadAllLines("../../../input/Day7.txt").Select(LineToHand).OrderBy(HandScore).ToList();
+        var hands = File.ReadAllLines("../../../input/Day7.txt").Select(LineToHand).ToList();
+        hands.Sort(HandCompare);
 
         ulong answer = 0;
         for (var i = 0; i < hands.Count; ++i)
         {
             var rank = (ulong)i + 1;
             answer += hands[i].Bet * rank;
+            Console.WriteLine($"{hands[i].Cards} {hands[i].Bet} rank:{rank}");
         }
         Console.WriteLine(answer);
     }
@@ -23,8 +26,6 @@ public class Day7
         return new Hand(split[0], ulong.Parse(split[1]));
     }
 
-    private static ulong HandScore(Hand hand) => TypeScore(hand) + ValueScores(hand);
-
     private static ulong TypeScore(Hand hand)
     {
         var occurrences = new Dictionary<char, int>();
@@ -33,7 +34,7 @@ public class Day7
             var current = occurrences.GetValueOrDefault(card, 0);
             occurrences[card] = current + 1;
         }
-
+        
         var highestOccurence = occurrences.MaxBy(o => o.Value);
         switch (highestOccurence.Value)
         {
@@ -62,16 +63,26 @@ public class Day7
         ['A'] = 14, ['K'] = 13, ['Q'] = 12, ['J'] = 11, ['T'] = 10,
         ['9'] = 9, ['8'] = 8, ['7'] = 7, ['6'] = 6, ['5'] = 5, ['4'] = 4, ['3'] = 3, ['2'] = 2
     };
-    
-    private static ulong ValueScores(Hand hand)
+
+    private static int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1
     {
-        double valueScore = 0;
-        for (var i = 0; i < hand.Cards.Length; ++i)
+        var lhsTypeScore = TypeScore(lhs);
+        var rhsTypeScore = TypeScore(rhs);
+        
+        if (lhsTypeScore > rhsTypeScore)
+            return 1;
+        if (lhsTypeScore < rhsTypeScore)
+            return -1;
+
+        for (var i = 0; i < lhs.Cards.Length; ++i)
         {
-            // the earlier in the hand the stronger, 5 is hand length
-            valueScore += Math.Pow(CardValues[hand.Cards[i]], 5 - i);
+            if (CardValues[lhs.Cards[i]] > CardValues[rhs.Cards[i]])
+                return 1;
+            
+            if (CardValues[lhs.Cards[i]] < CardValues[rhs.Cards[i]])
+                return -1;
         }
 
-        return (ulong) valueScore;
+        return 0;
     }
 }

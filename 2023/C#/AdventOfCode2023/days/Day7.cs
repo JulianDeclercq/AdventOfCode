@@ -8,7 +8,7 @@ public static class Day7
     {
         public string Cards = "";
         public string TransformedCards = "";
-        public ulong Bet;
+        public ulong Bid;
     }
     
     public static void Solve(bool part1)
@@ -22,7 +22,7 @@ public static class Day7
         for (var i = 0; i < hands.Count; ++i)
         {
             var rank = (ulong)i + 1;
-            answer += hands[i].Bet * rank;
+            answer += hands[i].Bid * rank;
         }
         Console.WriteLine(answer);
     }
@@ -33,7 +33,7 @@ public static class Day7
         return new Hand
         {
             Cards = split[0],
-            Bet = ulong.Parse(split[1]),
+            Bid = ulong.Parse(split[1]),
             TransformedCards = JokerTransform(split[0])
         };
     }
@@ -64,16 +64,17 @@ public static class Day7
         };
     }
 
-    private static readonly Dictionary<char, int> CardValueMap = new()
-    {
-        ['A'] = 14, ['K'] = 13, ['Q'] = 12, ['T'] = 10,
-        ['9'] = 9, ['8'] = 8, ['7'] = 7, ['6'] = 6, ['5'] = 5, ['4'] = 4, ['3'] = 3, ['2'] = 2
-    };
-
     private static int CardValue(char card)
     {
-        if (card == 'J') return _part1 ? 11 : 1;
-        return CardValueMap[card];
+        return card switch
+        {
+            'A' => 14,
+            'K' => 13,
+            'Q' => 12,
+            'J' => _part1 ? 11 : 1,
+            'T' => 10,
+            _ => int.Parse($"{card}")
+        };
     }
     
     private static int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1

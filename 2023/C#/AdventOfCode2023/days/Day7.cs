@@ -64,11 +64,37 @@ public static class Day7
         };
     }
 
-    private static readonly Dictionary<char, int> CardValues = new()
+    private static readonly Dictionary<char, int> CardValueMap = new()
     {
         ['A'] = 14, ['K'] = 13, ['Q'] = 12, ['T'] = 10,
         ['9'] = 9, ['8'] = 8, ['7'] = 7, ['6'] = 6, ['5'] = 5, ['4'] = 4, ['3'] = 3, ['2'] = 2
     };
+
+    private static int CardValue(char card)
+    {
+        if (card == 'J') return _part1 ? 11 : 1;
+        return CardValueMap[card];
+    }
+    
+    private static int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1
+    {
+        var lhsTypeScore = TypeScore(lhs);
+        var rhsTypeScore = TypeScore(rhs);
+        
+        if (lhsTypeScore > rhsTypeScore) return 1;
+        if (lhsTypeScore < rhsTypeScore) return -1;
+
+        for (var i = 0; i < lhs.Cards.Length; ++i)
+        {
+            if (CardValue(lhs.Cards[i]) > CardValue(rhs.Cards[i]))
+                return 1;
+            
+            if (CardValue(lhs.Cards[i]) < CardValue(rhs.Cards[i]))
+                return -1;
+        }
+
+        return 0;
+    }
     
     private static string JokerTransform(string cards)
     {
@@ -88,30 +114,7 @@ public static class Day7
 
         // Replace the most occurring character, pick the one with highest individual value in case of a tie
         var max = occurrences.Max(o => o.Value);
-        var highestOccurrence = occurrences.Where(o => o.Value == max).MaxBy(o => CardValues[o.Key]);
+        var highestOccurrence = occurrences.Where(o => o.Value == max).MaxBy(o => CardValue(o.Key));
         return cards.Replace('J', highestOccurrence.Key);
-    }
-    
-    private static int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1
-    {
-        var lhsTypeScore = TypeScore(lhs);
-        var rhsTypeScore = TypeScore(rhs);
-        
-        if (lhsTypeScore > rhsTypeScore) return 1;
-        if (lhsTypeScore < rhsTypeScore) return -1;
-
-        for (var i = 0; i < lhs.Cards.Length; ++i)
-        {
-            var lhsValue = lhs.Cards[i] == 'J' ? (_part1 ? 11 : 1) : CardValues[lhs.Cards[i]];
-            var rhsValue = rhs.Cards[i] == 'J' ? (_part1 ? 11 : 1) : CardValues[rhs.Cards[i]];
-
-            if (lhsValue > rhsValue)
-                return 1;
-            
-            if (lhsValue < rhsValue)
-                return -1;
-        }
-
-        return 0;
     }
 }

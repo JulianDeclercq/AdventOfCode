@@ -1,24 +1,12 @@
-using AdventOfCode2023.helpers;
-
 namespace AdventOfCode2023.days;
 
 public class Day7
 {
-    private record Hand(string Cards, ulong Bet);
+    private bool _part2 = true;
+    private record Hand(string Cards, ulong Bet, Hand Transformed);
     public void Solve()
     {
-        // TESTING GROUNDS
-        
-        // var hands = File.ReadAllLines("../../../input/Day7.txt").Select(LineToHand).ToList();//.Select(JokerTransform).ToList();
-        // var transformedHands = hands.Zip(hands.Select(JokerTransform));//.Select(JokerTransform).ToList();
-        // foreach (var (original, transformed) in transformedHands)
-        // {
-        //     if (original.Cards.Contains('J')) Console.WriteLine($"{original.Cards} -> {transformed.Cards}");
-        // }
-        // return;
-        
-        //
-        var hands = File.ReadAllLines("../../../input/Day7.txt").Select(LineToHand).Select(JokerTransform).ToList();
+        var hands = File.ReadAllLines("../../../input/Day7.txt").Select(LineToHand).ToList();
         hands.Sort(HandCompare);
 
         ulong answer = 0;
@@ -26,7 +14,7 @@ public class Day7
         {
             var rank = (ulong)i + 1;
             answer += hands[i].Bet * rank;
-            Console.WriteLine($"{hands[i].Cards} {hands[i].Bet} rank:{rank}");
+            Console.WriteLine($"{rank}\t{hands[i].Cards}\t{hands[i].Bet}");
         }
         Console.WriteLine(answer);
     }
@@ -34,13 +22,14 @@ public class Day7
     private static Hand LineToHand(string line)
     {
         var split = line.Split(' ');
-        return new Hand(split[0], ulong.Parse(split[1]));
+        var hand = new Hand(split[0], ulong.Parse(split[1]), null);
+        return hand with {Transformed = JokerTransform(hand)};
     }
 
     private static ulong TypeScore(Hand hand)
     {
         var occurrences = new Dictionary<char, int>();
-        foreach (var card in hand.Cards)
+        foreach (var card in hand.Transformed.Cards) // MODIFIED
         {
             var current = occurrences.GetValueOrDefault(card, 0);
             occurrences[card] = current + 1;
@@ -80,7 +69,7 @@ public class Day7
         ['A'] = 14, ['K'] = 13, ['Q'] = 12, ['T'] = 10,
         ['9'] = 9, ['8'] = 8, ['7'] = 7, ['6'] = 6, ['5'] = 5, ['4'] = 4, ['3'] = 3, ['2'] = 2, ['J'] = 1
     };
-
+    
     private static Hand JokerTransform(Hand hand)
     {
         var occurrences = new Dictionary<char, int>();
@@ -95,20 +84,19 @@ public class Day7
 
         try
         {
-//            var highestOccurrence = occurrences.MaxBy(o => o.Value);
             var max = occurrences.Max(o => o.Value);
-            var highestOccurrence = occurrences.Where(o => o.Value == max).MaxBy(o => JokerCardValues[o.Key]);
+            var highestOccurrence = occurrences.Where(o => o.Value == max).MaxBy(o => CardValues[o.Key]);
             var newCards = hand.Cards.Replace('J', highestOccurrence.Key);
             return hand with {Cards = newCards};
         }
         catch (Exception e)
         {
-            return hand with {Cards = "AAAAA"};
+            return hand with {Cards = "AAAAA"}; // all JJJJJ input edge case
         }
         
     }
 
-    private static int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1
+    private int HandCompare(Hand lhs, Hand rhs) // 1, 0, -1
     {
         var lhsTypeScore = TypeScore(lhs);
         var rhsTypeScore = TypeScore(rhs);
@@ -118,12 +106,13 @@ public class Day7
         if (lhsTypeScore < rhsTypeScore)
             return -1;
 
+        var lookup = _part2 ? JokerCardValues : CardValues;
         for (var i = 0; i < lhs.Cards.Length; ++i)
         {
-            if (JokerCardValues[lhs.Cards[i]] > JokerCardValues[rhs.Cards[i]])
+            if (lookup[lhs.Cards[i]] > lookup[rhs.Cards[i]])
                 return 1;
             
-            if (JokerCardValues[lhs.Cards[i]] < JokerCardValues[rhs.Cards[i]])
+            if (lookup[lhs.Cards[i]] < lookup[rhs.Cards[i]])
                 return -1;
         }
 

@@ -12,11 +12,8 @@ public static class Qonsole
 
     public static void WriteLine(string message)
     {
-        // If there was a previous message, take a new line
-        if (!string.IsNullOrWhiteSpace(_lastMessage))
-            Console.WriteLine();
-        
         Console.WriteLine(message);
+        _lastMessage = message;
     }
     
     private static string _lastMessage = "";

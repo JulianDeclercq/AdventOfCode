@@ -20,27 +20,38 @@ public partial class Day8
     }
 
     private static readonly RegexHelper Helper = new(InputPattern(), "name", "left", "right");
-    public void Part1()
+    public void Solve()
     {
         var input = File.ReadAllLines("../../../input/Day8.txt");
         var instructions = input.First();
         var nodes = input.Skip(2).Select(LineToNode).ToDictionary(k => k.Name, v => v);
 
-        var current = nodes["AAA"];
-        ulong answer = 0;
+        var startingNodes = nodes.Keys.Where(k => k.EndsWith('A')).ToArray();
+
+        // start, current
+        var currentByStarting = startingNodes.ToDictionary(k => k, v => v); 
+        ulong answer = 0, iterationCounter = 0;
         for (var i = 0;; ++i)
         {
-            ++answer;
-                
-            var instruction = instructions[i];
-            current = instruction switch
-            {
-                'L' => nodes[current.Left],
-                'R' => nodes[current.Right],
-                _ => throw new Exception($"Invalid instruction {instruction}")
-            };
+            if (iterationCounter != 0 && iterationCounter % 10_000 == 0)
+                Qonsole.OverWrite($"{iterationCounter / 1_000_000} million iterations{string.Concat(Enumerable.Repeat('.', (int)(iterationCounter / 1_000_000) % 3 + 1))}");
 
-            if (current.Name.Equals("ZZZ"))
+            ++answer;
+            ++iterationCounter;
+            
+            var instruction = instructions[i];
+            foreach (var startingNode in startingNodes)
+            {
+                var current = currentByStarting[startingNode];
+                currentByStarting[startingNode] = instruction switch
+                {
+                    'L' => nodes[current].Left,
+                    'R' => nodes[current].Right,
+                    _ => throw new Exception($"Invalid instruction {instruction}")
+                };
+            }
+
+            if (currentByStarting.Values.All(v => v.EndsWith('Z')))
             {
                 Console.WriteLine(answer);
                 return;

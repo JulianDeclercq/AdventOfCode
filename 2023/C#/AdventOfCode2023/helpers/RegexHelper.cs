@@ -28,6 +28,8 @@ public class RegexHelper
     public int GetInt(string groupName) => int.Parse(_groups[groupName]);
     public bool IsEmpty(string groupName) => string.IsNullOrEmpty(_groups[groupName]);
     public bool TryGetInt(string groupName, out int value) => int.TryParse(_groups[groupName], out value);
+    
+    public string this[string groupName] => _groups[groupName];
 
     private Regex _regex;
     private Dictionary<string, string> _groups = new();

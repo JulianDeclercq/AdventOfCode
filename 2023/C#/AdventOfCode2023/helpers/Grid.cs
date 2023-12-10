@@ -68,7 +68,7 @@ public class Grid<T>
     public IEnumerable<T> All() => _cells;
     
     // returns a dictionary with key = location
-    public Dictionary<Point, T> AllExtended()
+    public Dictionary<Point, T> AllExtendedLookup()
     {
         var extended = new Dictionary<Point, T>();
 
@@ -76,6 +76,11 @@ public class Grid<T>
             extended.Add(FromIndex(i), _cells[i]);
 
         return extended;
+    }
+    
+    public List<GridElement<T>> AllExtended()
+    {
+        return _cells.Select((t, i) => new GridElement<T>(FromIndex(i), t)).ToList();
     }
 
     private T Get(int x, int y)

@@ -6,34 +6,65 @@ public class Day10
 {
     public void Part1()
     {
-        var input = File.ReadAllLines("../../../input/Day10e2.txt");
+        var input = File.ReadAllLines("../../../input/Day10.txt");
         var grid = new Grid<char>(input.First().Length, input.Length, input.SelectMany(x => x), '?');
-        Console.WriteLine(grid);
         
-        // locate starting point
         var start = grid.AllExtended().Single(e => e.Value.Equals('S'));
-        var neighbours = grid.NeighbouringPointsExtended(start.Position, includeDiagonals: false); // DIAGONALS DONT MAKE SENSE FOR PIPES
-        var neighbour = neighbours.First(n => Pipes.Contains(n.Value)); // single path
+        var pipeNeighbours = grid.NeighbouringPointsExtended(start.Position, includeDiagonals: false).Where(n => Pipes.Contains(n.Value));
 
-        // determine the direction
-        var diff = neighbour.Position - start.Position;
-        var direction = diff switch
+        // check valid ones
+        var validDirections = new Dictionary<char, HashSet<Direction>>
         {
-            { X: 0, Y: -1 } => Direction.North,
-            { X: 1, Y: 0 } => Direction.East,
-            { X: 0, Y: 1 } => Direction.South,
-            { X: -1, Y: 0 } => Direction.West,
-            _ => throw new Exception("Couldn't determine direction")
+            ['|'] = new() {Direction.North, Direction.South},
+            ['-'] = new() {Direction.East, Direction.West},
+            ['L'] = new() {Direction.South, Direction.West},
+            ['J'] = new() {Direction.East, Direction.South},
+            ['7'] = new() {Direction.East, Direction.North},
+            ['F'] = new() {Direction.West, Direction.North},
         };
-
-        var visuals = grid.ShallowCopy();
-        visuals.Set(start.Position, '*');
-        Console.WriteLine(visuals);
- 
-        var current = neighbour;
-        for (ulong iterations = 1;; iterations++)
+        
+        var validNeighbours = new List<GridElement<char>>();
+        foreach (var neighbour in pipeNeighbours)
         {
-            // follow the flow
+            // determine the direction
+            var diff = neighbour.Position - start.Position;
+            var direction = diff switch
+            {
+                { X: 0, Y: -1 } => Direction.North,
+                { X: 1, Y: 0 } => Direction.East,
+                { X: 0, Y: 1 } => Direction.South,
+                { X: -1, Y: 0 } => Direction.West,
+                _ => throw new Exception("Couldn't determine direction")
+            };
+            
+            if (validDirections[neighbour.Value].Contains(direction))
+                validNeighbours.Add(neighbour);
+        }
+
+        var distances = new Dictionary<Point, int>();
+        foreach (var neighbour in validNeighbours)
+        {
+            // determine the direction
+            var diff = neighbour.Position - start.Position;
+            var direction = diff switch
+            {
+                { X: 0, Y: -1 } => Direction.North,
+                { X: 1, Y: 0 } => Direction.East,
+                { X: 0, Y: 1 } => Direction.South,
+                { X: -1, Y: 0 } => Direction.West,
+                _ => throw new Exception("Couldn't determine direction")
+            };
+            TraversePipe(neighbour, direction, grid, distances);
+        }
+        
+        Console.WriteLine(distances.MaxBy(d => d.Value).Value);
+    }
+
+    private void TraversePipe(GridElement<char> start, Direction direction, Grid<char> grid, Dictionary<Point, int> distances) // start at neighbour, make that more clear
+    {
+        var current = start;
+        for (var iterations = 1;; iterations++) // start at one because we skip the first start node (S) node
+        {
             Point? nextPosition = null;
             var nextDirection = direction;
             switch (current.Value)
@@ -50,12 +81,18 @@ public class Day10
                 }
                 case '-': // direction stays the same
                 {
-                    nextPosition = direction switch
+                    try
                     {
-                        Direction.East => current.Position + new Point(1, 0),
-                        Direction.West => current.Position + new Point(-1, 0),
-                        _ => throw new Exception("Wrong pipe direction")
-                    };
+                        nextPosition = direction switch
+                        {
+                            Direction.East => current.Position + new Point(1, 0),
+                            Direction.West => current.Position + new Point(-1, 0),
+                        };
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Wrong pipe direction current {current}, dir {direction}");
+                    }
                     break;
                 }
                 case 'L':
@@ -110,19 +147,16 @@ public class Day10
                     } else throw new Exception("Wrong pipe direction");
                     break;
                 }
-                case 'S':
+                case 'S': // back at start
                 {
-                    Console.WriteLine("BACK AT START");
                     return;
-                    break;
                 }
             }
-            
-            // UPDATE VISUALS
-            visuals.Set(current.Position, '*');
-            Console.WriteLine(visuals);
-            //
-            
+
+            var currentDistance = distances.GetValueOrDefault(current.Position, int.MaxValue);
+            distances[current.Position] = Math.Min(currentDistance, iterations);
+         
+            // prepare for next iteration
             var next = new GridElement<char>(nextPosition!, grid.At(nextPosition!));
             current = next;
             direction = nextDirection;

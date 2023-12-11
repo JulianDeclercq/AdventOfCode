@@ -4,6 +4,8 @@ namespace AdventOfCode2023.days;
 
 public class Day11
 {
+    private static HashSet<int> _emptyRows, _emptyCols;
+    private static ulong _expansionSize = 1_000_000;
     public void Part1()
     {
         var lines = File.ReadAllLines("../../../input/Day11.txt").ToList();
@@ -11,24 +13,24 @@ public class Day11
 
         var rows = tempGrid.Rows().ToArray();
         var columns = tempGrid.Columns().ToArray();
-        var emptyRows = rows.Select((row, idx) => (row, idx)).Where(r => r.row.All(c => c.Value.Equals('.'))).Select(x => x.idx).ToArray();
-        var emptyCols = columns.Select((col, idx) => (col, idx)).Where(x => x.col.All(c => c.Value.Equals('.'))).Select(x => x.idx).ToArray();
+        _emptyRows = rows.Select((row, idx) => (row, idx)).Where(r => r.row.All(c => c.Value.Equals('.'))).Select(x => x.idx).ToHashSet();
+        _emptyCols = columns.Select((col, idx) => (col, idx)).Where(x => x.col.All(c => c.Value.Equals('.'))).Select(x => x.idx).ToHashSet();
 
         // insert empty columns
-        for (var i = 0; i < lines.Count; ++i)
-        {
-            // offset with the amount that is added by inserting the previous ones in the list (e.g. inserting at the first element will cause the next index to be +1 to account for this insert)
-            var offsetCols = emptyCols.Select((ec, idx) => ec + idx);
-            foreach (var offsetIdx in offsetCols)
-                lines[i] = lines[i].Insert(offsetIdx, ".");
-        }
-
-        // insert empty rows
-        var emptyLine = string.Join("", Enumerable.Range(0, lines.First().Length).Select(_ => '.'));
-
-        var offsetRowIdx = emptyRows.Select((er, idx) => er + idx); // same offset reason as before
-        foreach (var offsetIdx in offsetRowIdx)
-            lines.Insert(offsetIdx, emptyLine);
+        // for (var i = 0; i < lines.Count; ++i)
+        // {
+        //     // offset with the amount that is added by inserting the previous ones in the list (e.g. inserting at the first element will cause the next index to be +1 to account for this insert)
+        //     var offsetCols = emptyCols.Select((ec, idx) => ec + idx);
+        //     foreach (var offsetIdx in offsetCols)
+        //         lines[i] = lines[i].Insert(offsetIdx, ".");
+        // }
+        //
+        // // insert empty rows
+        // var emptyLine = string.Join("", Enumerable.Range(0, lines.First().Length).Select(_ => '.'));
+        //
+        // var offsetRowIdx = emptyRows.Select((er, idx) => er + idx); // same offset reason as before
+        // foreach (var offsetIdx in offsetRowIdx)
+        //     lines.Insert(offsetIdx, emptyLine);
 
         var grid = new Grid<char>(lines.First().Length, lines.Count, lines.SelectMany(x => x), '?');
         var galaxies = grid.AllExtended().Where(x => x.Value.Equals('#')).Select(x => x.Position).ToList();
@@ -60,16 +62,19 @@ public class Day11
         for (var i = 0; i < paths.Count; ++i)
         {
             if (i % 100 == 0)
-            {               
                 Qonsole.OverWrite($"{answer} ({((float)i / paths.Count) * 100} %)");
-                //Qonsole.OverWrite($"{i} / {paths.Count} ({((float)i / paths.Count) * 100} %)");
-            }
 
             var p = paths[i];
             answer += (ulong)ShortestPathLength(p.From, p.To, grid);
         }
+        Console.WriteLine();
         Console.WriteLine(answer);
         //Console.WriteLine(paths.Sum(p => ShortestPathLength(p.From, p.To, grid)));
+    }
+
+    private static bool IsExpanded(Point p)
+    {
+        return _emptyRows.Contains(p.Y) || _emptyCols.Contains(p.X);
     }
 
     private class Path : IEquatable<Path>
@@ -104,12 +109,12 @@ public class Day11
         }
     }
     
-    private static int ShortestPathLength(Point from, Point to, Grid<char> grid)
+    private static ulong ShortestPathLength(Point from, Point to, Grid<char> grid)
     {
-        var frontier = new PriorityQueue<Point, int>();
+        var frontier = new PriorityQueue<Point, ulong>();
         frontier.Enqueue(from, 0);
         var cameFrom = new Dictionary<Point, Point>();
-        var costSoFar = new Dictionary<Point, int> {{from, 0}};
+        var costSoFar = new Dictionary<Point, ulong> {{from, 0}};
 
         while (frontier.Count > 0)
         {
@@ -120,7 +125,7 @@ public class Day11
             var neighbours = grid.NeighbouringPoints(current, includeDiagonals: false);
             foreach (var next in neighbours)
             {
-                var newCost = costSoFar[current] + grid.At(current);
+                var newCost = costSoFar[current] + (IsExpanded(next) ? _expansionSize : 1);
                 
                 // if the new cost is higher than the cheapest cost so far, ignore this path
                 if (costSoFar.TryGetValue(next, out var value) && newCost >= value)
@@ -133,11 +138,11 @@ public class Day11
         }
         
         var cur = to;
-        var answer = 0;
+        ulong answer = 0;
         while (!cur.Equals(from))
         {
             cur = cameFrom[cur];
-            answer++;
+            answer += (IsExpanded(cur) ? _expansionSize : 1);
         }
         return answer;
 

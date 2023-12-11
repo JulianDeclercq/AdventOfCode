@@ -19,8 +19,7 @@ public class Day11
         var grid = new Grid<char>(lines.First().Length, lines.Count, lines.SelectMany(x => x), '?');
         var galaxies = grid.AllExtended().Where(x => x.Value.Equals('#')).Select(x => x.Position).ToList();
 
-        var registerOpposite = new HashSet<Path>();
-        var paths = new List<Path>();
+        var paths = new HashSet<Path>();
         foreach (var galaxy in galaxies)
         {
             foreach (var otherGalaxy in galaxies)
@@ -31,12 +30,11 @@ public class Day11
 
                 var candidate = new Path(from: galaxy, to: otherGalaxy);
                 
-                // don't add pairs in the other direction
-                if (registerOpposite.Contains(candidate))
+                // don't add a pair if it's already been added from the other direction
+                if (paths.Contains(new Path(from: candidate.To, to: candidate.From)))
                     continue;
                 
                 paths.Add(candidate);
-                registerOpposite.Add(new Path(from: candidate.To, to: candidate.From));
             }
         }
         

@@ -151,7 +151,7 @@ public class Grid<T>
 
     public IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true)
     {
-        var neighbours = new List<Point>()
+        var neighbours = new List<Point>
         {
             new (p.X, p.Y - 1),
             new (p.X + 1, p.Y),

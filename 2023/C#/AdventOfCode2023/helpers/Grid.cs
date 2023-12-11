@@ -33,6 +33,11 @@ public class Grid<T>
         return list;
     }
 
+    public IEnumerable<IEnumerable<GridElement<T>>> Columns()
+    {
+        return Enumerable.Range(0, Width).Select(Column);
+    }
+
     public IEnumerable<GridElement<T>> Row(int y)
     {
         var list = new List<GridElement<T>>();

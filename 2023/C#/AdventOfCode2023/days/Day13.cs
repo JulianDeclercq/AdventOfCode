@@ -27,50 +27,41 @@ public class Day13
 
     private static int Score(Grid<char> pattern)
     {
-        // vertical
-        // search for a double occurrence, the possible mirror line
         var columns = pattern.Columns().Select(column => string.Join("", column.Select(el => el.Value))).ToArray();
-        for (var i = 0; i < columns.Length - 1; ++i)
-        {
-            if (columns[i].Equals(columns[i + 1]))
-            {
-                // check if it is a mirror
-                for (var j = 0;; j++)
-                {
-                    var leftIdx = i - j;
-                    var rightIdx = i + 1 + j;
-                    if (leftIdx < 0 || rightIdx == columns.Length) // edge has been reached, mirror successful
-                    {
-                        return i + 1; // amount of columns to the left of the mirror
-                    }
-
-                    if (!columns[leftIdx].Equals(columns[rightIdx])) // not a mirror
-                        break;
-                }
-            }
-        }
+        if (TryFindMirror(columns, out var vertical))
+            return vertical;
         
-        // horizontal
         var rows = pattern.Rows().Select(row => string.Join("", row.Select(el => el.Value))).ToArray();
-        for (var i = 0; i < rows.Length - 1; ++i)
+        if (TryFindMirror(rows, out var horizontal))
+            return horizontal * 100;
+
+        return 0;
+    }
+
+    private static bool TryFindMirror(IReadOnlyList<string> rowsOrColumns, out int score)
+    {
+        for (var i = 0; i < rowsOrColumns.Count - 1; ++i)
         {
-            if (rows[i].Equals(rows[i + 1]))
+            // search for a double occurrence, the possible mirror line
+            if (rowsOrColumns[i].Equals(rowsOrColumns[i + 1]))
             {
                 // check if it is a mirror
                 for (var j = 0;; j++)
                 {
                     var leftIdx = i - j;
                     var rightIdx = i + 1 + j;
-                    if (leftIdx < 0 || rightIdx == rows.Length) // edge has been reached, mirror successful
+                    if (leftIdx < 0 || rightIdx == rowsOrColumns.Count) // edge has been reached, mirror successful
                     {
-                        return (i + 1) * 100; // amount of rows above the mirror * 100
+                        score = i + 1; // amount of rows / columns before the mirror
+                        return true;
                     }
 
-                    if (!rows[leftIdx].Equals(rows[rightIdx])) // not a mirror
+                    if (!rowsOrColumns[leftIdx].Equals(rowsOrColumns[rightIdx])) // not a mirror
                         break;
                 }
             }
         }
-        return 0;
+        score = 0;
+        return false;
     }
 }

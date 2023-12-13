@@ -11,75 +11,52 @@ public class Day13
         Horizontal = 2
     }
     
-    private record PatternContent(int Width, int Height, IReadOnlyList<char> Elements);
-    public void Solve()
+    public static void Solve(bool part1)
     {
         var input = File.ReadAllLines("../../../input/Day13.txt");
 
         var patterns = new List<Grid<char>>();
-        var patternContents = new List<PatternContent>();
         var current = new List<string>();
         foreach (var line in input)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                var width = current.First().Length;
-                var height = current.Count;
-                var elements = current.SelectMany(c => c).ToArray();
-                patterns.Add(new Grid<char>(width, height, elements, '?'));
-                patternContents.Add(new PatternContent(width, height, elements));
+                patterns.Add(new Grid<char>(current.First().Length, current.Count, current.SelectMany(c => c), '?'));
                 current.Clear();
                 continue;
             }
             current.Add(line);
         }
+        patterns.Add(new Grid<char>(current.First().Length, current.Count, current.SelectMany(c => c), '?'));
 
-        var w = current.First().Length;
-        var h = current.Count;
-        var el = current.SelectMany(c => c).ToArray();
-        patterns.Add(new Grid<char>(w, h, el, '?'));
-        patternContents.Add(new PatternContent(w, h, el));
-
-        var answer = 0;
-        for (var i = 0; i < patterns.Count; ++i)
-        {
-            var temp = ScorePart2(patterns[i], Variations(patternContents[i]));
-            answer += temp;
-        }
+        var answer = part1 ? patterns.Sum(Score) : patterns.Sum(p => ScorePart2(p, Variations(p))); 
         Console.WriteLine(answer);
-
-        //Console.WriteLine(patterns.Sum(Score));
     }
 
-    private static IEnumerable<Grid<char>> Variations(PatternContent patternContent)
+    private static IEnumerable<Grid<char>> Variations(Grid<char> original)
     {
-        var (width, height, original) = patternContent;
-        
         var variations = new List<Grid<char>>();
-        for (var i = 0; i < original.Count; ++i)
+        foreach (var element in original.AllExtended())
         {
-            var copy = original.ToArray();
-            copy[i] = original[i] == '.' ? '#' : '.';
-
-            var grid = new Grid<char>(width, height, copy, '?');
-            variations.Add(grid);
-            //Console.WriteLine(grid);
+            var copy = original.ShallowCopy();
+            copy.Set(element.Position, element.Value == '.' ? '#' : '.');
+            variations.Add(copy);
         }
 
         return variations;
     }
-
+   
     private static int Score(Grid<char> pattern)
     {
         var columns = pattern.Columns().Select(column => string.Join("", column.Select(el => el.Value))).ToArray();
-        var verticalMirrors = TryFindMirrors(columns, Orientation.Vertical);
-        if (verticalMirrors.Any())
-            return verticalMirrors.Single();
+        var vertical = MirrorScores(columns, Orientation.Vertical);
+        if (vertical.Any())
+            return vertical.Single();
         
         var rows = pattern.Rows().Select(row => string.Join("", row.Select(el => el.Value))).ToArray();
-        var horizontalMirrors = TryFindMirrors(rows, Orientation.Horizontal);
-        if (horizontalMirrors.Any())
-            return horizontalMirrors.Single();
+        var horizontal = MirrorScores(rows, Orientation.Horizontal);
+        if (horizontal.Any())
+            return horizontal.Single();
 
         return 0;
     }
@@ -90,22 +67,33 @@ public class Day13
         foreach (var variation in variations)
         {
             var columns = variation.Columns().Select(column => string.Join("", column.Select(el => el.Value))).ToArray();
-            var verticalMirrors = TryFindMirrors(columns, Orientation.Vertical);
-            var newMirrorScoreIdx = verticalMirrors.FindIndex(vm => vm != originalScore);
-            if (newMirrorScoreIdx != -1)
-                return verticalMirrors[newMirrorScoreIdx];
-        
+            if (TryGetNewMirrorScore(columns, Orientation.Vertical, originalScore, out var verticalScore))
+                return verticalScore;
+
             var rows = variation.Rows().Select(row => string.Join("", row.Select(el => el.Value))).ToArray();
-            var horizontalMirrors = TryFindMirrors(rows, Orientation.Horizontal);
-            newMirrorScoreIdx = horizontalMirrors.FindIndex(hm => hm != originalScore);
-            if (newMirrorScoreIdx != -1)
-                return horizontalMirrors[newMirrorScoreIdx];
+            if (TryGetNewMirrorScore(rows, Orientation.Horizontal, originalScore, out var horizontalScore))
+                return horizontalScore;
         }
 
         return 0;
     }
 
-    private static List<int> TryFindMirrors(IReadOnlyList<string> rowsOrColumns, Orientation orientation)
+    private static bool TryGetNewMirrorScore(
+        IReadOnlyList<string> rowsOrColumns, Orientation orientation, int originalScore, out int newScore)
+    {
+        var mirrors = MirrorScores(rowsOrColumns, orientation);
+        var idx = mirrors.FindIndex(vm => vm != originalScore);
+        if (idx != -1)
+        {
+            newScore = mirrors[idx];
+            return true;
+        }
+
+        newScore = 0;
+        return false;
+    }
+
+    private static List<int> MirrorScores(IReadOnlyList<string> rowsOrColumns, Orientation orientation)
     {
         var mirrorScores = new List<int>();
         for (var i = 0; i < rowsOrColumns.Count - 1; ++i)

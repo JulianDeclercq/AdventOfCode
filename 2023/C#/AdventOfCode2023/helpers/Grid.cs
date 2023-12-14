@@ -36,7 +36,7 @@ public class Grid<T>
     public void ReplaceColumn(int x, T[] newColumn)
     {
         if (newColumn.Length != Height)
-            throw new Exception($"Can't overwrite column size {newColumn.Length} needs to match grid height {Height}.");
+            throw new Exception($"Can't replace column size {newColumn.Length} needs to match grid height {Height}.");
 
         for (var i = 0; i < newColumn.Length; ++i)
         {
@@ -63,6 +63,20 @@ public class Grid<T>
 
         return list;
     }
+
+    public void ReplaceRow(int y, T[] newRow)
+    {
+        if (newRow.Length != Width)
+            throw new Exception($"Can't replace row size {newRow.Length} needs to match grid width {Width}.");
+
+        var offset = Width * y;
+        for (var i = 0; i < newRow.Length; ++i)
+        {
+            var index = offset + i;
+            Set(FromIndex(index), newRow[i]);
+        }
+    }            
+
 
     public IEnumerable<IEnumerable<GridElement<T>>> Rows()
     {

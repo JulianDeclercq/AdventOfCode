@@ -33,6 +33,18 @@ public class Grid<T>
         return list;
     }
 
+    public void ReplaceColumn(int x, T[] newColumn)
+    {
+        if (newColumn.Length != Height)
+            throw new Exception($"Can't overwrite column size {newColumn.Length} needs to match grid height {Height}.");
+
+        for (var i = 0; i < newColumn.Length; ++i)
+        {
+            var index = x + Width * i;
+            Set(FromIndex(index), newColumn[i]);
+        }
+    }
+
     public IEnumerable<IEnumerable<GridElement<T>>> Columns()
     {
         return Enumerable.Range(0, Width).Select(Column);

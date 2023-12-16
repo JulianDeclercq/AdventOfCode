@@ -5,13 +5,19 @@ namespace AdventOfCode2023.days;
 
 public abstract class Day16
 {
-    public static void Solve()
+    public static void Solve(bool part1)
     {
         var input = File.ReadAllLines("../../../input/Day16.txt");
         var width = input.First().Length;
         var height = input.Length;
         var grid = new Grid<char>(width, height, input.SelectMany(x => x), '?');
         var energy = new Grid<int>(width, height, Enumerable.Repeat(0, width * height), 1337);
+
+        if (part1)
+        {
+            Console.WriteLine(TilesEnergized(grid, energy, new Point(-1, 0), Direction.East));
+            return;
+        }
 
         var starts = new List<(Point, Direction)>();
         var rows = grid.Rows().ToArray();

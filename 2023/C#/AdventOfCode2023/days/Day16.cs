@@ -7,37 +7,28 @@ public class Day16
 {
     public void Solve()
     {
-        var input = File.ReadAllLines("../../../input/Day16e.txt");
+        var input = File.ReadAllLines("../../../input/Day16.txt");
         var width = input.First().Length;
         var height = input.Length;
         var grid = new Grid<char>(width, height, input.SelectMany(x => x), '?');
         var energy = new Grid<int>(width, height, Enumerable.Repeat(0, width * height), '?');
 
 //        TraverseBeamPath(grid, energy, new Point(0, 0), Direction.East);
-        TraverseBeamPath(grid, energy, new Point(6, 7), Direction.South);
+        TraverseBeamPath(grid, energy, new Point(0, 0), Direction.South); // test bc input starts on a \
         
-        Console.WriteLine(energy);
         Console.WriteLine(energy.All().Count(e => e != 0));
-
-        var dbg = new Grid<char>(energy.Width, energy.Height, Enumerable.Repeat('.', width * height), '?');
-        foreach (var ener in energy.AllExtended())
-        {
-            var set = ener.Value == 0 ? '.' : '#';
-            dbg.Set(ener.Position, set);
-        }
-        Console.WriteLine(dbg);
     }
 
+    private HashSet<Point> _usedSplitters = new ();
     private void TraverseBeamPath(Grid<char> grid, Grid<int> energy, Point start, Direction initialDirection)
     {
         var position = start;
         var direction = initialDirection;
-        var inGrid = true;
-        while (inGrid)
+        var goHard = true;
+        while (goHard)
         {
             var current = energy.At(position);
             energy.Set(position, current + 1);
-            Console.WriteLine(energy);
 
             switch (direction)
             {
@@ -45,7 +36,7 @@ public class Day16
                     var northernNeighbour = grid.GetNeighbour(position, Direction.North);
                     if (northernNeighbour == null)
                     {
-                        inGrid = false;
+                        goHard = false;
                         break;
                     }
                     
@@ -59,13 +50,20 @@ public class Day16
                             direction = Direction.West;
                             break;
                         case '-':
+                            goHard = false;
+                            if (_usedSplitters.Contains(position))
+                                break;
+                            
+                            _usedSplitters.Add(position);
+
                             var easternNeighbourN = grid.GetNeighbour(position, Direction.East);
                             if (easternNeighbourN != null)
-                                TraverseBeamPath(grid, energy, easternNeighbourN.Position, Direction.East);
+                                TraverseBeamPath(grid, energy, position, Direction.East);
 
                             var westernNeighbourN = grid.GetNeighbour(position, Direction.West);
                             if (westernNeighbourN != null)
-                                TraverseBeamPath(grid, energy, westernNeighbourN.Position, Direction.West);
+                                TraverseBeamPath(grid, energy, position, Direction.West);
+
                             break;
                     }
                     break;
@@ -74,7 +72,7 @@ public class Day16
                     var easternNeighbour = grid.GetNeighbour(position, Direction.East);
                     if (easternNeighbour == null)
                     {
-                        inGrid = false;
+                        goHard = false;
                         break;
                     }
                     
@@ -88,13 +86,20 @@ public class Day16
                             direction = Direction.South;
                             break;
                         case '|':
+                            goHard = false;
+                            if (_usedSplitters.Contains(position))
+                                break;
+                            
+                            _usedSplitters.Add(position);
+
                             var northernNeighbourE = grid.GetNeighbour(position, Direction.North);
                             if (northernNeighbourE != null)
-                                TraverseBeamPath(grid, energy, northernNeighbourE.Position, Direction.North);
+                                TraverseBeamPath(grid, energy, position, Direction.North);
 
                             var southernNeighbourE = grid.GetNeighbour(position, Direction.South);
                             if (southernNeighbourE != null)
-                                TraverseBeamPath(grid, energy, southernNeighbourE.Position, Direction.South);
+                                TraverseBeamPath(grid, energy, position, Direction.South);
+                            
                             break;
                     }
                     break;
@@ -102,7 +107,7 @@ public class Day16
                     var southernNeighbour = grid.GetNeighbour(position, Direction.South);
                     if (southernNeighbour == null)
                     {
-                        inGrid = false;
+                        goHard = false;
                         break;
                     }
 
@@ -116,13 +121,20 @@ public class Day16
                             direction = Direction.East;
                             break;
                         case '-':
+                            goHard = false;
+                            if (_usedSplitters.Contains(position))
+                                break;
+                            
+                            _usedSplitters.Add(position);
+
                             var easternNeighbourS = grid.GetNeighbour(position, Direction.East);
                             if (easternNeighbourS != null)
-                                TraverseBeamPath(grid, energy, easternNeighbourS.Position, Direction.East);
+                                TraverseBeamPath(grid, energy, position, Direction.East);
 
                             var westernNeighbourS = grid.GetNeighbour(position, Direction.West);
                             if (westernNeighbourS != null)
-                                TraverseBeamPath(grid, energy, westernNeighbourS.Position, Direction.West);
+                                TraverseBeamPath(grid, energy, position, Direction.West);
+                            
                             break;
                     }
                     break;
@@ -130,7 +142,7 @@ public class Day16
                     var westernNeighbour = grid.GetNeighbour(position, Direction.West);
                     if (westernNeighbour == null)
                     {
-                        inGrid = false;
+                        goHard = false;
                         break;
                     }
 
@@ -144,13 +156,20 @@ public class Day16
                             direction = Direction.North;
                             break;
                         case '|':
+                            goHard = false;
+                            if (_usedSplitters.Contains(position))
+                                break;
+                            
+                            _usedSplitters.Add(position);
+
                             var northernNeighbourW = grid.GetNeighbour(position, Direction.North);
                             if (northernNeighbourW != null)
-                                TraverseBeamPath(grid, energy, northernNeighbourW.Position, Direction.North);
+                                TraverseBeamPath(grid, energy, position, Direction.North);
 
                             var southernNeighbourW = grid.GetNeighbour(position, Direction.South);
                             if (southernNeighbourW != null)
-                                TraverseBeamPath(grid, energy, southernNeighbourW.Position, Direction.South);
+                                TraverseBeamPath(grid, energy, position, Direction.South);
+                            
                             break;
                     }
                     break;

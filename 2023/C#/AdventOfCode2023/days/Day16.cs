@@ -11,11 +11,9 @@ public class Day16
         var width = input.First().Length;
         var height = input.Length;
         var grid = new Grid<char>(width, height, input.SelectMany(x => x), '?');
-        var energy = new Grid<int>(width, height, Enumerable.Repeat(0, width * height), '?');
+        var energy = new Grid<int>(width, height, Enumerable.Repeat(0, width * height), 1337);
 
-//        TraverseBeamPath(grid, energy, new Point(0, 0), Direction.East);
-        TraverseBeamPath(grid, energy, new Point(0, 0), Direction.South); // test bc input starts on a \
-        
+        TraverseBeamPath(grid, energy, new Point(-1, 0), Direction.East);
         Console.WriteLine(energy.All().Count(e => e != 0));
     }
 

@@ -53,7 +53,7 @@ public class Day3
                 {
                     builder.Current += cell.Value;
                     builder.Points.Add(cell.Position);
-                    neighbours.AddRange(grid.NeighbouringPointsExtended(cell.Position));
+                    neighbours.AddRange(grid.NeighboursExtended(cell.Position));
 
                     if (j != row.Length - 1) // done if not last in row, otherwise process number
                         continue;

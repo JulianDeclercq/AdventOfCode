@@ -1,3 +1,3 @@
 ﻿using AdventOfCode2023.days;
 
-new Day15().Solve();
+new Day16().Solve();

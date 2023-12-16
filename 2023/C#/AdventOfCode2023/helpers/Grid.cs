@@ -10,6 +10,10 @@ public class Grid<T>
         Width = width;
         Height = height;
         _cells.AddRange(elements);
+
+        if (_cells.Count != width * height)
+            throw new Exception($"Amount of elements {_cells.Count} does not match width {width} * height {height})");
+        
         _invalid = invalid;
     }
 
@@ -196,36 +200,66 @@ public class Grid<T>
         return neighbours.Where(ValidPoint);
     }
 
-    public IEnumerable<GridElement<T>> NeighbouringPointsExtended(Point p, bool includeDiagonals = true)
+    public IEnumerable<GridElement<T>> NeighboursExtended(Point p, bool includeDiagonals = true)
     {
         return NeighbouringPoints(p, includeDiagonals).Select(np => new GridElement<T>(np, At(np)));
     }
 
-    // wraps
-    public GridElement<T> GetEasternNeighbour(Point p)
+    public GridElement<T>? GetNeighbour(Point p, Helpers.Direction direction, bool wrap = false)
     {
-        var x = p.X + 1;
-        
-        // check if it has to wrap
-        if (p.X == Width - 1)
-            x = 0;
+        int x = 0, y = 0;
+        switch (direction)
+        {
+            case Helpers.Direction.North:
+                y = p.Y - 1;
 
-        var neighbour = new Point(x, p.Y);
-        return new GridElement<T>(neighbour, At(neighbour));
-    }
-    
-    // wraps
-    public GridElement<T> GetSouthernNeighbour(Point p)
-    {
-        var y = p.Y + 1;
-        
-        // check if it has to wrap
-        if (p.Y == Height - 1)
-            y = 0;
+                if (p.Y == 0)
+                {
+                    if (!wrap)
+                        return null;
 
-        var neighbour = new Point(p.X, y);
-        return new GridElement<T>(neighbour, At(neighbour));
+                    y = Height - 1;
+                }
+                return new GridElement<T>(new Point(p.X, y), At(p.X, y));
+            case Helpers.Direction.East:
+                x = p.X + 1;
+
+                if (p.X == Width - 1)
+                {
+                    if (!wrap)
+                        return null;
+                    
+                    x = 0;
+                }
+                return new GridElement<T>(new Point(x, p.Y), At(x, p.Y));
+            case Helpers.Direction.South:
+                y = p.Y + 1;
+
+                if (p.Y == Height - 1)
+                {
+                    if (!wrap)
+                        return null;
+                            
+                    y = 0;
+                }
+                return new GridElement<T>(new Point(p.X, y), At(p.X, y));
+            case Helpers.Direction.West:
+                x = p.X - 1;
+
+                if (p.X == 0)
+                {
+                    if (!wrap)
+                        return null;
+                    
+                    x = Width - 1;
+                }
+                return new GridElement<T>(new Point(x, p.Y), At(x, p.Y));
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+        }
+
     }
+
 
     // checks if the point is within bounds
     private bool ValidPoint(Point point) 

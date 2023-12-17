@@ -5,8 +5,6 @@ public static class Day6
     private static int _testCounter = 0;
     public static void Solve()
     {
-        var input = File.ReadAllLines("../../../input/Day6.txt").First();
-        
         AssertEqual(6, DecompressedLength("ADVENT"));
         AssertEqual(7, DecompressedLength("A(1x5)BC"));
         AssertEqual(9, DecompressedLength("(3x3)XYZ"));
@@ -14,7 +12,9 @@ public static class Day6
         AssertEqual(6, DecompressedLength("(6x1)(1x3)A"));
         AssertEqual(18, DecompressedLength("X(8x2)(3x3)ABCY"));
         Console.WriteLine($"{_testCounter} TESTS PASSED.");
-        Console.WriteLine(DecompressedLength(input));
+
+        DecompressedLength("(6x9)JUORKH(10x13)LNWIKDMACM(126x14)");
+        //Console.WriteLine(DecompressedLength(File.ReadAllText("../../../input/Day6.txt")));
     }
 
     private static int DecompressedLength(string input)

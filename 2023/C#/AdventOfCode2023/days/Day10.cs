@@ -1,16 +1,17 @@
 ﻿using AdventOfCode2023.helpers;
+using Direction = AdventOfCode2023.helpers.Helpers.Direction;
 
 namespace AdventOfCode2023.days;
 
 public class Day10
 {
-    public void Part1()
+    public static void Solve()
     {
         var input = File.ReadAllLines("../../../input/Day10.txt");
         var grid = new Grid<char>(input.First().Length, input.Length, input.SelectMany(x => x), '?');
         
         var start = grid.AllExtended().Single(e => e.Value.Equals('S'));
-        var pipeNeighbours = grid.NeighbouringPointsExtended(start.Position, includeDiagonals: false).Where(n => Pipes.Contains(n.Value));
+        var pipeNeighbours = grid.NeighboursExtended(start.Position, includeDiagonals: false).Where(n => Pipes.Contains(n.Value));
 
         // check valid ones
         var validDirections = new Dictionary<char, HashSet<Direction>>
@@ -23,7 +24,7 @@ public class Day10
             ['F'] = new() {Direction.West, Direction.North},
         };
         
-        var validNeighbours = new List<GridElement<char>>();
+        var validNeighbours = new List<(GridElement<char> element, Direction direction)>();
         foreach (var neighbour in pipeNeighbours)
         {
             // determine the direction
@@ -38,29 +39,20 @@ public class Day10
             };
             
             if (validDirections[neighbour.Value].Contains(direction))
-                validNeighbours.Add(neighbour);
+                validNeighbours.Add((neighbour, direction));
         }
 
         var distances = new Dictionary<Point, int>();
         foreach (var neighbour in validNeighbours)
         {
-            // determine the direction
-            var diff = neighbour.Position - start.Position;
-            var direction = diff switch
-            {
-                { X: 0, Y: -1 } => Direction.North,
-                { X: 1, Y: 0 } => Direction.East,
-                { X: 0, Y: 1 } => Direction.South,
-                { X: -1, Y: 0 } => Direction.West,
-                _ => throw new Exception("Couldn't determine direction")
-            };
-            TraversePipe(neighbour, direction, grid, distances);
+            TraversePipe(neighbour.element, neighbour.direction, grid, distances);
+            //break; // PART2: ONLY WALK THROUGH ONCE
         }
-        
-        Console.WriteLine(distances.MaxBy(d => d.Value).Value);
+
+        Console.WriteLine(distances.Max(d => d.Value));
     }
 
-    private void TraversePipe(GridElement<char> start, Direction direction, Grid<char> grid, Dictionary<Point, int> distances) // start at neighbour, make that more clear
+    private static void TraversePipe(GridElement<char> start, Direction direction, Grid<char> grid, Dictionary<Point, int> distances) 
     {
         var current = start;
         for (var iterations = 1;; iterations++) // start at one because we skip the first start node (S) node
@@ -155,7 +147,7 @@ public class Day10
 
             var currentDistance = distances.GetValueOrDefault(current.Position, int.MaxValue);
             distances[current.Position] = Math.Min(currentDistance, iterations);
-         
+            
             // prepare for next iteration
             var next = new GridElement<char>(nextPosition!, grid.At(nextPosition!));
             current = next;
@@ -164,13 +156,4 @@ public class Day10
     }
 
     private static readonly HashSet<char> Pipes = new() { '|', '-', 'L', 'J', '7', 'F', 'S' };
-
-    private enum Direction
-    {
-        None = 0,
-        North = 1,
-        East = 2,
-        South = 3,
-        West = 4
-    }
 }

@@ -205,12 +205,12 @@ public class Grid<T>
         return NeighbouringPoints(p, includeDiagonals).Select(np => new GridElement<T>(np, At(np)));
     }
 
-    public GridElement<T>? GetNeighbour(Point p, Helpers.Direction direction, bool wrap = false)
+    public GridElement<T>? GetNeighbour(Point p, Direction direction, bool wrap = false)
     {
         int x = 0, y = 0;
         switch (direction)
         {
-            case Helpers.Direction.North:
+            case Direction.North:
                 y = p.Y - 1;
 
                 if (p.Y == 0)
@@ -221,7 +221,7 @@ public class Grid<T>
                     y = Height - 1;
                 }
                 return new GridElement<T>(new Point(p.X, y), At(p.X, y));
-            case Helpers.Direction.East:
+            case Direction.East:
                 x = p.X + 1;
 
                 if (p.X == Width - 1)
@@ -232,7 +232,7 @@ public class Grid<T>
                     x = 0;
                 }
                 return new GridElement<T>(new Point(x, p.Y), At(x, p.Y));
-            case Helpers.Direction.South:
+            case Direction.South:
                 y = p.Y + 1;
 
                 if (p.Y == Height - 1)
@@ -243,7 +243,7 @@ public class Grid<T>
                     y = 0;
                 }
                 return new GridElement<T>(new Point(p.X, y), At(p.X, y));
-            case Helpers.Direction.West:
+            case Direction.West:
                 x = p.X - 1;
 
                 if (p.X == 0)

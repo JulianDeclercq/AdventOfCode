@@ -1,61 +1,47 @@
-﻿using AdventOfCode2023.helpers;
+﻿using System.Globalization;
+using AdventOfCode2023.helpers;
 
 namespace AdventOfCode2023.days;
 
 public static class Day18
 {
-    public static void Solve()
+    public static void Solve(bool part1)
     {
         var input = File
-            .ReadAllLines("../../../input/Day18.txt")
+            .ReadAllLines("../../../input/Day18e.txt")
             .Select(l =>
             { 
                 var split = l.Split(' ');
-                return (Direction: DirectionLookup[split[0][0]], Length: int.Parse(split[1]), Color: split[2][1..^1]);
+                if (part1) {
+                    return (Direction: DirectionLookup[split[0][0]], Length: int.Parse(split[1]));
+                }
+                
+                var color = split[2][1..^1];
+                return (Direction: DirectionLookup[color[^1]], Length: int.Parse(color[1..^1], NumberStyles.HexNumber));
             })
             .ToArray();
 
-        int minX = int.MaxValue, maxX = int.MinValue, curX = 0;
-        int minY = int.MaxValue, maxY = int.MinValue, curY = 0;
-        foreach (var (direction, length, _) in input)
-        {
-            switch (direction)
-            {
-                case Direction.North: curY -= length; break;
-                case Direction.East: curX += length; break;
-                case Direction.South: curY += length; break;
-                case Direction.West: curX -= length; break;
-            }
-            minX = Math.Min(minX, curX);
-            maxX = Math.Max(maxX, curX);
-            minY = Math.Min(minY, curY);
-            maxY = Math.Max(maxY, curY);
-        }
+        var start = new BigPoint(0, 0);
+        var current = start;
+        var points = new List<BigPoint> { start };
 
-        var width = Math.Max(Math.Abs(minX), maxX) * 2 + 10; // + 10 to create some margin for easy starting the middle
-        var height = Math.Max(Math.Abs(minY), maxY) * 2 + 10;
-        var grid = new Grid<char>(width, height, Enumerable.Repeat('.', width * height), '?');
-
-        var start = new Point(width / 2, height / 2);
-        var position = start;
-        
-        foreach (var (direction, length, color) in input)
+        foreach (var (direction, length) in input)
         {
-            for (var i = 0; i < length; ++i)
+            current += direction switch
             {
-                position += direction switch
-                {
-                    Direction.North => new Point(0, -1),
-                    Direction.East => new Point(1, 0),
-                    Direction.South => new Point(0, 1),
-                    Direction.West => new Point(-1, 0),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-                grid.Set(position, '#');
-            }
+                Direction.North => new BigPoint(0, length),
+                Direction.East => new BigPoint(length, 0),
+                Direction.South => new BigPoint(0, -length),
+                Direction.West => new BigPoint(-length, 0),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            points.Add(current);
         }
-        FloodFill(grid, start + new Point(1, -1)); // trial and error for where to fill, filled the outside first by accident
-        Console.WriteLine(grid.All().Count(a => a.Equals('#')));
+        points.Add(start); // close the polygon
+
+        var area = CalculateArea(points);
+        var perimeter = CalculatePerimeter(points);
+        Console.WriteLine(area + (perimeter / 2) + 1);
     }
 
     private static readonly Dictionary<char, Direction> DirectionLookup = new()
@@ -64,8 +50,14 @@ public static class Day18
         ['R'] = Direction.East,
         ['D'] = Direction.South,
         ['L'] = Direction.West,
+        
+        ['0'] = Direction.East,
+        ['1'] = Direction.South,
+        ['2'] = Direction.West,
+        ['3'] = Direction.North,
     };
     
+    // Originally used for part 1
     private static void FloodFill(Grid<char> grid, Point start)
     {
         var frontier = new Queue<Point>();
@@ -87,5 +79,29 @@ public static class Day18
 
         foreach (var v in visited)
             grid.Set(v, '#');
+    }
+
+    private static long CalculateArea(IReadOnlyList<BigPoint> points)
+    {
+        var area = (long)Math.Round(Math.Abs(points.Take(points.Count - 1)
+            .Select((p, i) => (points[i + 1].X - p.X) * (points[i + 1].Y + p.Y))
+            .Aggregate((long)0, (x, y) => x + y) / 2.0));
+
+        return area;
+    }
+
+    private static long CalculatePerimeter(IReadOnlyList<BigPoint> points)
+    {
+        long perimeter = 0;
+
+        for (var i = 0; i < points.Count - 1; i++)
+            perimeter += Distance(points[i], points[i + 1]);
+
+        return perimeter;
+    }
+
+    private static long Distance(BigPoint p1, BigPoint p2)
+    {
+        return (long)Math.Sqrt((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
     }
 }

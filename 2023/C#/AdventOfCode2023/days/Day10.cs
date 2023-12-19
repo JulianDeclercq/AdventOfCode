@@ -1,5 +1,4 @@
 ﻿using AdventOfCode2023.helpers;
-using Direction = AdventOfCode2023.helpers.Helpers.Direction;
 
 namespace AdventOfCode2023.days;
 

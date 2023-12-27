@@ -18,7 +18,7 @@ public static class Day25
         }
 
         var totalNodes = ConnectedCount("hfx", Connections); // start connected
-        var bkpt = 5;
+        var brkpt = 5;
     }
 
     private static void AddConnections(string component, IEnumerable<string> connections)

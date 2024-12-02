@@ -12,6 +12,10 @@ public class Day2
 
         var answer = reports.Count(IsValidReport);
         Console.WriteLine(answer);
+        
+        // Part 2
+        var answer2 = reports.Sum(report => Variations(report).Any(IsValidReport) ? 1 : 0);
+        Console.WriteLine(answer2);
     }
 
     private static bool IsValidReportAscending(int[] report)
@@ -41,5 +45,18 @@ public class Day2
     private static bool IsValidReport(int[] report)
     {
         return IsValidReportAscending(report) || IsValidReportDescending(report);
+    }
+
+    private static List<int[]> Variations(int[] report)
+    {
+        List<int[]> possibilities = [];
+        for (var i = 0; i < report.Length; ++i)
+        {
+            var copy = report.ToList();
+            copy.RemoveAt(i);
+            possibilities.Add(copy.ToArray());
+        }
+
+        return possibilities;
     }
 }

@@ -37,83 +37,19 @@ public class Day4
 
         // SE diagonals right hand side of top left
         Console.WriteLine("SE diagonals");
-        foreach (var element in grid.Rows().First())
-        {
-            var current = element;
-            var neighbours = "" + current.Value;
-            
-            for (;;)
-            {
-                current = grid.GetNeighbour(current.Position, GridNeighbourType.Se);
-                if (current is null)
-                    break;
-
-                neighbours += current.Value;
-            }
-
-            CountXmas(neighbours);
-            CountXmas(new string(neighbours.Reverse().ToArray()));
-        }
+        Diagonal(grid, grid.Rows().First(), GridNeighbourType.Se);
         
         // SE diagonals left hand side of top left
         // skip one since that's already handled in previous foreach
-        foreach (var element in grid.Columns().First().Skip(1))
-        {
-            var current = element;
-            var neighbours = "" + current.Value;
-                
-            for (;;)
-            {
-                current = grid.GetNeighbour(current.Position, GridNeighbourType.Se);
-                if (current is null)
-                    break;
-
-                neighbours += current.Value;
-            }
-
-            CountXmas(neighbours);
-            CountXmas(new string(neighbours.Reverse().ToArray()));
-        }
+        Diagonal(grid, grid.Columns().First().Skip(1), GridNeighbourType.Se);
         
         // SW diagonals left hand side of top right
         Console.WriteLine("SW diagonals");
-        foreach (var element in grid.Rows().First())
-        {
-            var current = element;
-            var neighbours = "" + current.Value;
-            
-            for (;;)
-            {
-                current = grid.GetNeighbour(current.Position, GridNeighbourType.Sw);
-                if (current is null)
-                    break;
-
-                neighbours += current.Value;
-            }
-
-            CountXmas(neighbours);
-            CountXmas(new string(neighbours.Reverse().ToArray()));
-        }
+        Diagonal(grid, grid.Rows().First(), GridNeighbourType.Sw);
         
         // SW diagonals right hand side of top right
         // skip one since that's already handled in previous foreach
-        foreach (var element in grid.Columns().Last().Skip(1))
-        {
-            var current = element;
-            var neighbours = "" + current.Value;
-            
-            for (;;)
-            {
-                current = grid.GetNeighbour(current.Position, GridNeighbourType.Sw);
-                if (current is null)
-                    break;
-
-                neighbours += current.Value;
-            }
-
-            CountXmas(neighbours);
-            CountXmas(new string(neighbours.Reverse().ToArray()));
-        }
+        Diagonal(grid, grid.Columns().Last().Skip(1), GridNeighbourType.Sw);
         Console.WriteLine(_answer);
     }
 
@@ -124,4 +60,26 @@ public class Day4
         _answer += matches.Count;
         Console.WriteLine($"Found {matches.Count} matches in {input}, total is now at {_answer}");
     }
+
+    private void Diagonal(Grid<char> grid, IEnumerable<GridElement<char>> collection, GridNeighbourType direction)
+    {
+        foreach (var element in collection)
+        {
+            var current = element;
+            var neighbours = "" + current.Value;
+            
+            for (;;)
+            {
+                current = grid.GetNeighbour(current.Position, direction);
+                if (current is null)
+                    break;
+
+                neighbours += current.Value;
+            }
+
+            CountXmas(neighbours);
+            CountXmas(new string(neighbours.Reverse().ToArray()));
+        }
+    }
+    
 }

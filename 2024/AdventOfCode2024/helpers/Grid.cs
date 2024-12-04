@@ -158,7 +158,7 @@ public class Grid<T>
         return neighbours.Where(n => n != null && !n.Equals(_invalid));
     }
 
-    public GridElement<T> GetNeighbour(Point p, GridNeighbourType type)
+    public GridElement<T>? GetNeighbour(Point p, GridNeighbourType type)
     {
         var neighbour = type switch
         {
@@ -174,7 +174,7 @@ public class Grid<T>
         };
 
         if (!ValidPoint(neighbour))
-            throw new ArgumentOutOfRangeException($"{type} neighbour of {p} was outside of the grid boundaries.");
+            return null;
         
         return new GridElement<T>(neighbour, At(neighbour));
     }

@@ -5,15 +5,14 @@ namespace AdventOfCode2024;
 
 public class Day4
 {
-    private int _answer = 0;
-    public void Solve()
+    private int _part1Answer = 0;
+    public void SolvePart1()
     {
         var lines = File.ReadAllLines("input/day4.txt");
         const char invalid = '@';
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
         
         // horizontal
-        Console.WriteLine("Horizontals");
         foreach (var rowCells in grid.Rows())
         {
             var row = new string(rowCells.Select(cell => cell.Value).ToArray());
@@ -24,7 +23,6 @@ public class Day4
         }
         
         // vertical
-        Console.WriteLine("Verticals");
         foreach (var columCell in grid.Columns())
         {
             var column = new string(columCell.Select(cell => cell.Value).ToArray());
@@ -35,24 +33,20 @@ public class Day4
         }
 
         // SE diagonals right hand side of top left
-        Console.WriteLine("SE diagonals");
         Diagonal(grid, grid.Rows().First(), GridNeighbourType.Se);
         
-        // SE diagonals left hand side of top left
-        // skip one since that's already handled in previous foreach
+        // SE diagonals left hand side of top left, skip one since that's already handled in previous Diagonal
         Diagonal(grid, grid.Columns().First().Skip(1), GridNeighbourType.Se);
         
         // SW diagonals left hand side of top right
-        Console.WriteLine("SW diagonals");
         Diagonal(grid, grid.Rows().First(), GridNeighbourType.Sw);
         
-        // SW diagonals right hand side of top right
-        // skip one since that's already handled in previous foreach
+        // SW diagonals right hand side of top right, skip one since that's already handled in the previous Diagonal
         Diagonal(grid, grid.Columns().Last().Skip(1), GridNeighbourType.Sw);
-        Console.WriteLine(_answer);
+        Console.WriteLine(_part1Answer);
     }
 
-    public void Solve2()
+    public void SolvePart2()
     {
         var lines = File.ReadAllLines("input/day4.txt");
         const char invalid = '@';
@@ -89,8 +83,8 @@ public class Day4
     {
         var regex = new Regex("XMAS");
         var matches = regex.Matches(input);
-        _answer += matches.Count;
-        Console.WriteLine($"Found {matches.Count} matches in {input}, total is now at {_answer}");
+        _part1Answer += matches.Count;
+        Console.WriteLine($"Found {matches.Count} matches in {input}, total is now at {_part1Answer}");
     }
 
     private void Diagonal(Grid<char> grid, IEnumerable<GridElement<char>> collection, GridNeighbourType direction)
@@ -113,5 +107,4 @@ public class Day4
             CountXmas(new string(neighbours.Reverse().ToArray()));
         }
     }
-    
 }

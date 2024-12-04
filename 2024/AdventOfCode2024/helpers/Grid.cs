@@ -260,7 +260,6 @@ public class Grid<T>
 
     }
 
-
     // checks if the point is within bounds
     private bool ValidPoint(Point point) 
         => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
@@ -268,7 +267,7 @@ public class Grid<T>
     public int Width { get; }
     public int Height { get; }
     private readonly T _invalid;
-    private readonly List<T> _cells = new();
+    private readonly List<T> _cells = [];
 
     public override string ToString()
     {

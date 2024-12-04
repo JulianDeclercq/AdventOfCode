@@ -11,7 +11,6 @@ public class Day4
         var lines = File.ReadAllLines("input/day4.txt");
         const char invalid = '@';
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
-
         
         // horizontal
         Console.WriteLine("Horizontals");
@@ -51,6 +50,39 @@ public class Day4
         // skip one since that's already handled in previous foreach
         Diagonal(grid, grid.Columns().Last().Skip(1), GridNeighbourType.Sw);
         Console.WriteLine(_answer);
+    }
+
+    public void Solve2()
+    {
+        var lines = File.ReadAllLines("input/day4.txt");
+        const char invalid = '@';
+        var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
+        var answer = 0;
+        foreach (var element in grid.AllExtended())
+        {
+            if (element.Value is not 'A')
+                continue;
+            
+            // check from the middle outwards, so ignore elements without all neighbours
+            if (grid.Neighbours(element.Position).ToArray().Length != 8)
+                continue;
+
+            var nw = grid.GetNeighbour(element.Position, GridNeighbourType.Nw)!.Value;
+            var ne = grid.GetNeighbour(element.Position, GridNeighbourType.Ne)!.Value;
+            var sw = grid.GetNeighbour(element.Position, GridNeighbourType.Sw)!.Value;
+            var se = grid.GetNeighbour(element.Position, GridNeighbourType.Se)!.Value;
+
+            // South-east diagonal
+            if ((nw is 'M' && se is 'S') || (nw is 'S' && se is 'M'))
+            {
+                // South-west diagonal
+                if ((sw is 'M' && ne is 'S') || (sw is 'S' && ne is 'M'))
+                {
+                    answer++;
+                }
+            }
+        }
+        Console.WriteLine(answer);
     }
 
     private void CountXmas(string input)

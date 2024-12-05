@@ -29,14 +29,24 @@ public class Day5
             .Select(l => l
                 .Split(',')
                 .Select(int.Parse)
-                .ToArray());
+                .ToArray())
+            .ToArray();
 
-        foreach (var page in pages)
+        for (var i = 0; i < pages.Length; ++i)
         {
             var correct = true;
+            
+            var page = pages[i];
             foreach (var update in page)
             {
-                
+                var lel = lookup[update];
+                var rev = reverseLookup[update];
+                var rest = page.Skip(i + 1).ToHashSet();
+                if (rev.Any(x => rest.Contains(x)))
+                {
+                    
+                }
+
             }
         }
     }

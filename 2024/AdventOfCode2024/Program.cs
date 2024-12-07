@@ -1,3 +1,3 @@
 ﻿using AdventOfCode2024;
 
-Day5.Solve();
+Day7.Solve();

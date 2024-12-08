@@ -8,8 +8,8 @@ public class Day6
     public static void Solve()
     {
         var lines = File.ReadAllLines("input/day6.txt");
+        
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), Invalid);
-
         var start = grid.AllExtended().Single(cell => cell.Value is Guard).Position;
 
         List<Grid<char>> possibilities = [];
@@ -23,24 +23,27 @@ public class Day6
             possibilities.Add(copy);
         }
 
-        var answer = possibilities.Count(p => IsLoop(p, start));
-        Console.WriteLine(answer);
+        Console.WriteLine(possibilities.Count(p => IsLoop(p, start)));
     }
 
     private static bool IsLoop(Grid<char> grid, Point start)
     {
         var current = start;
         var direction = Direction.North;
-        HashSet<Point> visited = [];
+        Dictionary<Point, Direction> visitedExt = [];
+        // HashSet<Point> visited = [];
         for (;;)
         {
-            if (visited.Contains(current))
-                return true;
+            if (visitedExt.TryGetValue(current, out var visitedDirection))
+            {
+                if (visitedDirection == direction) // loop detected
+                    return true;
+            }
             
             var next = grid.GetNeighbour(current, direction);
             if (next == null)
             {
-                visited.Add(current);
+                visitedExt.TryAdd(current, direction);
                 break;
             }
             
@@ -53,8 +56,11 @@ public class Day6
                 case Empty:
                     grid.Set(next.Position, Guard);  
                     grid.Set(current, Empty);
-                    visited.Add(current);
+                    
+                    visitedExt.TryAdd(current, direction);
+                        
                     current = next.Position;
+                    
                     break;
                 default: throw new Exception($"Unhandled case {next.Value}");
             }

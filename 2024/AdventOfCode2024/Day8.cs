@@ -21,19 +21,19 @@ public class Day8
         // build anti-nodes
         foreach (var frequency in frequencies)
         {
-            var positions = antennas
+            var frequencyCells = antennas
                 .AllExtended()
                 .Where(cell => cell.Value == frequency)
                 .ToList();
 
-            for (var i = 0; i < positions.Count; ++i)
+            for (var i = 0; i < frequencyCells.Count; ++i)
             {
-                for (var j = 0; j < positions.Count; ++j)
+                for (var j = 0; j < frequencyCells.Count; ++j)
                 {
                     if (i == j)
                         continue;
 
-                    GridElement<char> lhs = positions[i], rhs = positions[j];
+                    GridElement<char> lhs = frequencyCells[i], rhs = frequencyCells[j];
                     if (lhs.Value == rhs.Value)
                     {
                         var diff = new Point(lhs.Position.X - rhs.Position.X, lhs.Position.Y - rhs.Position.Y);

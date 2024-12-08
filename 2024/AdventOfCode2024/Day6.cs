@@ -4,41 +4,64 @@ namespace AdventOfCode2024;
 
 public class Day6
 {
+    private const char Invalid = '@', Guard = '^', Empty = '.', Obstacle = '#';
     public static void Solve()
     {
         var lines = File.ReadAllLines("input/day6.txt");
-        const char invalid = '@', guard = '^', empty = '.', wall = '#';
-        var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
+        var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), Invalid);
 
-        var current = grid.AllExtended().Single(cell => cell.Value is guard)!;
+        var start = grid.AllExtended().Single(cell => cell.Value is Guard).Position;
+
+        List<Grid<char>> possibilities = [];
+        foreach (var cell in grid.AllExtended())
+        {
+            if (cell.Value is not Empty)
+                continue;
+            
+            var copy = grid.ShallowCopy();
+            copy.Set(cell.Position, Obstacle);
+            possibilities.Add(copy);
+        }
+
+        var answer = possibilities.Count(p => IsLoop(p, start));
+        Console.WriteLine(answer);
+    }
+
+    private static bool IsLoop(Grid<char> grid, Point start)
+    {
+        var current = start;
         var direction = Direction.North;
         HashSet<Point> visited = [];
         for (;;)
         {
-            var next = grid.GetNeighbour(current.Position, direction);
+            if (visited.Contains(current))
+                return true;
+            
+            var next = grid.GetNeighbour(current, direction);
             if (next == null)
             {
-                visited.Add(current.Position);
+                visited.Add(current);
                 break;
             }
             
             switch (next.Value)
             {
-                case wall:
+                case Obstacle:
                     // currently not changing the visual direction of the arrow
                     direction = NextClockwise(direction);
                     break;
-                case empty:
-                    grid.Set(next.Position, guard);  
-                    grid.Set(current.Position, empty);
-                    visited.Add(current.Position);
-                    current = next;
+                case Empty:
+                    grid.Set(next.Position, Guard);  
+                    grid.Set(current, Empty);
+                    visited.Add(current);
+                    current = next.Position;
                     break;
                 default: throw new Exception($"Unhandled case {next.Value}");
             }
             // Console.WriteLine(grid);
         }
-        Console.WriteLine(visited.Count);
+
+        return false;
     }
 
     private static Direction NextClockwise(Direction direction)

@@ -5,13 +5,22 @@ namespace AdventOfCode2024;
 public class Day6
 {
     private const char Invalid = '@', Guard = '^', Empty = '.', Obstacle = '#';
-    public static void Solve()
+    public static void Solve(int part)
     {
-        var lines = File.ReadAllLines("input/day6.txt");
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
         
+        var lines = File.ReadAllLines("input/day6.txt");
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), Invalid);
         var start = grid.AllExtended().Single(cell => cell.Value is Guard).Position;
 
+        if (part is 1)
+        {
+            Part1(grid, start);
+            return;
+        }
+
+        // Part 2
         List<Grid<char>> possibilities = [];
         foreach (var cell in grid.AllExtended())
         {
@@ -26,12 +35,44 @@ public class Day6
         Console.WriteLine(possibilities.Count(p => IsLoop(p, start)));
     }
 
+    private static void Part1(Grid<char> grid, Point start)
+    {
+        var current = start;
+        var direction = Direction.North;
+        HashSet<Point> visited = [];
+        for (;;)
+        {
+            var next = grid.GetNeighbour(current, direction);
+            if (next == null)
+            {
+                visited.Add(current);
+                break;
+            }
+
+            switch (next.Value)
+            {
+                case Obstacle:
+                    // currently not changing the visual direction of the arrow
+                    direction = NextClockwise(direction);
+                    break;
+                case Empty:
+                    grid.Set(next.Position, Guard);
+                    grid.Set(current, Empty);
+                    visited.Add(current);
+                    current = next.Position;
+                    break;
+                default: throw new Exception($"Unhandled case {next.Value}");
+            }
+        }
+
+        Console.WriteLine(visited.Count);
+    }
+
     private static bool IsLoop(Grid<char> grid, Point start)
     {
         var current = start;
         var direction = Direction.North;
         Dictionary<Point, Direction> visitedExt = [];
-        // HashSet<Point> visited = [];
         for (;;)
         {
             if (visitedExt.TryGetValue(current, out var visitedDirection))

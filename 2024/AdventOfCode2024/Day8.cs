@@ -4,8 +4,11 @@ namespace AdventOfCode2024;
 
 public class Day8
 {
-    public static void Solve()
+    public static void Solve(int part = 1)
     {
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+        
         const char invalid = '@', antiNode = '#';
         var lines = File.ReadAllLines("input/day8.txt");
         var characters = lines.SelectMany(c => c).ToArray();
@@ -33,24 +36,29 @@ public class Day8
                     GridElement<char> lhs = positions[i], rhs = positions[j];
                     if (lhs.Value == rhs.Value)
                     {
-                        // create an anti-node
-                        
-                        // by definition, all antennas are now also anti-nodes since they are on their own line
-                        antiNodes.Set(lhs.Position, antiNode);
-
                         var diff = new Point(lhs.Position.X - rhs.Position.X, lhs.Position.Y - rhs.Position.Y);
+                        
+                        if (part is 1)
+                        {
+                            antiNodes.Set(lhs.Position + diff, antiNode);
+                            continue;
+                        }
+
+                        // part 2
                         var current = lhs.Position;
                         while (antennas.ValidPoint(current + diff))
                         {
                             antiNodes.Set(current + diff, antiNode);
                             current += diff;
                         }
+                        
+                        // by definition, all antennas are now also anti-nodes since they are on their own line
+                        antiNodes.Set(lhs.Position, antiNode);
                     }
                 }
             }
         }
         
-        // Console.WriteLine(antiNodes);
         Console.WriteLine(antiNodes.All().Count(c => c == antiNode));
     }
 }

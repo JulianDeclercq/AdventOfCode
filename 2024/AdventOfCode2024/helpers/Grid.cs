@@ -261,8 +261,10 @@ public class Grid<T>
     }
 
     // checks if the point is within bounds
-    private bool ValidPoint(Point point) 
-        => point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
+    public bool ValidPoint(Point point)
+    {
+        return point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
+    }
     
     public int Width { get; }
     public int Height { get; }

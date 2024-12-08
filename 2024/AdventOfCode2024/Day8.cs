@@ -6,8 +6,8 @@ public class Day8
 {
     public static void Solve()
     {
-        const char invalid = '@';
-        var lines = File.ReadAllLines("input/day8e2.txt");
+        const char invalid = '@', antiNode = '#';
+        var lines = File.ReadAllLines("input/day8.txt");
         var characters = lines.SelectMany(c => c).ToArray();
         var antennas = new Grid<char>(lines[0].Length, lines.Length, characters, invalid);
         var antiNodes = new Grid<char>(antennas.Width, antennas.Height, 
@@ -34,17 +34,23 @@ public class Day8
                     if (lhs.Value == rhs.Value)
                     {
                         // create an anti-node
-                        Console.WriteLine($"Match found {lhs.Position}, {rhs.Position}");
-                        var xDiff = lhs.Position.X - rhs.Position.X;
-                        var yDiff = lhs.Position.Y - rhs.Position.Y;
-                        Console.WriteLine($"{xDiff}, {yDiff}");
+                        
+                        // by definition, all antennas are now also anti-nodes since they are on their own line
+                        antiNodes.Set(lhs.Position, antiNode);
 
-                        antiNodes.Set(lhs.Position.X + xDiff, lhs.Position.Y + yDiff, '#');
+                        var diff = new Point(lhs.Position.X - rhs.Position.X, lhs.Position.Y - rhs.Position.Y);
+                        var current = lhs.Position;
+                        while (antennas.ValidPoint(current + diff))
+                        {
+                            antiNodes.Set(current + diff, antiNode);
+                            current += diff;
+                        }
                     }
                 }
             }
         }
         
-        Console.WriteLine(antiNodes);
+        // Console.WriteLine(antiNodes);
+        Console.WriteLine(antiNodes.All().Count(c => c == antiNode));
     }
 }

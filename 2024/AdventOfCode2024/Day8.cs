@@ -45,10 +45,10 @@ public class Day8
                         }
 
                         // part 2
-                        var current = lhs.Position;
-                        while (antennas.ValidPoint(current + diff))
+                        var current = lhs.Position + diff;
+                        while (antennas.ValidPoint(current))
                         {
-                            antiNodes.Set(current + diff, antiNode);
+                            antiNodes.Set(current, antiNode);
                             current += diff;
                         }
                         

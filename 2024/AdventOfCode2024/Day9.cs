@@ -57,6 +57,8 @@ public class Day9
 
     private static void Part1(List<char> disk)
     {
+        // Console.WriteLine(string.Join("", disk));
+        
         var lastIndexTaken = disk.Count;
         for (var i = 0; i < disk.Count; ++i)
         {
@@ -86,29 +88,64 @@ public class Day9
     
     private static void Part2(List<char> disk)
     {
-        var lastIndexTaken = disk.Count;
-        for (var i = 0; i < disk.Count; ++i)
+        var original = disk.ToList();
+        
+        var reverseOffset = 0;
+        HashSet<char> processedGroups = [];
+        
+        // Console.WriteLine(string.Join("", disk));
+        for (;;)
         {
-            // Console.WriteLine(string.Join("", disk));
-            
-            // break if we've reached the last thing we've taken, this means all empty spots up until now have been filled
-            if (lastIndexTaken <= i)
-                break;
+            var reversed = original.ToList();
+            reversed.Reverse();
 
-            if (disk[i] is not Empty)
-                continue;
+            var firstNonEmpty = reversed.Skip(reverseOffset).ToList().FindIndex(c => c is not Empty);
+            reverseOffset += firstNonEmpty;
+            var groupId = reversed[reverseOffset];
+
+            var progress = (int)groupId;
+            if (progress % 100 == 0)
+                Console.WriteLine($"{10000 - groupId}" );
+            // Console.WriteLine($"REVERSE OFFSET {reverseOffset}, group ID: {groupId}");
             
-            // find the last non-empty character
-            // for (var j = disk.Count - 1; j > i; --j)
-            for (var j = lastIndexTaken - 1; j > i; --j)
+            // exit condition: this group has already been processed
+            if (!processedGroups.Add(groupId))
+                break;
+            
+            var fileSize = reversed.Skip(reverseOffset).TakeWhile(c => c == groupId).Count();
+
+            // find an empty fitting space
+            var searchOffset = 0;
+            for (;;)
             {
-                if (disk[j] is not Empty)
+                // no match
+                var noLongerToTheLeft = searchOffset >= disk.FindIndex(c => c == groupId);
+                if (searchOffset >= disk.Count || noLongerToTheLeft)
                 {
-                    lastIndexTaken = j;
-                    disk[i] = disk[lastIndexTaken];
-                    disk[lastIndexTaken] = '.';
+                    reverseOffset += fileSize;
                     break;
                 }
+                
+                var relativeIndex = disk.Skip(searchOffset + 1).ToList().FindIndex(c => c is Empty);
+                var emptyStart = searchOffset + relativeIndex + 1; // sure this is also +1?
+                var emptySpace = disk.Skip(emptyStart).TakeWhile(c => c is Empty).Count(); // skip off by one?
+
+                if (fileSize > emptySpace)
+                {
+                    searchOffset = emptyStart + emptySpace;
+                    continue;
+                }
+
+                for (var i = 0; i < fileSize; ++i)
+                {
+                    disk[emptyStart + i] = groupId;
+                    disk[disk.Count - 1 - reverseOffset - i] = Empty;
+                    // Console.WriteLine(string.Join("", disk));
+                }
+                // Console.WriteLine(string.Join("", disk));
+
+                reverseOffset += fileSize;
+                break;
             }
         }
     }

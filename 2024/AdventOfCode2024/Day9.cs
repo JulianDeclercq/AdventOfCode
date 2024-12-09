@@ -5,11 +5,10 @@ public class Day9
     public static void Solve()
     {
         var input =
-            // File
-            // .ReadAllLines("input/day9e.txt")
-            // .Single()
-            // "12345"
-            "2333133121414131402"
+            File
+            .ReadAllLines("input/day9.txt")
+            .Single()
+            // "2333133121414131402"
             .Select(c => (int)char.GetNumericValue(c))
             .ToArray();
         
@@ -32,9 +31,10 @@ public class Day9
         
         // Process
         var lastIndexTaken = disk.Count;
-        Console.WriteLine(string.Join("", disk));
         for (var i = 0; i < disk.Count; ++i)
         {
+            // Console.WriteLine(string.Join("", disk));
+            
             // break if we've reached the last thing we've taken, this means all empty spots up until now have been filled
             if (lastIndexTaken <= i)
                 break;
@@ -54,7 +54,20 @@ public class Day9
                     break;
                 }
             }
-            Console.WriteLine(string.Join("", disk));
         }
+
+        long checksum = 0;
+        for (var i = 0; i < disk.Count; ++i)
+        {
+            if (disk[i] is empty)
+                continue;
+            
+            var lhs = i;
+            var rhs = (disk[i] - '0');
+            var result = lhs * rhs;
+            checksum += result;
+        }
+        
+        Console.WriteLine(checksum);
     }
 }

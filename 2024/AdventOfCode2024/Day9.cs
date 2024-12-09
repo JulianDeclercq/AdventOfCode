@@ -10,6 +10,8 @@ public class Day9
         
         var input =
             // File.ReadAllLines("input/day9.txt").Single()
+            // im suspecting the real input not to work because it goes to 10000 instead of 10 and that might not fit
+            // in a char. but then part 1 also shouldnt work so idk
             "2333133121414131402"
             .Select(c => (int)char.GetNumericValue(c))
             .ToArray();

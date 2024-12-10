@@ -10,19 +10,12 @@ public class Day10
         const char invalid = '@';
         var elements = lines.SelectMany(c => c).Select(c => char.IsDigit(c) ? c - '0' : -1); // for example
         var grid = new Grid<int>(lines[0].Length, lines.Length, elements, invalid);
-        // Console.WriteLine(grid);
 
         var trailHeads = grid.AllExtended()
             .Where(cell => cell.Value is 0)
-            // .Select(cell => cell.Position)
             .ToList();
 
-        // TODO: Verify uniqueness for ends?
-        var answer = 0;
-        foreach (var trailHead in trailHeads)
-        {
-            answer += ValidTrails(grid, trailHead).Count;
-        }
+        var answer = trailHeads.Sum(trailHead => ValidTrails(grid, trailHead).Count);
         Console.WriteLine(answer);
     }
 

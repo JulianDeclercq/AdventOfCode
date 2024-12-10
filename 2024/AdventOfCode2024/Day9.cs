@@ -2,17 +2,20 @@ namespace AdventOfCode2024;
 
 public class Day9
 {
-    public static void Solve()
+    private const char Empty = '.'; 
+    public static void Solve(int part)
     {
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+        
         var input =
-            File
-            .ReadAllLines("input/day9.txt")
-            .Single()
-            // "2333133121414131402"
+            // File.ReadAllLines("input/day9.txt").Single()
+            // im suspecting the real input not to work because it goes to 10000 instead of 10 and that might not fit
+            // in a char. but then part 1 also shouldnt work so idk
+            "2333133121414131402"
             .Select(c => (int)char.GetNumericValue(c))
             .ToArray();
         
-        const char empty = '.'; 
         List<char> disk = [];
 
         // Load
@@ -21,7 +24,7 @@ public class Day9
         foreach (var number in input)
         {
             for (var i = 0; i < number; ++i)
-                disk.Add(file ? (char)(id + '0') : empty);
+                disk.Add(file ? (char)(id + '0') : Empty);
 
             if (file)
                 id++;
@@ -30,6 +33,34 @@ public class Day9
         }
         
         // Process
+        if (part is 1)
+        {
+            Part1(disk);
+        }
+        else
+        {
+            Part2(disk);
+        }
+
+        long checksum = 0;
+        for (var i = 0; i < disk.Count; ++i)
+        {
+            if (disk[i] is Empty)
+                continue;
+            
+            var lhs = i;
+            var rhs = (disk[i] - '0');
+            var result = lhs * rhs;
+            checksum += result;
+        }
+        
+        Console.WriteLine(checksum);
+    }
+
+    private static void Part1(List<char> disk)
+    {
+        // Console.WriteLine(string.Join("", disk));
+        
         var lastIndexTaken = disk.Count;
         for (var i = 0; i < disk.Count; ++i)
         {
@@ -39,14 +70,14 @@ public class Day9
             if (lastIndexTaken <= i)
                 break;
 
-            if (disk[i] is not empty)
+            if (disk[i] is not Empty)
                 continue;
             
             // find the last non-empty character
             // for (var j = disk.Count - 1; j > i; --j)
             for (var j = lastIndexTaken - 1; j > i; --j)
             {
-                if (disk[j] is not empty)
+                if (disk[j] is not Empty)
                 {
                     lastIndexTaken = j;
                     disk[i] = disk[lastIndexTaken];
@@ -55,16 +86,69 @@ public class Day9
                 }
             }
         }
-
-        long checksum = 0;
-        for (var i = 0; i < disk.Count; ++i)
-        {
-            if (disk[i] is empty)
-                continue; // could probably break but don't want to risk it now before part 2 :)
-
-            checksum += i * (disk[i] - '0');
-        }
+    }
+    
+    private static void Part2(List<char> disk)
+    {
+        var original = disk.ToList();
         
-        Console.WriteLine(checksum);
+        var reverseOffset = 0;
+        HashSet<char> processedGroups = [];
+        
+        // Console.WriteLine(string.Join("", disk));
+        for (;;)
+        {
+            var reversed = original.ToList();
+            reversed.Reverse();
+
+            var firstNonEmpty = reversed.Skip(reverseOffset).ToList().FindIndex(c => c is not Empty);
+            reverseOffset += firstNonEmpty;
+            var groupId = reversed[reverseOffset];
+
+            var progress = (int)groupId;
+            if (progress % 100 == 0)
+                Console.WriteLine($"{10000 - groupId}" );
+            // Console.WriteLine($"REVERSE OFFSET {reverseOffset}, group ID: {groupId}");
+            
+            // exit condition: this group has already been processed
+            if (!processedGroups.Add(groupId))
+                break;
+            
+            var fileSize = reversed.Skip(reverseOffset).TakeWhile(c => c == groupId).Count();
+
+            // find an empty fitting space
+            var searchOffset = 0;
+            for (;;)
+            {
+                // no match
+                var noLongerToTheLeft = searchOffset >= disk.FindIndex(c => c == groupId);
+                if (searchOffset >= disk.Count || noLongerToTheLeft)
+                {
+                    reverseOffset += fileSize;
+                    break;
+                }
+                
+                var relativeIndex = disk.Skip(searchOffset + 1).ToList().FindIndex(c => c is Empty);
+                var emptyStart = searchOffset + relativeIndex + 1; // sure this is also +1?
+                var emptySpace = disk.Skip(emptyStart).TakeWhile(c => c is Empty).Count(); // skip off by one?
+
+                if (fileSize > emptySpace)
+                {
+                    searchOffset = emptyStart + emptySpace;
+                    continue;
+                }
+
+                for (var i = 0; i < fileSize; ++i)
+                {
+                    disk[emptyStart + i] = groupId;
+                    disk[disk.Count - 1 - reverseOffset - i] = Empty;
+                    // Console.WriteLine(string.Join("", disk));
+                }
+                // Console.WriteLine(string.Join("", disk));
+
+                reverseOffset += fileSize;
+                break;
+            }
+        }
     }
 }

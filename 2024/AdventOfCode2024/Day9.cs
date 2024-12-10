@@ -60,12 +60,9 @@ public class Day9
         for (var i = 0; i < disk.Count; ++i)
         {
             if (disk[i] is empty)
-                continue;
-            
-            var lhs = i;
-            var rhs = (disk[i] - '0');
-            var result = lhs * rhs;
-            checksum += result;
+                continue; // could probably break but don't want to risk it now before part 2 :)
+
+            checksum += i * (disk[i] - '0');
         }
         
         Console.WriteLine(checksum);

@@ -15,7 +15,8 @@ public class Day10
             .Where(cell => cell.Value is 0)
             .ToList();
 
-        var answer = trailHeads.Sum(trailHead => ValidTrails(grid, trailHead).Count);
+        // var answer = trailHeads.Sum(trailHead => ValidTrails(grid, trailHead).Count);
+        var answer = trailHeads.Sum(trailHead => DistinctValidTrails(grid, trailHead));
         Console.WriteLine(answer);
     }
 
@@ -38,6 +39,30 @@ public class Day10
             // continue path from here
             // Console.WriteLine($"Continuing from {current}");
             trails.UnionWith(ValidTrails(grid, neighbour));
+        }
+
+        return trails;
+    }
+    
+    private static int DistinctValidTrails(Grid<int> grid, GridElement<int> current)
+    {
+        var trails = 0;
+        foreach (var neighbour in grid.NeighboursExtended(current.Position, includeDiagonals: false))
+        {
+            if (neighbour.Value != current.Value + 1)
+                continue;
+            
+            // end of trail
+            if (neighbour.Value is 9)
+            {
+                // Console.WriteLine($"Found trail at {neighbour}, coming from {current}");
+                trails++;
+                continue;
+            }
+                
+            // continue path from here
+            // Console.WriteLine($"Continuing from {current}");
+            trails += DistinctValidTrails(grid, neighbour);
         }
 
         return trails;

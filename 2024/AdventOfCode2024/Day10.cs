@@ -4,19 +4,26 @@ namespace AdventOfCode2024;
 
 public class Day10
 {
-    public static void Solve()
+    public static void Solve(int part)
     {
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+        
         var lines = File.ReadAllLines("input/day10.txt");
         const char invalid = '@';
-        var elements = lines.SelectMany(c => c).Select(c => char.IsDigit(c) ? c - '0' : -1); // for example
+        
+        // handle non-digits to try out the examples that have '.'
+        var elements = lines.SelectMany(c => c).Select(c => char.IsDigit(c) ? c - '0' : -1);
         var grid = new Grid<int>(lines[0].Length, lines.Length, elements, invalid);
 
         var trailHeads = grid.AllExtended()
             .Where(cell => cell.Value is 0)
             .ToList();
 
-        // var answer = trailHeads.Sum(trailHead => ValidTrails(grid, trailHead).Count);
-        var answer = trailHeads.Sum(trailHead => DistinctValidTrails(grid, trailHead));
+        var answer = part is 1
+            ? trailHeads.Sum(trailHead => ValidTrails(grid, trailHead).Count)
+            : trailHeads.Sum(trailHead => DistinctValidTrails(grid, trailHead));
+        
         Console.WriteLine(answer);
     }
 
@@ -31,13 +38,11 @@ public class Day10
             // end of trail
             if (neighbour.Value is 9)
             {
-                // Console.WriteLine($"Found trail at {neighbour}, coming from {current}");
                 trails.Add(neighbour.Position);
                 continue;
             }
                 
             // continue path from here
-            // Console.WriteLine($"Continuing from {current}");
             trails.UnionWith(ValidTrails(grid, neighbour));
         }
 
@@ -55,13 +60,11 @@ public class Day10
             // end of trail
             if (neighbour.Value is 9)
             {
-                // Console.WriteLine($"Found trail at {neighbour}, coming from {current}");
                 trails++;
                 continue;
             }
                 
             // continue path from here
-            // Console.WriteLine($"Continuing from {current}");
             trails += DistinctValidTrails(grid, neighbour);
         }
 

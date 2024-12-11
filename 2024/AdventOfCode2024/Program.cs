@@ -2,8 +2,7 @@
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-Day10.Solve(part: 1);
-Day10.Solve(part: 2);
+Day11.Solve();
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

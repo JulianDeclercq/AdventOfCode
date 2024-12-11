@@ -15,33 +15,52 @@ public class Day11
             [1] = [2024]
         };
 
+        var lengthMemo = new Dictionary<long, long>(); // genuinely don't know if needed
+
         const int blinks = 75;
         long answer = 0;
+        
         for (var i = 0; i < stones.Count; ++i)
         {
-            // Console.WriteLine($"Processing stone {i}");
             List<long> transformed = [stones[i]];
             for (var j = 0; j < blinks; ++j)
             {
-                Console.WriteLine($"Processing stone {i}, blink {j}");
-                List<long> stonesToProcess = [];
-                foreach (var kek in transformed)
+                List<long> kek = [];
+                foreach (var stone in transformed)
                 {
-                    stonesToProcess.AddRange(NextStep(kek, nextStepMemo));
+                    var nextStep = NextStep(stone, nextStepMemo);
+                    answer += GetProcreationNumba(stone, lengthMemo, nextStepMemo);
+                    kek.AddRange(nextStep);
                 }
-                transformed = stonesToProcess;
-            }
 
-            answer += transformed.Count;
+                transformed = kek;
+                Console.WriteLine(transformed.Count);
+            }
         }
         
         Console.WriteLine(answer);
     }
 
+    private static long GetProcreationNumba(long stone, Dictionary<long, long> lengthMemo, Dictionary<long, List<long>> nextStepMemo)
+    {
+        // memod
+        if (lengthMemo.TryGetValue(stone, out var value))
+            return value;
+
+        // not memod
+        var nextStep = NextStep(stone, nextStepMemo);
+        lengthMemo.TryAdd(stone, nextStep.Count);
+        return nextStep.Count;
+    }
+
     private static List<long> NextStep(long stone, Dictionary<long, List<long>> nextStepMemo)
     {
+        // Console.WriteLine($"Calculating next step for {stone}");
         if (nextStepMemo.TryGetValue(stone, out var value))
+        {
+            // Console.WriteLine($"Next step was memod for {stone}");
             return value;
+        }
         
         // calculate value
         List<long> result = [];
@@ -67,14 +86,9 @@ public class Day11
 
         return result;
     }
-
-    private static long StonesAfterXSteps(long stone, Dictionary<long, List<long>> nextStepMemo)
-    {
-        if (!nextStepMemo.TryGetValue(stone, out var value))
-            throw new Exception("this should have been in here by now");
-        
-        // TODO: Do i need a separate memo for this method as well?
-
-        return value.Count;
-    }
 }
+
+// Q: How do I know, for a certain stone, how many it is going to have created after X steps?
+// for a certain stone, it is going to be NextStep(long stone).length which is memoable
+// for those stones it will be the same, that's the next step
+// repeat

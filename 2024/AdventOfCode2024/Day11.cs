@@ -9,32 +9,72 @@ public class Day11
         var input = "890 0 1 935698 68001 3441397 7221 27";
         var stones = input.Split(" ").Select(long.Parse).ToList();
 
-        const int steps = 25; 
-        for (var i = 0; i < steps; ++i)
+        var nextStepMemo = new Dictionary<long, List<long>>
         {
-            for (var j = 0; j < stones.Count; ++j)
+            [0] = [1],
+            [1] = [2024]
+        };
+
+        const int blinks = 75;
+        long answer = 0;
+        for (var i = 0; i < stones.Count; ++i)
+        {
+            // Console.WriteLine($"Processing stone {i}");
+            List<long> transformed = [stones[i]];
+            for (var j = 0; j < blinks; ++j)
             {
-                if (stones[j] is 0)
+                Console.WriteLine($"Processing stone {i}, blink {j}");
+                List<long> stonesToProcess = [];
+                foreach (var kek in transformed)
                 {
-                    stones[j] = 1;
-                    continue;
+                    stonesToProcess.AddRange(NextStep(kek, nextStepMemo));
                 }
-
-                var stoneString = stones[j].ToString();
-                if (stoneString.Length % 2 == 0)
-                {
-                    var lhs = stoneString[..(stoneString.Length / 2)];
-                    var rhs = stoneString[(stoneString.Length / 2)..];
-                    stones[j] = long.Parse(lhs);
-                    stones.Insert(j + 1, long.Parse(rhs)); // off by one?
-                    j++; // update loop index since we dont want to process the newly added stone
-                    continue;
-                }
-
-                stones[j] *= 2024;
+                transformed = stonesToProcess;
             }
+
+            answer += transformed.Count;
         }
         
-        Console.WriteLine(stones.Count);
+        Console.WriteLine(answer);
+    }
+
+    private static List<long> NextStep(long stone, Dictionary<long, List<long>> nextStepMemo)
+    {
+        if (nextStepMemo.TryGetValue(stone, out var value))
+            return value;
+        
+        // calculate value
+        List<long> result = [];
+        var stoneString = stone.ToString();
+        if (stoneString.Length % 2 == 0)
+        {
+            var lhs = stoneString[..(stoneString.Length / 2)];
+            var rhs = stoneString[(stoneString.Length / 2)..];
+            result.Add(long.Parse(lhs));
+            result.Add(long.Parse(rhs));
+        }
+        else
+        {
+            result.Add(stone * 2024);
+        }
+        
+        // add to memo and return
+        if (!nextStepMemo.TryAdd(stone, result))
+        {
+            throw new Exception($"Next step for {stone} was already in the memo," +
+                                $" was this done in a different execution path meanwhile?");
+        }
+
+        return result;
+    }
+
+    private static long StonesAfterXSteps(long stone, Dictionary<long, List<long>> nextStepMemo)
+    {
+        if (!nextStepMemo.TryGetValue(stone, out var value))
+            throw new Exception("this should have been in here by now");
+        
+        // TODO: Do i need a separate memo for this method as well?
+
+        return value.Count;
     }
 }

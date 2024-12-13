@@ -19,22 +19,21 @@ public class Day13
     
     public static void Solve()
     {
-        var clawMachines = ParseInput("day13.txt");
-        var answer = clawMachines.Select(FewestTokensForWin).Where(x => x is not null).Sum();
-        Console.WriteLine(answer);
+        Console.WriteLine(
+            ParseInput("day13.txt")
+            .Select(FewestTokensForWin)
+            .Where(x => x is not null)
+            .Sum());
     }
 
     private static int? FewestTokensForWin(ClawMachine clawMachine)
     {
         // Part 1 specifies that buttons should be max pressed 100 so let's go with that for now
-        
-        // List<(int a, int b)> possibilities = [];
         var cheapest = int.MaxValue;
         for (var a = 0; a <= 100; a++)
         {
             for (var b = 0; b <= 100; b++)
             {
-                // possibilities.Add((a, b));
                 var xOffset = (clawMachine.AOffset.X * a) + (clawMachine.BOffset.X * b);
                 var yOffset = (clawMachine.AOffset.Y * a) + (clawMachine.BOffset.Y * b);
                 var clawPosition = new Point(xOffset, yOffset);

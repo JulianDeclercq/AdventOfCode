@@ -63,7 +63,7 @@ public class Day13
         // a1x + b1y = c1
         // a2x + b2y = c2
         
-        // for our case, to keep the equations from the yt video / Cramer's rule the same we say that
+        // for our case, to keep the equations from the yt video / Cramer's rule the same we say that:
         // x is the amount of times the A button needs to be pressed
         // y is the amount of times the B button needs to be pressed
         

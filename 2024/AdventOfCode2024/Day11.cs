@@ -18,6 +18,9 @@ public class Day11
         const int blinks = 75;
         long answer = 0;
 
+        // just to print in the end, so I can see how many occurrences there actually were per stone
+        Dictionary<long, long> curiosity = [];
+        
         for (var i = 0; i < stones.Count; ++i)
         {
             // Console.WriteLine($"Processing stone {i}");
@@ -30,14 +33,14 @@ public class Day11
             {
                 // Console.WriteLine($"Processing stone {i}, blink {j + 1}");
                 Dictionary<long, long> stonesToProcess = [];
-                foreach (var stoneNumber in transformed)
+                foreach (var (stoneNumber, occurrences) in transformed)
                 {
-                    var nextStep = NextStep(stoneNumber.Key, nextStepMemo);
+                    var nextStep = NextStep(stoneNumber, nextStepMemo);
 
                     foreach (var nextStone in nextStep)
                     {
                         var currentOccurrences = stonesToProcess.GetValueOrDefault(nextStone, 0);
-                        stonesToProcess[nextStone] = currentOccurrences + stoneNumber.Value;
+                        stonesToProcess[nextStone] = currentOccurrences + occurrences;
                     }
                 }
                 transformed = stonesToProcess;
@@ -46,8 +49,11 @@ public class Day11
 
             foreach (var (_, occurrences) in transformed)
                 answer += occurrences;
+            
+            curiosity = transformed;
         }
         
+        PrintStoneOccurrences(curiosity);
         Console.WriteLine(answer);
     }
 

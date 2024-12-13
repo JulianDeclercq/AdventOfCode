@@ -52,21 +52,25 @@ public class Day13
     {
         // Great reddit thread explaining the mathematics reddit.com/r/adventofcode/comments/1hd7irq/2024_day_13_an_explanation_of_the_mathematics/
         // x coordinate will move with A times pressed a offset, and B times pressed b offset
-        // A*a_x + B*b_x = p_x
-        // OR FILLED IN: A * clawMachine.AOffset.X + B * clawMachine.BOffset.X = clawMachine.Prize.X
+        // A * a_x + B * b_x = p_x
+        // OR FILLED IN: A PRESSES * clawMachine.AOffset.X + B PRESSES * clawMachine.BOffset.X = clawMachine.Prize.X
         
-        // A*a_y + B*b_y = p_y
-        // OR FILLED IN: A * clawMachine.AOffset.Y + B * clawMachine.BOffset.Y = clawMachine.Prize.Y
+        // A * a_y + B * b_y = p_y
+        // OR FILLED IN: A PRESSES * clawMachine.AOffset.Y + B PRESSES * clawMachine.BOffset.Y = clawMachine.Prize.Y
         
         // Using Cramer's rule to solve this 2 by 2 system (2 unknowns, 2 linear equations (I think xD))
         // Great YouTube video https://www.youtube.com/watch?v=vXqlIOX2itM
         // a1x + b1y = c1
         // a2x + b2y = c2
         
-        // To find x and y (A button and B button in our case) we need the determinant (https://en.wikipedia.org/wiki/Determinant)
+        // for our case, to keep the equations from the yt video / Cramer's rule the same we say that
+        // x is the amount of times the A button needs to be pressed
+        // y is the amount of times the B button needs to be pressed
+        
+        // To find x and y we need the determinant (https://en.wikipedia.org/wiki/Determinant)
         // ab determinant of this 2x2 matrix (second part is on the next line) is a*d - b*c
         // cd
-        // If I'm reading this in the future and confused, look at how the 2 linear equations I wrote a couple lines
+        // If I'm reading this in the future and confused, look at the 2 linear equations I wrote a couple lines
         // then take upper left * lower right - upper right * lower left
         var determinant = clawMachine.AOffset.X * clawMachine.BOffset.Y - clawMachine.BOffset.X * clawMachine.AOffset.Y;
 
@@ -74,10 +78,10 @@ public class Day13
         // x = Dx / D
         // y = Dy / D
         
-        // Dx = c1*b2 - c2*b1
+        // Dx = c1*b2 - c2*b1 (see YouTube video)
         var dX = clawMachine.Prize.X * clawMachine.BOffset.Y - clawMachine.Prize.Y * clawMachine.BOffset.X;
         
-        // Dy = a1*c2 - a2*c1
+        // Dy = a1*c2 - a2*c1 (see YouTube video)
         var dY = clawMachine.AOffset.X * clawMachine.Prize.Y - clawMachine.AOffset.Y * clawMachine.Prize.X;
 
         var x = dX / determinant;

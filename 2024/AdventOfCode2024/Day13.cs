@@ -74,14 +74,13 @@ public class Day13
         // then take upper left * lower right - upper right * lower left
         var determinant = clawMachine.AOffset.X * clawMachine.BOffset.Y - clawMachine.BOffset.X * clawMachine.AOffset.Y;
 
-        // Values for x (A button) and y (B button)
+        // Formulas for x and y (see YouTube video)
         // x = Dx / D
         // y = Dy / D
+        // Dx = c1*b2 - c2*b1
+        // Dy = a1*c2 - a2*c1
         
-        // Dx = c1*b2 - c2*b1 (see YouTube video)
         var dX = clawMachine.Prize.X * clawMachine.BOffset.Y - clawMachine.Prize.Y * clawMachine.BOffset.X;
-        
-        // Dy = a1*c2 - a2*c1 (see YouTube video)
         var dY = clawMachine.AOffset.X * clawMachine.Prize.Y - clawMachine.AOffset.Y * clawMachine.Prize.X;
 
         var x = dX / determinant;

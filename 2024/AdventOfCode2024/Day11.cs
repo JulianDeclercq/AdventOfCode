@@ -5,8 +5,8 @@ public class Day11
     public static void Solve()
     {
         // var input = "0 1 10 99 999";
-        var input = "125 17";
-        // var input = "890 0 1 935698 68001 3441397 7221 27";
+        // var input = "125 17";
+        var input = "890 0 1 935698 68001 3441397 7221 27";
         var stones = input.Split(" ").Select(long.Parse).ToList();
 
         var nextStepMemo = new Dictionary<long, List<long>>
@@ -15,46 +15,37 @@ public class Day11
             [1] = [2024]
         };
 
-        const int blinks = 6;
+        const int blinks = 75;
         long answer = 0;
 
         for (var i = 0; i < stones.Count; ++i)
         {
             // Console.WriteLine($"Processing stone {i}");
-            List<long> transformed = [stones[i]];
-            var transformed2 = new Dictionary<long, long>
+            var transformed = new Dictionary<long, long>
             {
                 [stones[i]] = 1
             };
             
             for (var j = 0; j < blinks; ++j)
             {
-                Console.WriteLine($"Processing stone {i}, blink {j}");
-                List<long> stonesToProcess = [];
-                Dictionary<long, long> stonesToProcess2 = [];
-                // foreach (var kek in transformed)
-                foreach (var stoneNumber in transformed2)
+                // Console.WriteLine($"Processing stone {i}, blink {j + 1}");
+                Dictionary<long, long> stonesToProcess = [];
+                foreach (var stoneNumber in transformed)
                 {
                     var nextStep = NextStep(stoneNumber.Key, nextStepMemo);
 
                     foreach (var nextStone in nextStep)
                     {
-                        var currentOccurrences = stonesToProcess2.GetValueOrDefault(stoneNumber.Key, 0);
-                        stonesToProcess2[nextStone] = currentOccurrences + stoneNumber.Value;
+                        var currentOccurrences = stonesToProcess.GetValueOrDefault(nextStone, 0);
+                        stonesToProcess[nextStone] = currentOccurrences + stoneNumber.Value;
                     }
-                    
-                    // stonesToProcess.AddRange(nextStep);
                 }
-                // transformed = stonesToProcess;
-                transformed2 = stonesToProcess2;
-
-                PrintDictionary(transformed2);
+                transformed = stonesToProcess;
+                // PrintStoneOccurrences(transformed);
             }
 
-            foreach (var (_, occurrences) in transformed2)
+            foreach (var (_, occurrences) in transformed)
                 answer += occurrences;
-            
-            // answer += transformed.Count;
         }
         
         Console.WriteLine(answer);
@@ -100,9 +91,9 @@ public class Day11
         return value.Count;
     }
 
-    private static void PrintDictionary<T>(Dictionary<T, T> toPrint) where T : notnull
+    private static void PrintStoneOccurrences<T>(Dictionary<T, T> toPrint) where T : notnull
     {
         foreach (var (key, value) in toPrint)
-            Console.WriteLine($"{key}, {value}");
+            Console.WriteLine($"Stone number {key}, occurrences {value}");
     }
 }

@@ -73,22 +73,9 @@ public class Day11
         
         // add to memo and return
         if (!nextStepMemo.TryAdd(stone, result))
-        {
-            throw new Exception($"Next step for {stone} was already in the memo," +
-                                $" was this done in a different execution path meanwhile?");
-        }
+            throw new Exception($"Next step for {stone} was already in the memo");
 
         return result;
-    }
-
-    private static long StonesAfterXSteps(long stone, Dictionary<long, List<long>> nextStepMemo)
-    {
-        if (!nextStepMemo.TryGetValue(stone, out var value))
-            throw new Exception("this should have been in here by now");
-        
-        // TODO: Do i need a separate memo for this method as well?
-
-        return value.Count;
     }
 
     private static void PrintStoneOccurrences<T>(Dictionary<T, T> toPrint) where T : notnull

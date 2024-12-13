@@ -9,12 +9,6 @@ public class Day11
         var input = "890 0 1 935698 68001 3441397 7221 27";
         var stones = input.Split(" ").Select(long.Parse).ToList();
 
-        var nextStepMemo = new Dictionary<long, List<long>>
-        {
-            [0] = [1],
-            [1] = [2024]
-        };
-
         const int blinks = 75;
         long answer = 0;
 
@@ -35,9 +29,7 @@ public class Day11
                 Dictionary<long, long> stonesToProcess = [];
                 foreach (var (stoneNumber, occurrences) in transformed)
                 {
-                    var nextStep = NextStep(stoneNumber, nextStepMemo);
-
-                    foreach (var nextStone in nextStep)
+                    foreach (var nextStone in NextStep(stoneNumber))
                     {
                         var currentOccurrences = stonesToProcess.GetValueOrDefault(nextStone, 0);
                         stonesToProcess[nextStone] = currentOccurrences + occurrences;
@@ -57,10 +49,10 @@ public class Day11
         Console.WriteLine(answer);
     }
 
-    private static List<long> NextStep(long stone, Dictionary<long, List<long>> nextStepMemo)
+    private static List<long> NextStep(long stone)
     {
-        if (nextStepMemo.TryGetValue(stone, out var value))
-            return value;
+        if (stone is 0)
+            return [1];
         
         // calculate value
         List<long> result = [];
@@ -76,10 +68,6 @@ public class Day11
         {
             result.Add(stone * 2024);
         }
-        
-        // add to memo and return
-        if (!nextStepMemo.TryAdd(stone, result))
-            throw new Exception($"Next step for {stone} was already in the memo");
 
         return result;
     }

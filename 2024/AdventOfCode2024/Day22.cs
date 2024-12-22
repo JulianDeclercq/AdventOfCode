@@ -2,11 +2,26 @@ namespace AdventOfCode2024;
 
 public class Day22
 {
-    public static void Solve()
+    public static void Solve(int part)
     {
-        var lines = File.ReadAllLines("input/day22.txt").Select(long.Parse);
-        var answer = lines.Sum(secret => NextXSteps(secret, 2000));
-        Console.WriteLine(answer);
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+        
+        const int steps = 2000;
+        var secrets = File.ReadAllLines("input/day22.txt").Select(long.Parse).ToList();
+
+        if (part is 1)
+        {
+            Console.WriteLine(secrets.Sum(secret => NextXSteps(secret, steps)));
+            return;
+        }
+
+        Dictionary<long, List<int>> changes = [];
+        foreach (var secret in secrets)
+        {
+            if (!changes.TryAdd(secret, NextXStepsDifferences(secret, steps)))
+                throw new Exception($"Duplicate secret {secret}");
+        }
     }
 
     private static long NextXSteps(long secret, int steps)
@@ -18,28 +33,36 @@ public class Day22
         return current;
     }
 
+    private static List<int> NextXStepsDifferences(long secret, int steps)
+    {
+        List<int> differences = [];
+        var current = secret;
+        var currentSmall = (int)char.GetNumericValue(secret.ToString()[^1]); 
+        for (var i = 0; i < steps; ++i)
+        {
+            var next = Next(current);
+            var nextSmall = (int)char.GetNumericValue(next.ToString()[^1]);
+            differences.Add(nextSmall - currentSmall);
+            
+            current = next;
+            currentSmall = nextSmall;
+        }
+
+        return differences;
+    }
+
     private static long Next(long secret)
     {
-        /* Calculate the result of multiplying the secret number by 64.
-         * Then, mix this result into the secret number.
-         * Finally, prune the secret number. */
         var result = secret * 64;
         secret = Mix(result, secret);
         secret = Prune(secret);
         
-        /* Calculate the result of dividing the secret number by 32.
-           Round the result down to the nearest integer.
-           Then, mix this result into the secret number.
-           Finally, prune the secret number. */
-        var result2 = (long)(secret / 32d);
-        secret = Mix(result2, secret);
+        result = (long)(secret / 32d);
+        secret = Mix(result, secret);
         secret = Prune(secret);
 
-        /* Calculate the result of multiplying the secret number by 2048.
-           Then, mix this result into the secret number.
-           Finally, prune the secret number. */
-        var result3 = secret * 2048;
-        secret = Mix(result3, secret);
+        result = secret * 2048;
+        secret = Mix(result, secret);
         secret = Prune(secret);
 
         return secret;

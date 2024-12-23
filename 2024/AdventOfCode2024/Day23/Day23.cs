@@ -53,27 +53,24 @@ public class Day23
         var largestNetwork = new Network();
         foreach (var computer in lookup.Keys)
         {
-            var network = new Network();
-            network.Nodes.Add(computer);
+            var network = new Network
+            {
+                Nodes = [computer]
+            };
             
-            ExpandNetwork(network, computer, lookup);
-
+            var neighbours = lookup[computer];
+            foreach (var neighbour in neighbours)
+            {
+                // each computer at the LAN party will have a connection to every other computer at the LAN party
+                if (network.Nodes.All(n => lookup[n].Contains(neighbour)))
+                    network.Nodes.Add(neighbour);
+            }
+            
             if (network.Nodes.Count > largestNetwork.Nodes.Count)
                 largestNetwork = network;
         }
 
         Console.WriteLine(largestNetwork.GetPassword());
-    }
-    
-    private static void ExpandNetwork(Network network, string initialNode, Dictionary<string, HashSet<string>> lookup)
-    {
-        var neighbours = lookup[initialNode];
-        foreach (var neighbour in neighbours)
-        {
-            // each computer at the LAN party will have a connection to every other computer at the LAN party
-            if (network.Nodes.All(n => lookup[n].Contains(neighbour)))
-                network.Nodes.Add(neighbour);
-        }
     }
 
     private static void AddConnection(string first, string second, Dictionary<string, HashSet<string>> connections)

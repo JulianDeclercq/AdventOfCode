@@ -2,13 +2,16 @@ namespace AdventOfCode2024;
 
 public class Day22
 {
+    private record PriceChange(int Price, int Change);
+    private record CombinationPrice(string Combination, int Price);
+    
     public static void Solve(int part)
     {
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
         
         const int steps = 2000;
-        var secrets = File.ReadAllLines("input/day22.txt").Select(long.Parse).ToList();
+        var secrets = File.ReadAllLines("input/day22e.txt").Select(long.Parse).ToList();
 
         if (part is 1)
         {
@@ -16,12 +19,39 @@ public class Day22
             return;
         }
 
-        Dictionary<long, List<int>> changes = [];
+        Dictionary<long, List<PriceChange>> changes = [];
+        Dictionary<long, List<CombinationPrice>> combinations = [];
         foreach (var secret in secrets)
         {
             if (!changes.TryAdd(secret, NextXStepsDifferences(secret, steps)))
                 throw new Exception($"Duplicate secret {secret}");
         }
+
+        foreach (var (key, value) in changes)
+        {
+            for (var i = 0; i < value.Count - 3; ++i) // TODO: Bound check
+            {
+                var combos = combinations.TryGetValue(key, out var existing) ? existing : [];
+                
+                var combinationPrice =
+                    new CombinationPrice(
+                        $"{value[i].Change}{value[i + 1].Change}{value[i + 2].Change}{value[i + 3].Change}",
+                        value[i + 3].Price);
+                
+                combos.Add(combinationPrice);
+                combinations[key] = combos;
+            }
+        }
+
+        // var distinctCombinations = combinations.Values.SelectMany(combo => combo).ToHashSet();
+        var distinctCombinations = combinations.Values
+            .SelectMany(combo => combo)
+            .DistinctBy(c => c.Combination)
+            .ToHashSet();
+        
+        Console.WriteLine(distinctCombinations.Count);
+
+        var brkpt = 5;
     }
 
     private static long NextXSteps(long secret, int steps)
@@ -33,16 +63,18 @@ public class Day22
         return current;
     }
 
-    private static List<int> NextXStepsDifferences(long secret, int steps)
+    private static List<PriceChange> NextXStepsDifferences(long secret, int steps)
     {
-        List<int> differences = [];
+        List<PriceChange> differences = [];
         var current = secret;
         var currentSmall = (int)char.GetNumericValue(secret.ToString()[^1]); 
         for (var i = 0; i < steps; ++i)
         {
             var next = Next(current);
             var nextSmall = (int)char.GetNumericValue(next.ToString()[^1]);
-            differences.Add(nextSmall - currentSmall);
+
+            var priceChange = new PriceChange(nextSmall, nextSmall - currentSmall);
+            differences.Add(priceChange);
             
             current = next;
             currentSmall = nextSmall;

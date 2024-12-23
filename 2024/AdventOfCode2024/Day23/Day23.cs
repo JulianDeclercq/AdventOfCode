@@ -47,38 +47,32 @@ public class Day23
         var answer = triLinks.Count(triLink => triLink.HasComputerThatStartsWithT());
         Console.WriteLine(answer);
     }
-    
-    // contains partial networks (while they're still in the making) but that shouldn't matter for the solution
-    private static readonly List<Network> ValidNetworks = [];
 
     private static void Part2(Dictionary<string, HashSet<string>> lookup)
     {
+        var largestNetwork = new Network();
         foreach (var computer in lookup.Keys)
         {
             var network = new Network();
-            network.Add(computer);
-            FindConnectedComputers(network, lookup);
+            network.Nodes.Add(computer);
+            
+            ExpandNetwork(network, computer, lookup);
+
+            if (network.Nodes.Count > largestNetwork.Nodes.Count)
+                largestNetwork = network;
         }
 
-        var largestNetwork = ValidNetworks.MaxBy(network => network.Nodes.Count)!;
         Console.WriteLine(largestNetwork.GetPassword());
     }
     
-    private static void FindConnectedComputers(Network network, Dictionary<string, HashSet<string>> lookup)
+    private static void ExpandNetwork(Network network, string initialNode, Dictionary<string, HashSet<string>> lookup)
     {
-        var neighbours = lookup[network.LastAddedNode];
+        var neighbours = lookup[initialNode];
         foreach (var neighbour in neighbours)
         {
-            // for each computer at the LAN party,
-            // that computer will have a connection to every other computer at the LAN party
+            // each computer at the LAN party will have a connection to every other computer at the LAN party
             if (network.Nodes.All(n => lookup[n].Contains(neighbour)))
-            {
                 network.Nodes.Add(neighbour);
-                ValidNetworks.Add(network.DeepCopy());
-                
-                // search for further connections
-                FindConnectedComputers(network, lookup);
-            }
         }
     }
 

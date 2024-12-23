@@ -2,24 +2,8 @@ namespace AdventOfCode2024.Day23;
 public class Network : IEquatable<Network>
 {
     public HashSet<string> Nodes { get; init; } = []; // not sure that my naming is ok for purists here :)
-    public string LastAddedNode { get; private set; } = "";
 
     public string GetPassword() => string.Join(",", Nodes.Order());
-
-    public Network DeepCopy()
-    {
-        return new Network
-        {
-            Nodes = Nodes.ToHashSet(),
-            LastAddedNode = LastAddedNode
-        };
-    }
-
-    public void Add(string node)
-    {
-        Nodes.Add(node);
-        LastAddedNode = node;
-    }
 
     public bool Equals(Network? other)
     {

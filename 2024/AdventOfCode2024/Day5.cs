@@ -4,6 +4,9 @@ public class Day5
 {
     public static void Solve(int part)
     {
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+                
         var lines = File.ReadAllLines("input/day5.txt");
         var rules = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
 
@@ -32,26 +35,24 @@ public class Day5
                 .ToArray())
             .ToArray();
 
-
         List<int[]> validPages = [];
-        for (var i = 0; i < pages.Length; ++i)
+        foreach (var page in pages)
         {
             var correct = true;
             
-            var page = pages[i];
             for (var j = 0; j < page.Length; ++j)
             {
-                // var lel = lookup[update];
-                if (!reverseLookup.TryGetValue(page[j], out var rev))
+                if (!reverseLookup.TryGetValue(page[j], out var valuesThatShouldComeBefore))
                     continue;
                 
-                var rest = page.Skip(j + 1).ToHashSet();
-                if (rev.Any(x => rest.Contains(x)))
+                var valuesThatComeAfter = page.Skip(j + 1).ToHashSet();
+                if (valuesThatShouldComeBefore.Any(v => valuesThatComeAfter.Contains(v)))
                 {
                     correct = false;
                     break;
                 }
             }
+            
             if (correct)
                 validPages.Add(page);
         }

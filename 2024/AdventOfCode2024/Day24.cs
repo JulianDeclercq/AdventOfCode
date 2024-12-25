@@ -31,8 +31,7 @@ public class Day24
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
 
-        // 568358894 is too low
-        var lines = File.ReadAllLines("input/day24e2.txt").ToList();
+        var lines = File.ReadAllLines("input/day24.txt").ToList();
         var wireDefinitions = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToList();
         var gateDefinitions = lines.Skip(wireDefinitions.Count + 1).ToList();
 
@@ -65,15 +64,12 @@ public class Day24
         
         // making the number
         var zWires = wires.Where(wire => wire.Key.StartsWith('z')).ToList();
-        var answer = 0b_0000_0000_0000_0000_0000_0000_0000_0000;
+        ulong answer = 0;
         foreach (var wire in zWires)
         {
             var toShift = int.Parse(wire.Key[1..]); // parse the numbers after z
-            // var kek = answer << shift;
-            var shifted = wire.Value << toShift;
-            answer |= shifted;
-            // answer <<= shift;
-            // Console.WriteLine(Convert.ToString(answer, 2));
+            var shifted = (ulong)wire.Value << toShift; // move the value into the right position
+            answer |= shifted; // use an OR operation to put the value into the answer
         }
 
         Console.WriteLine(answer);

@@ -2,9 +2,9 @@ namespace AdventOfCode2024;
 
 public class Day5
 {
-    public static void Solve()
+    public static void Solve(int part)
     {
-        var lines = File.ReadAllLines("input/day5e.txt");
+        var lines = File.ReadAllLines("input/day5.txt");
         var rules = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
 
         var lookup = new Dictionary<int, List<int>>();
@@ -32,22 +32,36 @@ public class Day5
                 .ToArray())
             .ToArray();
 
+
+        List<int[]> validPages = [];
         for (var i = 0; i < pages.Length; ++i)
         {
             var correct = true;
             
             var page = pages[i];
-            foreach (var update in page)
+            for (var j = 0; j < page.Length; ++j)
             {
-                var lel = lookup[update];
-                var rev = reverseLookup[update];
-                var rest = page.Skip(i + 1).ToHashSet();
+                // var lel = lookup[update];
+                if (!reverseLookup.TryGetValue(page[j], out var rev))
+                    continue;
+                
+                var rest = page.Skip(j + 1).ToHashSet();
                 if (rev.Any(x => rest.Contains(x)))
                 {
-                    
+                    correct = false;
+                    break;
                 }
-
             }
+            if (correct)
+                validPages.Add(page);
         }
+
+        var answer = 0;
+        foreach (var page in validPages)
+        {
+            answer += page[page.Length / 2];
+            // Console.WriteLine(string.Join(",", page));
+        }
+        Console.WriteLine(answer);
     }
 }

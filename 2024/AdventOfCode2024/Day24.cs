@@ -79,7 +79,6 @@ public class Day24
     {
         for (;;)
         {
-            // TODO: verify this
             if (gates.All(gate => wires.ContainsKey(gate.OutputWire)))
                 break;
             

@@ -59,5 +59,46 @@ public class Day24
             };
             gates.Add(gate);
         }
+        
+        SimulateSystem(wires, gates);
+    }
+    
+    private static void SimulateSystem(Dictionary<string, bool?> wires, List<Gate> gates)
+    {
+        foreach (var wire in wires)
+            Console.WriteLine(wire);
+
+        for (;;)
+        {
+            // TODO: verify this
+            if (gates.All(gate => wires.ContainsKey(gate.OutputWire)))
+                break;
+            
+            foreach (var gate in gates)
+            {
+                // already processed
+                if (wires.ContainsKey(gate.OutputWire))
+                    continue;
+                
+                // gates wait until both inputs are received before producing output
+                if (!wires.ContainsKey(gate.InputWire) || !wires.ContainsKey(gate.InputWire2))
+                    continue;
+
+                // process
+                // switch (gate.Type)
+                // {
+                //     case GateType.None:
+                //         break;
+                //     case GateType.And:
+                //         break;
+                //     case GateType.Or:
+                //         break;
+                //     case GateType.Xor:
+                //         break;
+                //     default:
+                //         throw new ArgumentOutOfRangeException();
+                // }
+            }
+        }
     }
 }

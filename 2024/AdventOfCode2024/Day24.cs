@@ -31,15 +31,16 @@ public class Day24
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
 
-        var lines = File.ReadAllLines("input/day24e.txt").ToList();
+        // 568358894 is too low
+        var lines = File.ReadAllLines("input/day24e2.txt").ToList();
         var wireDefinitions = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToList();
         var gateDefinitions = lines.Skip(wireDefinitions.Count + 1).ToList();
 
-        Dictionary<string, bool?> wires = [];
+        Dictionary<string, int> wires = [];
         foreach (var wireDefinition in wireDefinitions)
         {
             var split = wireDefinition.Split(": ");
-            wires.Add(split[0], split[1] == "1");
+            wires.Add(split[0], (int)char.GetNumericValue(split[1][0]));
         }
         
         List<Gate> gates = [];
@@ -61,13 +62,25 @@ public class Day24
         }
         
         SimulateSystem(wires, gates);
+        
+        // making the number
+        var zWires = wires.Where(wire => wire.Key.StartsWith('z')).ToList();
+        var answer = 0b_0000_0000_0000_0000_0000_0000_0000_0000;
+        foreach (var wire in zWires)
+        {
+            var toShift = int.Parse(wire.Key[1..]); // parse the numbers after z
+            // var kek = answer << shift;
+            var shifted = wire.Value << toShift;
+            answer |= shifted;
+            // answer <<= shift;
+            // Console.WriteLine(Convert.ToString(answer, 2));
+        }
+
+        Console.WriteLine(answer);
     }
     
-    private static void SimulateSystem(Dictionary<string, bool?> wires, List<Gate> gates)
+    private static void SimulateSystem(Dictionary<string, int> wires, List<Gate> gates)
     {
-        foreach (var wire in wires)
-            Console.WriteLine(wire);
-
         for (;;)
         {
             // TODO: verify this
@@ -85,19 +98,15 @@ public class Day24
                     continue;
 
                 // process
-                // switch (gate.Type)
-                // {
-                //     case GateType.None:
-                //         break;
-                //     case GateType.And:
-                //         break;
-                //     case GateType.Or:
-                //         break;
-                //     case GateType.Xor:
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException();
-                // }
+                var result = gate.Type switch
+                {
+                    GateType.And => wires[gate.InputWire] & wires[gate.InputWire2],
+                    GateType.Or => wires[gate.InputWire] | wires[gate.InputWire2],
+                    GateType.Xor => wires[gate.InputWire] ^ wires[gate.InputWire2],
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                wires[gate.OutputWire] = result;
             }
         }
     }

@@ -3,7 +3,8 @@ using AdventOfCode2024.Day23;
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-Day25.Solve();
+Day24.Solve(part: 1);
+// Day24.Solve(part: 2);
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

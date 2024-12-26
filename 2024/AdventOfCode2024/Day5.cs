@@ -27,43 +27,39 @@ public class Day5
             .Select(l => l
                 .Split(',')
                 .Select(int.Parse)
-                .ToArray())
-            .ToArray();
-
-        var validUpdates = updates.Where(u => IsValid(u, reverseLookup)).ToList();
-        var invalidUpdates = updates.Where(u => !IsValid(u, reverseLookup)).ToList();
+                .ToList())
+            .ToList();
 
         if (part is 1)
         {
+            var validUpdates = updates.Where(u => IsValid(u, reverseLookup)).ToList();
             Console.WriteLine(SumOfMiddlePageNumbers(validUpdates));
         }
         else // part 2
         {
-            var sorted = invalidUpdates.Select(u => Sort(u.ToList(), reverseLookup).ToArray());
-            Console.WriteLine(SumOfMiddlePageNumbers(sorted.ToList()));
+            var invalidUpdates = updates.Where(u => !IsValid(u, reverseLookup));
+            var sorted = invalidUpdates.Select(u => Sort(u, reverseLookup)).ToList();
+            Console.WriteLine(SumOfMiddlePageNumbers(sorted));
         }
     }
 
-    private static int SumOfMiddlePageNumbers(List<int[]> updates)
+    private static int SumOfMiddlePageNumbers(List<List<int>> updates)
     {
         var answer = 0;
         foreach (var update in updates)
-        {
-            answer += update[update.Length / 2];
-            // Console.WriteLine(string.Join(",", page));
-        }
+            answer += update[update.Count / 2];
 
         return answer;
     }
 
-    private static bool IsValid(int[] update, Dictionary<int, List<int>> reverseLookup)
+    private static bool IsValid(List<int> update, Dictionary<int, List<int>> reverseLookup)
     {
-        for (var j = 0; j < update.Length; ++j)
+        for (var i = 0; i < update.Count; ++i)
         {
-            if (!reverseLookup.TryGetValue(update[j], out var shouldComeBefore))
+            if (!reverseLookup.TryGetValue(update[i], out var shouldComeBefore))
                 continue;
             
-            var comeAfter = update.Skip(j + 1).ToHashSet();
+            var comeAfter = update.Skip(i + 1).ToHashSet();
             if (shouldComeBefore.Any(x => comeAfter.Contains(x)))
                 return false;
         }
@@ -71,7 +67,7 @@ public class Day5
         return true;
     }
 
-    private static List<int> Sort(List<int> current, Dictionary<int, List<int>> lookup)
+    private static List<int> Sort(List<int> current, Dictionary<int, List<int>> lookup, bool verbose = false)
     {
         for (var i = 0; i < current.Count; ++i)
         {
@@ -83,14 +79,15 @@ public class Day5
             var idx = numbersBefore.FindIndex(x => pageShouldComeBefore.Contains(x));
             if (idx == -1)
                 continue;
-            
-            // Console.WriteLine($"Found invalid page {numbersBefore[idx]} ({idx}) that came " +
-            //                   $"before page {current[i]} ({i}) but should be after.");
 
-            // Console.WriteLine($"BEFORE {string.Join(',', current)}");
+            if (verbose)
+            {
+                Console.WriteLine($"Found invalid page {numbersBefore[idx]} ({idx}) that came " +
+                                  $"before page {current[i]} ({i}) but should be after.");
+            }
+
             current.Remove(page);
             current.Insert(idx, page); 
-            // Console.WriteLine($"AFTER {string.Join(',', current)}");
             return Sort(current, lookup);
         }
 

@@ -23,9 +23,6 @@ public class Day5
             reverseLookup[parts[1]] = target;
         }
         
-        // var masterOrder = Sort(lookup.Keys.Concat(reverseLookup.Keys).ToHashSet().ToList(), lookup);
-        // Console.WriteLine($"MASTERORDER {string.Join(",", masterOrder)}");
-        
         var updates = lines.Skip(rules.Length + 1)
             .Select(l => l
                 .Split(',')
@@ -36,13 +33,27 @@ public class Day5
         var validUpdates = updates.Where(u => IsValid(u, reverseLookup)).ToList();
         var invalidUpdates = updates.Where(u => !IsValid(u, reverseLookup)).ToList();
 
+        if (part is 1)
+        {
+            Console.WriteLine(SumOfMiddlePageNumbers(validUpdates));
+        }
+        else // part 2
+        {
+            var sorted = invalidUpdates.Select(u => Sort(u.ToList(), reverseLookup).ToArray());
+            Console.WriteLine(SumOfMiddlePageNumbers(sorted.ToList()));
+        }
+    }
+
+    private static int SumOfMiddlePageNumbers(List<int[]> updates)
+    {
         var answer = 0;
-        foreach (var update in validUpdates)
+        foreach (var update in updates)
         {
             answer += update[update.Length / 2];
             // Console.WriteLine(string.Join(",", page));
         }
-        Console.WriteLine(answer);
+
+        return answer;
     }
 
     private static bool IsValid(int[] update, Dictionary<int, List<int>> reverseLookup)
@@ -73,18 +84,16 @@ public class Day5
             if (idx == -1)
                 continue;
             
-            Console.WriteLine($"Found invalid page {numbersBefore[idx]} ({idx}) that came " +
-                              $"before page {current[i]} ({i}) but should be after.");
+            // Console.WriteLine($"Found invalid page {numbersBefore[idx]} ({idx}) that came " +
+            //                   $"before page {current[i]} ({i}) but should be after.");
 
-            Console.WriteLine($"BEFORE {string.Join(',', current)}");
+            // Console.WriteLine($"BEFORE {string.Join(',', current)}");
             current.Remove(page);
             current.Insert(idx, page); 
-            Console.WriteLine($"AFTER {string.Join(',', current)}");
+            // Console.WriteLine($"AFTER {string.Join(',', current)}");
             return Sort(current, lookup);
         }
 
-        // not sure
-        Console.WriteLine("DONE SORTING");
         return current;
     }
 }

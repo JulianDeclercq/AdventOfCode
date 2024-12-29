@@ -5,8 +5,11 @@ namespace AdventOfCode2024;
 
 public class Day7
 {
-    public static void Solve()
+    public static void Solve(int part)
     {
+        if (part != 1 && part != 2)
+            throw new Exception($"Invalid part {part}");
+                
         var lines = File.ReadAllLines("input/day7.txt");
         var helper = new RegexHelper(new Regex(@"(\d+): (.+)"), "result", "operands");
         long answer = 0;
@@ -26,16 +29,20 @@ public class Day7
 
     private static bool IsValid(long result, long[] operands)
     {
-        if (Step(operands[0], result, operands[1..], true))
+        if (Step(operands[0], result, operands[1..], operands[0], OperandType.Addition))
             return true;
         
-        if (Step(operands[0], result, operands[1..], false))
+        if (Step(operands[0], result, operands[1..], operands[0], OperandType.Multiplication))
             return true;
+        
+        // if (Step(operands[0], result, operands[1..], operands[0], OperandType.Concatenation))
+        //     return true;
         
         return false;
     }
     
-    private static bool Step(long current, long result, long[] operands, bool add)
+    
+    private static bool Stepx(long current, long result, long[] operands, bool add)
     {
         if (operands.Length == 0)
             return false;
@@ -51,12 +58,57 @@ public class Day7
         if (current == result && operands.Length == 1)
             return true;
 
-        if (Step(current, result, operands[1..], true))
+        if (Stepx(current, result, operands[1..], true))
             return true;
         
-        if (Step(current, result, operands[1..], false))
+        if (Stepx(current, result, operands[1..], false))
             return true;
 
         return false;
+    }
+    
+    private static bool Step(long current, long result, long[] operands, long lastOperand, OperandType type)
+    {
+        if (operands.Length == 0)
+            return false;
+        
+        var currentOperand = operands[0];
+        switch (type)
+        {
+            case OperandType.Addition:
+                current += currentOperand;
+                break;
+            case OperandType.Multiplication:
+                current *= currentOperand;
+                break;
+            case OperandType.Concatenation:
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
+        
+        if (current > result) // early return
+            return false;
+
+        if (current == result && operands.Length == 1)
+            return true;
+
+        if (Step(current, result, operands[1..], currentOperand, OperandType.Addition))
+            return true;
+        
+        if (Step(current, result, operands[1..], currentOperand, OperandType.Multiplication))
+            return true;
+        
+        if (Step(current, result, operands[1..], currentOperand, OperandType.Concatenation))
+            return true;
+
+        return false;
+    }
+    
+    private enum OperandType
+    {
+        None = 0,
+        Addition = 1,
+        Multiplication = 2,
+        Concatenation = 3
     }
 }

@@ -29,13 +29,17 @@ public class Day7
 
     private static bool IsValid(long result, long[] operands)
     {
-        if (Step(operands[0], result, operands[1..], operands[0], OperandType.Addition))
+        // I guess the last operation here is a bit fake, but it works for the logic
+        if (Step(operands[0], result, operands[1..], OperandType.Addition,
+                new Operation(operands[0], OperandType.Addition)))
+            return true;
+
+        if (Step(operands[0], result, operands[1..], OperandType.Multiplication,
+                new Operation(operands[0], OperandType.Multiplication)))
             return true;
         
-        if (Step(operands[0], result, operands[1..], operands[0], OperandType.Multiplication))
-            return true;
-        
-        // if (Step(operands[0], result, operands[1..], operands[0], OperandType.Concatenation))
+        // if (Step(operands[0], result, operands[1..], OperandType.Concatenation,
+        //         new Operation(operands[0], OperandType.Concatenation)))
         //     return true;
         
         return false;
@@ -67,7 +71,7 @@ public class Day7
         return false;
     }
     
-    private static bool Step(long current, long result, long[] operands, long lastOperand, OperandType type)
+    private static bool Step(long current, long result, long[] operands, OperandType type, Operation lastOperation)
     {
         if (operands.Length == 0)
             return false;
@@ -92,17 +96,20 @@ public class Day7
         if (current == result && operands.Length == 1)
             return true;
 
-        if (Step(current, result, operands[1..], currentOperand, OperandType.Addition))
+        var thisOperation = new Operation(currentOperand, type);
+        if (Step(current, result, operands[1..], OperandType.Addition, thisOperation))
             return true;
         
-        if (Step(current, result, operands[1..], currentOperand, OperandType.Multiplication))
+        if (Step(current, result, operands[1..], OperandType.Multiplication, thisOperation))
             return true;
         
-        if (Step(current, result, operands[1..], currentOperand, OperandType.Concatenation))
+        if (Step(current, result, operands[1..], OperandType.Concatenation, thisOperation))
             return true;
 
         return false;
     }
+
+    private record Operation(long Operand, OperandType Type);
     
     private enum OperandType
     {

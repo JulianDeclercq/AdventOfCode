@@ -11,13 +11,6 @@ public class Day7
             throw new Exception($"Invalid part {part}");
                 
         var lines = File.ReadAllLines("input/day7.txt");
-        // string[] lines =
-        // [
-        //     // "156: 15 6",
-        //     // "7290: 6 8 6 15",
-        //     // "192: 17 8 14"
-        //     // "100: 50 50 2"
-        // ];
         var helper = new RegexHelper(new Regex(@"(\d+): (.+)"), "result", "operands");
         long answer = 0;
         
@@ -36,33 +29,24 @@ public class Day7
 
     private static bool IsValid(long result, long[] operands, int part)
     {
-        // I guess the last operation here is a bit fake, but it works for the logic
-        if (Step(operands[0], result, operands[1..], OperandType.Addition,
-                new Operation(operands[0], OperandType.Addition)))
+        if (Step(operands[0], result, operands[1..], OperandType.Addition, part))
             return true;
         
-        if (Step(operands[0], result, operands[1..], OperandType.Multiplication,
-                new Operation(operands[0], OperandType.Multiplication)))
+        if (Step(operands[0], result, operands[1..], OperandType.Multiplication, part))
             return true;
-        
-        if (part is 1)
-            return false;
-        
-        // not sure about the first current, see other comment here too
-        if (Step(operands[0], result, operands[1..], OperandType.Concatenation,
-                new Operation(operands[0], OperandType.Addition))) // first operation needs to be addition to not make it count
+
+        if (part is 2 && Step(operands[0], result, operands[1..], OperandType.Concatenation, part))
             return true;
         
         return false;
     }
     
-    private static bool Step(long current, long result, long[] operands, OperandType type, Operation lastOperation)
+    private static bool Step(long current, long result, long[] operands, OperandType type, int part)
     {
         if (operands.Length == 0)
             return false;
         
         var currentOperand = operands[0];
-        var (lastOperand, lastOperationType) = lastOperation;
         switch (type)
         {
             case OperandType.Addition:
@@ -72,29 +56,7 @@ public class Day7
                 current *= currentOperand;
                 break;
             case OperandType.Concatenation:
-                // undo the last operation
-                switch (lastOperationType)
-                {
-                    case OperandType.Addition:
-                        // current -= lastOperand;
-                        break;
-                    case OperandType.Multiplication:
-                        // current /= lastOperand;
-                        break;
-                    case OperandType.Concatenation: 
-                        break; // do nothing
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                var concatenated = long.Parse($"{current}{currentOperand}");
-                // Console.WriteLine($"Concatenated {current} and {currentOperand} into {concatenated}");
-                current = concatenated; // TODO: NOT SURE
-                // if (concatenated is 486)
-                // {
-                //     int kpbt = 5;
-                // }
-                // currentOperand = concatenated;
+                current = long.Parse($"{current}{currentOperand}");
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -105,20 +67,17 @@ public class Day7
         if (current == result && operands.Length == 1)
             return true;
         
-        var thisOperation = new Operation(currentOperand, type);
-        if (Step(current, result, operands[1..], OperandType.Addition, thisOperation))
+        if (Step(current, result, operands[1..], OperandType.Addition, part))
             return true;
         
-        if (Step(current, result, operands[1..], OperandType.Multiplication, thisOperation))
+        if (Step(current, result, operands[1..], OperandType.Multiplication, part)) 
             return true;
-        
-        if (Step(current, result, operands[1..], OperandType.Concatenation, thisOperation))
+
+        if (part is 2 && Step(current, result, operands[1..], OperandType.Concatenation, part))
             return true;
 
         return false;
     }
-
-    private record Operation(long Operand, OperandType Type);
     
     private enum OperandType
     {

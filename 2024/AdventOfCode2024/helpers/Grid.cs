@@ -179,7 +179,7 @@ public class Grid<T>
         return new GridElement<T>(neighbour, At(neighbour));
     }
 
-    public IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true)
+    private IEnumerable<Point> NeighbouringPoints(Point p, bool includeDiagonals = true, bool filterInvalid = true)
     {
         var neighbours = new List<Point>
         {
@@ -197,12 +197,12 @@ public class Grid<T>
             neighbours.Add(new Point(p.X - 1, p.Y + 1));
         }
 
-        return neighbours.Where(ValidPoint);
+        return filterInvalid ? neighbours.Where(ValidPoint) : neighbours;
     }
 
-    public IEnumerable<GridElement<T>> NeighboursExtended(Point p, bool includeDiagonals = true)
+    public IEnumerable<GridElement<T>> NeighboursExtended(Point p, bool includeDiagonals = true, bool filterInvalid = true)
     {
-        return NeighbouringPoints(p, includeDiagonals).Select(np => new GridElement<T>(np, At(np)));
+        return NeighbouringPoints(p, includeDiagonals, filterInvalid).Select(np => new GridElement<T>(np, At(np)));
     }
 
     public GridElement<T>? GetNeighbour(Point p, Direction direction, bool wrap = false)

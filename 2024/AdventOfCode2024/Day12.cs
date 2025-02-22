@@ -6,11 +6,11 @@ namespace AdventOfCode2024;
 
 public class Day12
 {
+    // 1466738 is too high
     public void Solve()
     {
-        var lines = File.ReadAllLines("input/day12e.txt");
+        var lines = File.ReadAllLines("input/day12.txt");
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
-        Console.WriteLine(grid);
 
         HashSet<Point> visited = [];
         List<Region> regions = [];
@@ -33,9 +33,10 @@ public class Day12
             region.Clear();
         }
         
-        Console.WriteLine(regions.Count);
-        foreach (var lel in regions)
-            Console.WriteLine(string.Join(",", lel));
+        // foreach (var r in regions)
+        //     Console.WriteLine($"{r.First().Value} perimeter: {Perimeter(r, grid)}, area: {r.Count}");
+        
+        Console.WriteLine($"Total price {regions.Select(r => Price(r, grid)).Sum()}");
     }
 
     private static void TryAddNeighboursToRegion(
@@ -50,8 +51,7 @@ public class Day12
         foreach (var neighbour in grid.NeighboursExtended(element.Position))
         {
             if (visited.Contains(neighbour.Position))
-                continue;
-            
+                continue; 
             if (neighbour.Value == region.First().Value)
             {
                 region.Add(neighbour);
@@ -60,4 +60,24 @@ public class Day12
             }
         }
     }
+
+    private static int Perimeter(Region region, Grid<char> grid)
+    {
+        // The perimeter of a region is the number of sides of garden plots in the region that
+        // do not touch another garden plot in the same region.
+
+        var perimeter = 0;
+        foreach (var element in region)
+        {
+            foreach (var neighbour in grid.NeighboursExtended(element.Position, false, false))
+            {
+                if (neighbour.Value != region.First().Value)
+                    perimeter++;
+            }
+        }
+
+        return perimeter;
+    }
+
+    private static int Price(Region region, Grid<char> grid) => Perimeter(region, grid) * region.Count;
 }

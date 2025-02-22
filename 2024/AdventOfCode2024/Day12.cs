@@ -48,10 +48,11 @@ public class Day12
         if (region.Count == 0)
             throw new Exception("Region to try to add to can't be empty");
         
-        foreach (var neighbour in grid.NeighboursExtended(element.Position))
+        foreach (var neighbour in grid.NeighboursExtended(element.Position, includeDiagonals: false))
         {
             if (visited.Contains(neighbour.Position))
                 continue; 
+            
             if (neighbour.Value == region.First().Value)
             {
                 region.Add(neighbour);

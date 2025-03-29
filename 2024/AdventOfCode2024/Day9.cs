@@ -1,7 +1,28 @@
+using System.Text;
+
 namespace AdventOfCode2024;
 
 public class Day9
 {
+    private class File
+    {
+        public static int FreeSpace = -1;
+        
+        public int Size { get; init; } = 0;
+        public int Content { get; init; } = -1;
+
+        public bool IsFreeSpace => Content == FreeSpace;
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < Size; ++i)
+                sb.Append(IsFreeSpace ? "." : Content.ToString());
+
+            return sb.ToString();
+        }
+    }
+    
     private const char Empty = '.'; 
     public static void Solve(int part)
     {
@@ -10,19 +31,27 @@ public class Day9
         
         var input =
             // File.ReadAllLines("input/day9.txt").Single()
-            // im suspecting the real input not to work because it goes to 10000 instead of 10 and that might not fit
-            // in a char. but then part 1 also shouldnt work so idk
             "2333133121414131402"
             .Select(c => (int)char.GetNumericValue(c))
             .ToArray();
         
         List<char> disk = [];
+        List<File> diskFiles = [];
 
         // Load
         var id = 0;
         var file = true;
         foreach (var number in input)
         {
+            // new
+            var theehee = new File
+            {
+                Size = number,
+                Content = file ? id : File.FreeSpace,
+            };
+            diskFiles.Add(theehee);
+            
+            // old
             for (var i = 0; i < number; ++i)
                 disk.Add(file ? (char)(id + '0') : Empty);
 
@@ -30,9 +59,13 @@ public class Day9
                 id++;
             
             file = !file;
+            
         }
         
         // Process
+        Console.WriteLine("theehee");
+        Console.WriteLine(string.Join("", diskFiles));
+        return;
         if (part is 1)
         {
             Part1(disk);

@@ -6,7 +6,6 @@ namespace AdventOfCode2024;
 
 public class Day12
 {
-    // 1466738 is too high
     public void Solve()
     {
         var lines = File.ReadAllLines("input/day12.txt");
@@ -20,9 +19,6 @@ public class Day12
         {
             if (visited.Contains(element.Position))
                 continue;
-
-            if (region.Count > 0)
-                throw new Exception("didnt expect this");
             
             region.Add(element);
             visited.Add(element.Position);

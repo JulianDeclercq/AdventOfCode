@@ -13,13 +13,13 @@ public class Grid<T>
 
         if (_cells.Count != width * height)
             throw new Exception($"Amount of elements {_cells.Count} does not match width {width} * height {height})");
-        
+
         _invalid = invalid;
     }
 
     // doesn't deep copy the values in _cells if T is a reference type
-    public Grid<T> ShallowCopy() => new (Width, Height, _cells, _invalid);
-    public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);   
+    public Grid<T> ShallowCopy() => new(Width, Height, _cells, _invalid);
+    public void AddRange(IEnumerable<T> tRange) => _cells.AddRange(tRange);
     public T At(Point p) => At(p.X, p.Y);
     public T At(int x, int y) => Get(x, y);
     public T At(int idx) => _cells[idx];
@@ -33,7 +33,7 @@ public class Grid<T>
             var index = x + Width * i;
             list.Add(new GridElement<T>(FromIndex(index), _cells[index]));
         }
-        
+
         return list;
     }
 
@@ -79,7 +79,7 @@ public class Grid<T>
             var index = offset + i;
             Set(FromIndex(index), newRow[i]);
         }
-    }            
+    }
 
 
     public IEnumerable<IEnumerable<GridElement<T>>> Rows()
@@ -88,6 +88,7 @@ public class Grid<T>
     }
 
     public bool Set(Point p, T value) => Set(p.X, p.Y, value);
+
     public bool Set(int x, int y, T value)
     {
         var idx = Index(x, y);
@@ -98,10 +99,10 @@ public class Grid<T>
         return true;
     }
 
-    public void Set(int idx, T value) => _cells[idx] = value;  
-    
+    public void Set(int idx, T value) => _cells[idx] = value;
+
     public IEnumerable<T> All() => _cells;
-    
+
     // returns a dictionary with key = location
     public Dictionary<Point, T> AllExtendedLookup()
     {
@@ -112,7 +113,7 @@ public class Grid<T>
 
         return extended;
     }
-    
+
     public List<GridElement<T>> AllExtended()
     {
         return _cells.Select((t, i) => new GridElement<T>(FromIndex(i), t)).ToList();
@@ -124,9 +125,10 @@ public class Grid<T>
         return idx == -1 ? _invalid : _cells[idx];
     }
 
-    public Point FromIndex(int idx) => new (idx % Width, idx / Width);
+    public Point FromIndex(int idx) => new(idx % Width, idx / Width);
 
     public int Index(Point p) => Index(p.X, p.Y);
+
     private int Index(int x, int y)
     {
         if (x < 0 || x > Width - 1) return -1;
@@ -137,6 +139,7 @@ public class Grid<T>
 
     // doesn't support wrapping
     public IEnumerable<T> Neighbours(Point p, bool includeDiagonals = true) => Neighbours(p.X, p.Y, includeDiagonals);
+
     public IEnumerable<T> Neighbours(int x, int y, bool includeDiagonals = true)
     {
         var neighbours = new List<T>
@@ -167,7 +170,7 @@ public class Grid<T>
             GridNeighbourType.E => new Point(p.X + 1, p.Y),
             GridNeighbourType.Se => new Point(p.X + 1, p.Y + 1),
             GridNeighbourType.S => new Point(p.X, p.Y + 1),
-            GridNeighbourType.Sw => new Point(p.X -1, p.Y + 1),
+            GridNeighbourType.Sw => new Point(p.X - 1, p.Y + 1),
             GridNeighbourType.W => new Point(p.X - 1, p.Y),
             GridNeighbourType.Nw => new Point(p.X - 1, p.Y - 1),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
@@ -175,7 +178,7 @@ public class Grid<T>
 
         if (!ValidPoint(neighbour))
             return null;
-        
+
         return new GridElement<T>(neighbour, At(neighbour));
     }
 
@@ -183,10 +186,10 @@ public class Grid<T>
     {
         var neighbours = new List<Point>
         {
-            new (p.X, p.Y - 1),
-            new (p.X + 1, p.Y),
-            new (p.X, p.Y + 1),
-            new (p.X - 1, p.Y)
+            new(p.X, p.Y - 1),
+            new(p.X + 1, p.Y),
+            new(p.X, p.Y + 1),
+            new(p.X - 1, p.Y)
         };
 
         if (includeDiagonals)
@@ -200,9 +203,28 @@ public class Grid<T>
         return filterInvalid ? neighbours.Where(ValidPoint) : neighbours;
     }
 
-    public IEnumerable<GridElement<T>> NeighboursExtended(Point p, bool includeDiagonals = true, bool filterInvalid = true)
+    public IEnumerable<GridElement<T>> NeighboursExtended(Point p, bool includeDiagonals = true,
+        bool filterInvalid = true)
     {
         return NeighbouringPoints(p, includeDiagonals, filterInvalid).Select(np => new GridElement<T>(np, At(np)));
+    }
+
+    private IEnumerable<Point> DiagonalNeighbouringPoints(Point p, bool filterInvalid = true)
+    {
+        List<Point> neighbours =
+        [
+            new Point(p.X - 1, p.Y - 1),
+            new Point(p.X + 1, p.Y - 1),
+            new Point(p.X + 1, p.Y + 1),
+            new Point(p.X - 1, p.Y + 1),
+        ];
+
+        return filterInvalid ? neighbours.Where(ValidPoint) : neighbours;
+    }
+
+    public IEnumerable<GridElement<T>> DiagonalNeighboursExtended(Point p, bool filterInvalid = true)
+    {
+        return DiagonalNeighbouringPoints(p, filterInvalid).Select(np => new GridElement<T>(np, At(np)));
     }
 
     public GridElement<T>? GetNeighbour(Point p, Direction direction, bool wrap = false)
@@ -220,7 +242,23 @@ public class Grid<T>
 
                     y = Height - 1;
                 }
+
                 return new GridElement<T>(new Point(p.X, y), At(p.X, y));
+            
+            case Direction.NorthEast:
+                if (wrap)
+                    throw new NotImplementedException("Wrap is not implemented for NorthEast");
+
+                if (!wrap && p.Y == 0)
+                    return null;
+
+                if (!wrap && p.X == Width - 1)
+                    return null;
+                
+                y = p.Y - 1;
+                x = p.X + 1;
+                return new GridElement<T>(new Point(x, y), At(x, y));
+                
             case Direction.East:
                 x = p.X + 1;
 
@@ -228,10 +266,25 @@ public class Grid<T>
                 {
                     if (!wrap)
                         return null;
-                    
+
                     x = 0;
                 }
+
                 return new GridElement<T>(new Point(x, p.Y), At(x, p.Y));
+            
+            case Direction.SouthEast:
+                if (wrap)
+                    throw new NotImplementedException("Wrap is not implemented for SouthEast");
+
+                if (!wrap && p.Y == Height - 1)
+                    return null;
+                
+                if (!wrap && p.X == Width - 1)
+                    return null;
+                
+                y = p.Y + 1;
+                x = p.X + 1;
+                return new GridElement<T>(new Point(x, y), At(x, y));
             case Direction.South:
                 y = p.Y + 1;
 
@@ -239,10 +292,25 @@ public class Grid<T>
                 {
                     if (!wrap)
                         return null;
-                            
+
                     y = 0;
                 }
+
                 return new GridElement<T>(new Point(p.X, y), At(p.X, y));
+            case Direction.SouthWest:
+                if (wrap)
+                    throw new NotImplementedException("Wrap is not implemented for SouthEast");
+
+                if (!wrap && p.X == 0)
+                    return null;
+                
+                if (!wrap && p.Y == Height - 1)
+                    return null;
+                
+                y = p.Y + 1;
+                x = p.X - 1;
+                
+                return new GridElement<T>(new Point(x, y), At(x, y));
             case Direction.West:
                 x = p.X - 1;
 
@@ -250,14 +318,28 @@ public class Grid<T>
                 {
                     if (!wrap)
                         return null;
-                    
+
                     x = Width - 1;
                 }
+
                 return new GridElement<T>(new Point(x, p.Y), At(x, p.Y));
+            case Direction.NorthWest:
+                if (wrap)
+                    throw new NotImplementedException("Wrap is not implemented for NorthWest");
+                
+                if (!wrap && p.Y == 0)
+                    return null;
+                
+                if (!wrap && p.X == 0)
+                    return null;
+                
+                x = p.X - 1;
+                y = p.Y - 1;
+                
+                return new GridElement<T>(new Point(x, y), At(x, y));
             default:
                 throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
         }
-
     }
 
     // checks if the point is within bounds
@@ -265,7 +347,7 @@ public class Grid<T>
     {
         return point.X >= 0 && point.X <= Width - 1 && point.Y >= 0 && point.Y <= Height - 1;
     }
-    
+
     public int Width { get; }
     public int Height { get; }
     private readonly T _invalid;
@@ -278,7 +360,7 @@ public class Grid<T>
         {
             if (i != 0 && i % Width == 0)
                 s += '\n';
-            
+
             s += _cells[i]?.ToString();
         }
 

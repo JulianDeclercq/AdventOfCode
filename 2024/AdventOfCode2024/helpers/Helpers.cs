@@ -23,7 +23,7 @@ public static class Helpers
             { X: 1, Y: 0 } => Direction.East,
             { X: 0, Y: 1 } => Direction.South,
             { X: -1, Y: 0 } => Direction.West,
-            _ => throw new Exception("Couldn't determine direction")
+            _ => throw new Exception("Couldn't determine direction, only the 4 main ones are implement atm")
         };
     }
 }
@@ -34,5 +34,9 @@ public enum Direction
     North = 1,
     East = 2,
     South = 3,
-    West = 4
+    West = 4,
+    NorthEast = 5,
+    SouthEast = 6,
+    SouthWest = 7,
+    NorthWest = 8
 }

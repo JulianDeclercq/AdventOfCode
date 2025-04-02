@@ -97,9 +97,10 @@ public class Day12
         }
 
         var corners = 0;
+        HashSet<Point> cornersHashset = [];
         foreach (var element in region)
         {
-            var diagonals = grid.DiagonalNeighboursExtended(element.Position, false);
+            // var diagonals = grid.DiagonalNeighboursExtended(element.Position, false);
             List<GridElement<char>?> topLeft =
             [
                 grid.GetNeighbour(element.Position, Direction.West),
@@ -108,7 +109,10 @@ public class Day12
             ];
             var topLeftDifferentCount = topLeft.Count(x => x is not null && x.Value != region.First().Value);
             if (topLeftDifferentCount is 1 or 3 || topLeft.All(x => x is null))
+            {
                 corners++;
+                cornersHashset.Add(new Point(element.Position.X - 1, element.Position.Y - 1));
+            }
 
             List<GridElement<char>?> topRight =
             [
@@ -118,7 +122,10 @@ public class Day12
             ];
             var topRightDifferentCount = topRight.Count(x => x is not null && x.Value != region.First().Value);
             if (topRightDifferentCount is 1 or 3 || topRight.All(x => x is null))
+            {
                 corners++;
+                cornersHashset.Add(new Point(element.Position.X + 1, element.Position.Y - 1));
+            }
 
             List<GridElement<char>?> bottomRight =
             [
@@ -128,7 +135,10 @@ public class Day12
             ];
             var bottomRightDifferentCount = bottomRight.Count(x => x is not null && x.Value != region.First().Value);
             if (bottomRightDifferentCount is 1 or 3 || bottomRight.All(x => x is null))
+            {
                 corners++;
+                cornersHashset.Add(new Point(element.Position.X + 1, element.Position.Y + 1));
+            }
 
             List<GridElement<char>?> bottomLeft =
             [
@@ -138,7 +148,10 @@ public class Day12
             ];
             var bottomLeftDifferentCount = bottomLeft.Count(x => x is not null && x.Value != region.First().Value);
             if (bottomLeftDifferentCount is 1 or 3 || bottomLeft.All(x => x is null))
+            {
                 corners++;
+                cornersHashset.Add(new Point(element.Position.X - 1, element.Position.Y + 1));
+            }
 
             // var otherCount = diagonals.Count(d => d.Value != region.First().Value);
             //     corners += otherCount switch
@@ -150,7 +163,8 @@ public class Day12
             //     };
         }
 
-        return corners;
+        // return corners;
+        return cornersHashset.Count;
     }
 
     private static int Price(Region region, Grid<char> grid) => Perimeter(region, grid) * region.Count;

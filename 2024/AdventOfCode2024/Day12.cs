@@ -3,46 +3,62 @@ using Region = System.Collections.Generic.List<AdventOfCode2024.helpers.GridElem
 
 namespace AdventOfCode2024;
 
-public class Day12
+public class Day12(string inputPath)
 {
-    public static void Solve(int part = 1)
+    public Grid<char> Grid;
+    public readonly List<Region> Regions = [];
+
+    private void PopulateRegionsFromGrid()
     {
-        var lines = File.ReadAllLines("input/day12e5.txt");
-        var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
+        // already populated
+        if (Regions.Count > 0)
+            return;
+        
+        // var lines = File.ReadAllLines("input/day12e5.txt");
+        var lines = File.ReadAllLines(inputPath);
+        Grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
 
         HashSet<Point> visited = [];
-        List<Region> regions = [];
         Region region = [];
 
-        foreach (var element in grid.AllExtended())
+        foreach (var element in Grid.AllExtended())
         {
             if (visited.Contains(element.Position))
                 continue;
 
             region.Add(element);
             visited.Add(element.Position);
-            TryAddNeighboursToRegion(element, grid, region, visited);
+            TryAddNeighboursToRegion(element, Grid, region, visited);
 
             // add current region before moving to the next
-            regions.Add(region.ToList());
+            Regions.Add(region.ToList());
             region.Clear();
         }
 
         // foreach (var r in regions)
         //     Console.WriteLine($"{r.First().Value} perimeter: {Perimeter(r, grid)}, area: {r.Count}");
+    }
 
-        Console.WriteLine(part is 1
-            ? $"Total price part 1 {regions.Select(r => Price(r, grid)).Sum()}"
-            : $"Total price part 2 {regions.Select(r => Price2(r, grid)).Sum()}");
+    public int SolvePart(int part)
+    {
+        PopulateRegionsFromGrid();
+        
+        var answer = part is 1
+            ? Regions.Select(r => Price(r, Grid)).Sum()
+            : Regions.Select(r => Price2(r, Grid)).Sum();
+        
+        Console.WriteLine($"Total price for part {part} is {answer}");
 
         if (part is 2) // 865044 is too low
         {
-            foreach (var wegion in regions)
+            foreach (var region in Regions)
             {
-                var p = Price2(wegion, grid);
-                Console.WriteLine($"{wegion.First().Value}, corners: {Corners(wegion, grid)}, price for part 2 is {p}");
+                var p = Price2(region, Grid);
+                Console.WriteLine($"{region.First().Value}, corners: {Corners(region, Grid)}, price for part 2 is {p}");
             }
         }
+
+        return answer;
     }
 
     private static void TryAddNeighboursToRegion(
@@ -87,7 +103,7 @@ public class Day12
         return perimeter;
     }
 
-// #sides = #corners! :D
+    // #sides = #corners! :D
     private static int Corners(Region region, Grid<char> grid)
     {
         if (region.First().Value is 'C')
@@ -116,6 +132,7 @@ public class Day12
                 {
                     var bkpt = 5;
                 }
+
                 cornersHashset.Add(cp);
             }
 
@@ -134,6 +151,7 @@ public class Day12
                 {
                     var bkpt = 5;
                 }
+
                 cornersHashset.Add(cp);
             }
 
@@ -152,6 +170,7 @@ public class Day12
                 {
                     var bkpt = 5;
                 }
+
                 cornersHashset.Add(cp);
             }
 
@@ -170,6 +189,7 @@ public class Day12
                 {
                     var bkpt = 5;
                 }
+
                 cornersHashset.Add(cp);
             }
         }
@@ -177,7 +197,7 @@ public class Day12
         // return corners;
         return cornersHashset.Count;
     }
-    
+
     private static Point GetCornerPoint(Point origin, Direction direction)
     {
         return direction switch

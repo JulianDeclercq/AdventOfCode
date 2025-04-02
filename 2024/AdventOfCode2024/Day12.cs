@@ -7,7 +7,7 @@ public class Day12
 {
     public static void Solve(int part = 1)
     {
-        var lines = File.ReadAllLines("input/day12e.txt");
+        var lines = File.ReadAllLines("input/day12e5.txt");
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
 
         HashSet<Point> visited = [];
@@ -32,15 +32,15 @@ public class Day12
         //     Console.WriteLine($"{r.First().Value} perimeter: {Perimeter(r, grid)}, area: {r.Count}");
 
         Console.WriteLine(part is 1
-            ? $"Total price {regions.Select(r => Price(r, grid)).Sum()}"
-            : $"Total price {regions.Select(r => Price2(r, grid)).Sum()}");
+            ? $"Total price part 1 {regions.Select(r => Price(r, grid)).Sum()}"
+            : $"Total price part 2 {regions.Select(r => Price2(r, grid)).Sum()}");
 
-        if (part is 2)
+        if (part is 2) // 865044 is too low
         {
-            foreach (var lel in regions)
+            foreach (var wegion in regions)
             {
-                var p = Price2(lel, grid);
-                Console.WriteLine($"{lel.First().Value} price 2 is {p}");
+                var p = Price2(wegion, grid);
+                Console.WriteLine($"{wegion.First().Value}, corners: {Corners(wegion, grid)}, price for part 2 is {p}");
             }
         }
     }
@@ -87,7 +87,7 @@ public class Day12
         return perimeter;
     }
 
-    // #sides = #corners! :D
+// #sides = #corners! :D
     private static int Corners(Region region, Grid<char> grid)
     {
         if (region.First().Value is 'C')
@@ -111,7 +111,12 @@ public class Day12
             if (topLeftDifferentCount is 1 or 3 || topLeft.All(x => x is null))
             {
                 corners++;
-                cornersHashset.Add(new Point(element.Position.X - 1, element.Position.Y - 1));
+                var cp = GetCornerPoint(element.Position, Direction.NorthWest);
+                if (cp.X is 2 && cp.Y is 2)
+                {
+                    var bkpt = 5;
+                }
+                cornersHashset.Add(cp);
             }
 
             List<GridElement<char>?> topRight =
@@ -124,7 +129,12 @@ public class Day12
             if (topRightDifferentCount is 1 or 3 || topRight.All(x => x is null))
             {
                 corners++;
-                cornersHashset.Add(new Point(element.Position.X + 1, element.Position.Y - 1));
+                var cp = GetCornerPoint(element.Position, Direction.NorthEast);
+                if (cp.X is 2 && cp.Y is 2)
+                {
+                    var bkpt = 5;
+                }
+                cornersHashset.Add(cp);
             }
 
             List<GridElement<char>?> bottomRight =
@@ -137,7 +147,12 @@ public class Day12
             if (bottomRightDifferentCount is 1 or 3 || bottomRight.All(x => x is null))
             {
                 corners++;
-                cornersHashset.Add(new Point(element.Position.X + 1, element.Position.Y + 1));
+                var cp = GetCornerPoint(element.Position, Direction.SouthEast);
+                if (cp.X is 2 && cp.Y is 2)
+                {
+                    var bkpt = 5;
+                }
+                cornersHashset.Add(cp);
             }
 
             List<GridElement<char>?> bottomLeft =
@@ -150,21 +165,29 @@ public class Day12
             if (bottomLeftDifferentCount is 1 or 3 || bottomLeft.All(x => x is null))
             {
                 corners++;
-                cornersHashset.Add(new Point(element.Position.X - 1, element.Position.Y + 1));
+                var cp = GetCornerPoint(element.Position, Direction.SouthWest);
+                if (cp.X is 2 && cp.Y is 2)
+                {
+                    var bkpt = 5;
+                }
+                cornersHashset.Add(cp);
             }
-
-            // var otherCount = diagonals.Count(d => d.Value != region.First().Value);
-            //     corners += otherCount switch
-            //     {
-            //         1 => 1,
-            //         3 => 1,
-            //         5 => 2, // double corner
-            //         _ => 0
-            //     };
         }
 
         // return corners;
         return cornersHashset.Count;
+    }
+    
+    private static Point GetCornerPoint(Point origin, Direction direction)
+    {
+        return direction switch
+        {
+            Direction.NorthEast => origin + new Point(1, 0),
+            Direction.SouthEast => origin + new Point(1, 1),
+            Direction.SouthWest => origin + new Point(0, 1),
+            Direction.NorthWest => origin + new Point(0, 0),
+            _ => throw new Exception($"Invalid direction {direction}")
+        };
     }
 
     private static int Price(Region region, Grid<char> grid) => Perimeter(region, grid) * region.Count;

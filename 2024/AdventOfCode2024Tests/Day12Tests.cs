@@ -1,6 +1,7 @@
-﻿using Xunit;
+﻿using AdventOfCode2024;
+using Xunit;
 
-namespace AdventOfCode2024.tests;
+namespace AdventOfCode2024Tests;
 
 public static class Day12Tests
 {

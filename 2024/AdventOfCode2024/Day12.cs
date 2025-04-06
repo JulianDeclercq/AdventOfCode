@@ -43,9 +43,13 @@ public class Day12(string inputPath)
     {
         PopulateRegionsFromGrid();
         
+        var visualisation = Grid.ShallowCopy();
+        foreach (var point in Grid.AllExtended().Select(x => x.Position))
+            visualisation.Set(point, '.');
+        
         var answer = part is 1
             ? Regions.Select(r => Price(r, Grid)).Sum()
-            : Regions.Select(r => Price2(r, Grid)).Sum();
+            : Regions.Select(r => Price2(r, Grid, visualisation)).Sum();
         
         Console.WriteLine($"Total price for part {part} is {answer}");
 
@@ -53,10 +57,15 @@ public class Day12(string inputPath)
         {
             foreach (var region in Regions)
             {
-                var p = Price2(region, Grid);
-                Console.WriteLine($"{region.First().Value}, corners: {Corners(region, Grid)}, price for part 2 is {p}");
+                var p = Price2(region, Grid, visualisation);
+                Console.WriteLine($"{region.First().Value}," +
+                                  $" corners: {Corners(region, Grid, visualisation)}," +
+                                  $" price for part 2 is {p}");
             }
         }
+        
+        Console.WriteLine("Final vis of corners");
+        Console.WriteLine(visualisation);
 
         return answer;
     }
@@ -104,7 +113,7 @@ public class Day12(string inputPath)
     }
 
     // #sides = #corners! :D
-    private static int Corners(Region region, Grid<char> grid)
+    private static int Corners(Region region, Grid<char> grid, Grid<char> visualisation)
     {
         if (region.First().Value is 'C')
         {
@@ -128,10 +137,6 @@ public class Day12(string inputPath)
             {
                 corners++;
                 var cp = GetCornerPoint(element.Position, Direction.NorthWest);
-                if (cp.X is 2 && cp.Y is 2)
-                {
-                    var bkpt = 5;
-                }
 
                 cornersHashset.Add(cp);
             }
@@ -147,10 +152,6 @@ public class Day12(string inputPath)
             {
                 corners++;
                 var cp = GetCornerPoint(element.Position, Direction.NorthEast);
-                if (cp.X is 2 && cp.Y is 2)
-                {
-                    var bkpt = 5;
-                }
 
                 cornersHashset.Add(cp);
             }
@@ -166,10 +167,6 @@ public class Day12(string inputPath)
             {
                 corners++;
                 var cp = GetCornerPoint(element.Position, Direction.SouthEast);
-                if (cp.X is 2 && cp.Y is 2)
-                {
-                    var bkpt = 5;
-                }
 
                 cornersHashset.Add(cp);
             }
@@ -185,16 +182,23 @@ public class Day12(string inputPath)
             {
                 corners++;
                 var cp = GetCornerPoint(element.Position, Direction.SouthWest);
-                if (cp.X is 2 && cp.Y is 2)
-                {
-                    var bkpt = 5;
-                }
 
                 cornersHashset.Add(cp);
             }
         }
 
         // return corners;
+        // try to visualise the corners in a new grid
+        var visWidth = cornersHashset.MaxBy(p => p.X)!.X + 1;
+        var visHeight = cornersHashset.MaxBy(p => p.Y)!.Y + 1;
+        var vis = new Grid<char>(visWidth, visHeight, Enumerable.Repeat('.', visWidth * visHeight), '@');
+        foreach (var corner in cornersHashset)
+        {
+            vis.Set(corner, '*'); // local
+            visualisation.Set(corner, '*'); // global
+        }
+        
+        Console.WriteLine(vis);
         return cornersHashset.Count;
     }
 
@@ -211,5 +215,6 @@ public class Day12(string inputPath)
     }
 
     private static int Price(Region region, Grid<char> grid) => Perimeter(region, grid) * region.Count;
-    private static int Price2(Region region, Grid<char> grid) => Corners(region, grid) * region.Count;
+    private static int Price2(Region region, Grid<char> grid, Grid<char> visualisation)
+        => Corners(region, grid, visualisation) * region.Count;
 }

@@ -1,10 +1,12 @@
 ﻿using AdventOfCode2024;
-using Xunit;
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-// Day12.SolvePart(part: 1);
-// Day12.SolvePart(part: 2);
+var day = new Day12("input/day12e.txt");
+day.SolvePart(part: 1);
+day.SolvePart(part: 2);
+
+Console.WriteLine("is this debug working or nah");
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

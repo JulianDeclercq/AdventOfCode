@@ -42,4 +42,12 @@ public static class Day12Tests
         var day12 = new Day12("input/day12e3.txt");
         Assert.Equal(1206, day12.SolvePart(2));
     }
+    
+    [Fact]
+    private static void Part2ExampleOwn()
+    {
+        var day12 = new Day12("input/day12e6.txt");
+        int area = 6*3, corners = 4;
+        Assert.Equal(area * corners, day12.SolvePart(2));
+    }
 }

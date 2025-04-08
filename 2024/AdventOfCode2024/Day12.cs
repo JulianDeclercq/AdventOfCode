@@ -5,67 +5,43 @@ namespace AdventOfCode2024;
 
 public class Day12(string inputPath)
 {
-    public Grid<char> Grid;
-    public readonly List<Region> Regions = [];
+    private Grid<char> _grid = new(1, 1, ['.'], '@');  
+    private readonly List<Region> _regions = [];
 
-    private void PopulateRegionsFromGrid()
+    public int SolvePart(int part)
+    {
+        ParseInput();
+
+        return part is 1
+            ? _regions.Select(r => Price(r, _grid)).Sum()
+            : _regions.Select(r => Price2(r, _grid)).Sum();
+    }
+    
+    private void ParseInput()
     {
         // already populated
-        if (Regions.Count > 0)
+        if (_regions.Count > 0)
             return;
-        
-        // var lines = File.ReadAllLines("input/day12e5.txt");
+
         var lines = File.ReadAllLines(inputPath);
-        Grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
+        _grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(l => l), '@');
 
         HashSet<Point> visited = [];
         Region region = [];
 
-        foreach (var element in Grid.AllExtended())
+        foreach (var element in _grid.AllExtended())
         {
             if (visited.Contains(element.Position))
                 continue;
 
             region.Add(element);
             visited.Add(element.Position);
-            TryAddNeighboursToRegion(element, Grid, region, visited);
+            TryAddNeighboursToRegion(element, _grid, region, visited);
 
             // add current region before moving to the next
-            Regions.Add(region.ToList());
+            _regions.Add(region.ToList());
             region.Clear();
         }
-
-        // foreach (var r in regions)
-        //     Console.WriteLine($"{r.First().Value} perimeter: {Perimeter(r, grid)}, area: {r.Count}");
-    }
-
-    public int SolvePart(int part)
-    {
-        PopulateRegionsFromGrid();
-        
-        // var answer = part is 1
-        //     ? Regions.Select(r => Price(r, Grid)).Sum()
-        //     : Regions.Select(r => Price2(r, Grid, visualisation)).Sum();
-        
-        // Console.WriteLine($"Total price for part {part} is {answer}");
-
-        int answer = 0;
-        if (part is 2) // 865044 is too low
-        {
-            foreach (var region in Regions)
-            {
-                var p = Price2(region, Grid);
-                Console.WriteLine($"{region.First().Value}," +
-                                  $" corners: {Corners(region, Grid)}," +
-                                  $" price for part 2 is {p}");
-                answer += p;
-            }
-        }
-        
-        // looks like the absolute middle of day12e5 is not being counted, which would give region A 2 more corners,
-        // and both region B's 1 more. This would add up to the correct result!
-        Console.WriteLine($"Answer is {answer}");
-        return answer;
     }
 
     private static void TryAddNeighboursToRegion(
@@ -110,15 +86,7 @@ public class Day12(string inputPath)
         return perimeter;
     }
 
-    private static bool IsInRegion(GridElement<char>? element, Region region)
-    {
-        if (element is null)
-            return false;
-                
-        return region.Any(plant => plant.Position.Equals(element.Position));
-    }
-
-    // #sides = #corners! :D
+    // counting corners is the same as counting sides
     private static int Corners(Region region, Grid<char> grid)
     {
         var corners = 0;
@@ -133,11 +101,13 @@ public class Day12(string inputPath)
             var west = IsInRegion(grid.GetNeighbour(element.Position, Direction.West), region);
             var northWest = IsInRegion(grid.GetNeighbour(element.Position, Direction.NorthWest), region);
 
+            // outside corners
             if (!north && !east) corners++;
             if (!south && !east) corners++;
             if (!south && !west) corners++;
             if (!north && !west) corners++;
 
+            // inside corners
             if (north && east && !northEast) corners++;
             if (south && east && !southEast) corners++;
             if (south && west && !southWest) corners++;
@@ -146,17 +116,13 @@ public class Day12(string inputPath)
 
         return corners;
     }
-
-    private static Point GetCornerPoint(Point origin, Direction direction)
+    
+    private static bool IsInRegion(GridElement<char>? element, Region region)
     {
-        return direction switch
-        {
-            Direction.NorthEast => origin + new Point(1, 0),
-            Direction.SouthEast => origin + new Point(1, 1),
-            Direction.SouthWest => origin + new Point(0, 1),
-            Direction.NorthWest => origin + new Point(0, 0),
-            _ => throw new Exception($"Invalid direction {direction}")
-        };
+        if (element is null)
+            return false;
+
+        return region.Any(plant => plant.Position.Equals(element.Position));
     }
 
     private static int Price(Region region, Grid<char> grid) => Perimeter(region, grid) * region.Count;

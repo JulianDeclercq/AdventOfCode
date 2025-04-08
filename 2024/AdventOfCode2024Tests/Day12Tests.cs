@@ -35,6 +35,24 @@ public static class Day12Tests
         var day12 = new Day12("input/day12e5.txt");
         Assert.Equal(368, day12.SolvePart(2));
     }
+    
+    
+    
+    
+    
+    
+    
+    /*
+     *         if (!n && !e) corners++
+               if (!s && !e) corners++
+               if (!n && !w) corners++
+               if (!s && !w) corners++
+       
+               if (n && e && !ne) corners++
+               if (s && e && !se) corners++
+               if (n && w && !nw) corners++
+               if (s && w && !sw) corners++
+     */
 
     [Fact]
     private static void Part2ExampleLarge()

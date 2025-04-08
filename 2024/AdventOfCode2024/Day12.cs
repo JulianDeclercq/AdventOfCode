@@ -110,83 +110,41 @@ public class Day12(string inputPath)
         return perimeter;
     }
 
+    private static bool IsInRegion(GridElement<char>? element, Region region)
+    {
+        if (element is null)
+            return false;
+                
+        return region.Any(plant => plant.Position.Equals(element.Position));
+    }
+
     // #sides = #corners! :D
     private static int Corners(Region region, Grid<char> grid)
     {
-        if (region.First().Value is 'C')
-        {
-            // C is currently wrong with EXACTLY a factor of 1.5x
-            int bkpt = 5;
-        }
-
         var corners = 0;
-        HashSet<Point> cornersHashset = [];
         foreach (var element in region)
         {
-            // var diagonals = grid.DiagonalNeighboursExtended(element.Position, false);
-            List<GridElement<char>?> topLeft =
-            [
-                grid.GetNeighbour(element.Position, Direction.West),
-                grid.GetNeighbour(element.Position, Direction.NorthWest),
-                grid.GetNeighbour(element.Position, Direction.North),
-            ];
-            var topLeftDifferentCount = topLeft.Count(x => x is not null && x.Value != region.First().Value);
-            if (topLeftDifferentCount is 1 or 3 || topLeft.All(x => x is null))
-            {
-                corners++;
-                var cp = GetCornerPoint(element.Position, Direction.NorthWest);
+            var north = IsInRegion(grid.GetNeighbour(element.Position, Direction.North), region);
+            var northEast = IsInRegion(grid.GetNeighbour(element.Position, Direction.NorthEast), region);
+            var east = IsInRegion(grid.GetNeighbour(element.Position, Direction.East), region);
+            var southEast = IsInRegion(grid.GetNeighbour(element.Position, Direction.SouthEast), region);
+            var south = IsInRegion(grid.GetNeighbour(element.Position, Direction.South), region);
+            var southWest = IsInRegion(grid.GetNeighbour(element.Position, Direction.SouthWest), region);
+            var west = IsInRegion(grid.GetNeighbour(element.Position, Direction.West), region);
+            var northWest = IsInRegion(grid.GetNeighbour(element.Position, Direction.NorthWest), region);
 
-                cornersHashset.Add(cp);
-            }
+            if (!north && !east) corners++;
+            if (!south && !east) corners++;
+            if (!south && !west) corners++;
+            if (!north && !west) corners++;
 
-            List<GridElement<char>?> topRight =
-            [
-                grid.GetNeighbour(element.Position, Direction.North),
-                grid.GetNeighbour(element.Position, Direction.NorthEast),
-                grid.GetNeighbour(element.Position, Direction.East),
-            ];
-            var topRightDifferentCount = topRight.Count(x => x is not null && x.Value != region.First().Value);
-            if (topRightDifferentCount is 1 or 3 || topRight.All(x => x is null))
-            {
-                corners++;
-                var cp = GetCornerPoint(element.Position, Direction.NorthEast);
-
-                cornersHashset.Add(cp);
-            }
-
-            List<GridElement<char>?> bottomRight =
-            [
-                grid.GetNeighbour(element.Position, Direction.East),
-                grid.GetNeighbour(element.Position, Direction.SouthEast),
-                grid.GetNeighbour(element.Position, Direction.South),
-            ];
-            var bottomRightDifferentCount = bottomRight.Count(x => x is not null && x.Value != region.First().Value);
-            if (bottomRightDifferentCount is 1 or 3 || bottomRight.All(x => x is null))
-            {
-                corners++;
-                var cp = GetCornerPoint(element.Position, Direction.SouthEast);
-
-                cornersHashset.Add(cp);
-            }
-
-            List<GridElement<char>?> bottomLeft =
-            [
-                grid.GetNeighbour(element.Position, Direction.South),
-                grid.GetNeighbour(element.Position, Direction.SouthWest),
-                grid.GetNeighbour(element.Position, Direction.West),
-            ];
-            var bottomLeftDifferentCount = bottomLeft.Count(x => x is not null && x.Value != region.First().Value);
-            if (bottomLeftDifferentCount is 1 or 3 || bottomLeft.All(x => x is null))
-            {
-                corners++;
-                var cp = GetCornerPoint(element.Position, Direction.SouthWest);
-
-                cornersHashset.Add(cp);
-            }
+            if (north && east && !northEast) corners++;
+            if (south && east && !southEast) corners++;
+            if (south && west && !southWest) corners++;
+            if (north && west && !northWest) corners++;
         }
 
-        // return corners;
-        return cornersHashset.Count;
+        return corners;
     }
 
     private static Point GetCornerPoint(Point origin, Direction direction)

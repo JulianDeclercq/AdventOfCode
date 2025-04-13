@@ -148,10 +148,7 @@ public static class Day14Tests
             ], example: true
         );
 
-        for (var i = 0; i < 100; ++i)
-            day.Step();
-
-        Assert.Equal(12, day.SafetyScore());
+        Assert.Equal(12, day.Solve());
 
         /*
             ..... 2..1.
@@ -169,9 +166,8 @@ public static class Day14Tests
     {
         var day = new Day14();
         day.InitializeFromFile("input/day14.txt");
-        day.Solve();
         
-        Assert.Equal(229421808, day.SafetyScore());
+        Assert.Equal(229421808, day.Solve());
     }
     
     [Fact]

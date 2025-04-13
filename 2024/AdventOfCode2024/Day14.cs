@@ -53,7 +53,7 @@ public class Day14
         Console.WriteLine(new Grid<char>(_width, _height, _grid.All().Select(x => x!.Count == 0 ? '.' : '@'), 'l'));
     }
 
-    public void Solve()
+    public int Solve()
     {
         PrintVisualisation();
         const int steps = 100;
@@ -63,7 +63,9 @@ public class Day14
             // PrintVisualisation();
         }
 
-        Console.WriteLine(SafetyScore());
+        var safetyScore = SafetyScore();
+        Console.WriteLine(safetyScore);
+        return safetyScore;
     }
 
     public int Solve2()
@@ -72,12 +74,8 @@ public class Day14
         var maxContinuous = 0;
         for (var i = 0; i < steps; ++i)
         {
-            if (i % 1000 == 0)
-                Console.WriteLine($"iteration {i}");
-
             Step();
-            var rows = _grid.Rows().ToArray();
-            foreach (var row in rows)
+            foreach (var row in _grid.Rows())
             {
                 var continuous = 0;
                 foreach (var cell in row)
@@ -111,14 +109,9 @@ public class Day14
         // deep copy the grid, you don't want to be working on the grid while changing it around
         List<List<Point>?> elements = [];
         foreach (var cell in _grid.AllExtended())
-        {
             elements.Add(cell.Value!.ToList());
-            // be careful here I'm not sure if Point being a reference type is a problem
-            // don't think so though since I don't change the point itself, just moving it around
-        }
 
         var workCopy = new Grid<List<Point>?>(_width, _height, elements, null);
-
         foreach (var cell in _grid.AllExtended())
         {
             foreach (var robot in cell.Value!)
@@ -137,28 +130,19 @@ public class Day14
                 var list = workCopy.At(cell.Position);
                 list!.Remove(robot);
 
-                // TODO: Verify if needed? Since list is a reference type i don't think i need to set it again
-                workCopy.Set(cell.Position, list);
-
                 var newList = workCopy.At(wrappedPosition);
-                if (newList is null) throw new Exception("New List was null, you're probably out of bounds");
+                if (newList is null)
+                    throw new Exception("New List was null, you're probably out of bounds");
 
-                // TODO: Do robots need a unique id? Seems like we do if there are robots who share velocity
                 newList.Add(robot);
-                workCopy.Set(wrappedPosition, newList); // TODO: Same as before
             }
         }
 
         _grid = workCopy;
     }
 
-    public int SafetyScore()
+    private int SafetyScore()
     {
-        // split the grid in 4 quadrants
-        var halfX = (_grid.Width - 1) / 2;
-        var halfY = (_grid.Height - 1) / 2;
-
-        // nw
         int nw = 0, ne = 0, se = 0, sw = 0;
         for (var x = 0; x < _grid.Width; ++x)
         {

@@ -136,4 +136,31 @@ public static class Day14Tests
             .1....1....
          */
     }
+    
+    [Fact]
+    private static void After_100_steps_safety_score_should_match_given()
+    {
+        var day = new Day14();
+        day.Initialize([
+                "p=0,4 v=3,-3", "p=6,3 v=-1,-3", "p=10,3 v=-1,2", "p=2,0 v=2,-1", "p=0,0 v=1,3",
+                "p=3,0 v=-2,-2", "p=7,6 v=-1,-3", "p=3,0 v=-1,-2", "p=9,3 v=2,3", "p=7,3 v=-1,2",
+                "p=2,4 v=2,-3", "p=9,5 v=-3,-3"
+            ], example: true
+        );
+
+        for (var i = 0; i < 100; ++i)
+            day.Step();
+
+        Assert.Equal(12, day.SafetyScore());
+
+        /*
+            ..... 2..1.
+            ..... .....
+            1.... .....
+                       
+            ..... .....
+            ...12 .....
+            .1... 1....
+         */
+    }
 }

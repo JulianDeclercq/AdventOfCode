@@ -3,7 +3,7 @@
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
 var day = new Day14();
-day.Initialize(["p=2,4 v=2,-3"], example: true);
+day.InitializeFromFile("input/day14.txt");
 day.Solve();
 
 watch.Stop();

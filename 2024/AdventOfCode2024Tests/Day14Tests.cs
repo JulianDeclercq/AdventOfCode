@@ -163,4 +163,23 @@ public static class Day14Tests
             .1... 1....
          */
     }
+
+    [Fact]
+    private static void Part1_Solution_should_be_correct()
+    {
+        var day = new Day14();
+        day.InitializeFromFile("input/day14.txt");
+        day.Solve();
+        
+        Assert.Equal(229421808, day.SafetyScore());
+    }
+    
+    [Fact]
+    private static void Part2_Solution_should_be_correct()
+    {
+        var day = new Day14();
+        day.InitializeFromFile("input/day14.txt");
+        
+        Assert.Equal(6577, day.Solve2());
+    }
 }

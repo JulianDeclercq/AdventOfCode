@@ -5,8 +5,6 @@ namespace AdventOfCode2024;
 
 public class Day14
 {
-    // private const int Width = Example ? 11 : 101;
-    // private const int Height = Example ? 7 : 103;
     private Grid<List<Point>?> _grid = new(1, 1, [[]], null);
     private int _width = 0;
     private int _height = 0;
@@ -20,12 +18,12 @@ public class Day14
 
     public void Initialize(IReadOnlyList<string> inputLines, bool example = false)
     {
-        // a robot will be a Point, which is its velocity. Position will be handled by the grid
-        // nullable for invalid, not sure if good idea
+        // a robot will be a Point, which is its velocity. Position will be handled by the grid nullable for invalid
         List<List<Point>> elements = [];
-        
+
         _width = example ? 11 : 101;
         _height = example ? 7 : 103;
+
         // with Enumerable.Repeat you'll get the same reference to the same (empty) list
         for (var i = 0; i < _width; ++i)
         {
@@ -50,21 +48,62 @@ public class Day14
         }
     }
 
+    private void PrintVisualisation()
+    {
+        Console.WriteLine(new Grid<char>(_width, _height, _grid.All().Select(x => x!.Count == 0 ? '.' : '@'), 'l'));
+    }
+
     public void Solve()
     {
-        // var visualisation = new Grid<int>(_width, _height, _grid.All().Select(x => x!.Count), -1); // long?
-        // PrintGrid(grid);
-        // Console.WriteLine(visualisation);
-
+        PrintVisualisation();
         const int steps = 100;
         for (var i = 0; i < steps; ++i)
         {
             Step();
-            // var vis = new Grid<int>(_width, _height, _grid.All().Select(x => x!.Count), -1);
-            // Console.WriteLine(vis);
+            // PrintVisualisation();
         }
-        
+
         Console.WriteLine(SafetyScore());
+    }
+
+    public int Solve2()
+    {
+        const int steps = 1_000_000;
+        var maxContinuous = 0;
+        for (var i = 0; i < steps; ++i)
+        {
+            if (i % 1000 == 0)
+                Console.WriteLine($"iteration {i}");
+
+            Step();
+            var rows = _grid.Rows().ToArray();
+            foreach (var row in rows)
+            {
+                var continuous = 0;
+                foreach (var cell in row)
+                {
+                    if (cell.Value!.Count is 0)
+                    {
+                        continuous = 0;
+                        continue;
+                    }
+
+                    continuous++;
+                    if (continuous == 8) // if we find 8 continuous robots, we have found the tree!
+                    {
+                        PrintVisualisation();
+                        var step = i + 1; // index starts at 0, which is the first step we take
+                        Console.WriteLine($"Found the christmas tree at step {step}");
+                        return step;
+                    }
+
+                    if (continuous > maxContinuous)
+                        maxContinuous = continuous;
+                }
+            }
+        }
+
+        throw new Exception("Did not find the christmas tree :(");
     }
 
     public void Step()
@@ -128,10 +167,10 @@ public class Day14
                 // ignore middle lines
                 if (x == (_grid.Width - 1) / 2)
                     continue;
-                
+
                 if (y == (_grid.Height - 1) / 2)
                     continue;
-                
+
                 var west = x < _grid.Width / 2;
                 var north = y < _grid.Height / 2;
 
@@ -144,16 +183,5 @@ public class Day14
         }
 
         return nw * ne * se * sw;
-    }
-
-    private static void PrintGrid(Grid<List<Point>?> grid)
-    {
-        foreach (var cell in grid.AllExtended())
-        {
-            if (cell.Value is null)
-                throw new Exception("Cell value was null when trying to print");
-
-            Console.WriteLine($"{cell.Position}, [{string.Join(" | ", cell.Value)}]");
-        }
     }
 }

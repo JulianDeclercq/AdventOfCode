@@ -2,7 +2,8 @@
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-var day = new Day15("input/day15e1.txt");
+var day = new Day15("input/day15.txt");
+day.Solve();
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

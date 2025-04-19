@@ -11,7 +11,7 @@ public class Day15
     public const char Robot = '@';
     public const char Empty = '.';
     public const char Box = 'O';
-    public const char Edge = '#';
+    private const char Edge = '#';
 
     public Grid<char> GetGrid() => _grid;
 
@@ -27,15 +27,19 @@ public class Day15
             if (cell.Value is '@')
             {
                 _cachedRobotPosition = cell.Position;
-                break;
+                return;
             }
         }
+
+        throw new Exception("Couldn't find robot");
     }
 
     public void Solve()
     {
         for (var i = 0; i < _moves.Length; ++i)
             Step();
+        
+        Console.WriteLine(GpsSum());
     }
 
     private void MoveRobot(Point target)
@@ -43,6 +47,16 @@ public class Day15
         _grid.Set(_cachedRobotPosition, Empty);
         _grid.Set(target, Robot);
         _cachedRobotPosition = target;
+    }
+
+    private void PushBox(Point robotTarget, Point emptySpace)
+    {
+        // we can cheat a bit, instead of moving the whole row: move the first barrel to the end of the box instead
+        // where the robot moves is where the first box was
+        _grid.Set(_cachedRobotPosition, Empty);
+        _grid.Set(robotTarget, Robot);
+        _grid.Set(emptySpace, Box);
+        _cachedRobotPosition = robotTarget;
     }
 
     private void PushBoxRow(GridElement<char> firstBox, Direction direction)
@@ -62,16 +76,6 @@ public class Day15
             case Box: break;
             case null: throw new Exception("FurthestNeighbour is null");
         }
-    }
-
-    private void PushBox(Point robotTarget, Point emptySpace)
-    {
-        // we can cheat a bit, instead of moving the whole row: move the first barrel to the end of the box instead
-        // where the robot moves is where the first box was
-        _grid.Set(_cachedRobotPosition, Empty);
-        _grid.Set(robotTarget, Robot);
-        _grid.Set(emptySpace, Box);
-        _cachedRobotPosition = robotTarget;
     }
 
     public void Step()
@@ -148,8 +152,22 @@ public class Day15
                 break;
         }
 
-        Console.WriteLine($"Step {_currentStep}");
-        Console.WriteLine(_grid);
+        // Console.WriteLine($"Step {_currentStep}");
+        // Console.WriteLine(_grid);
         _currentStep++;
+    }
+
+    public int GpsSum()
+    {
+        var sum = 0;
+        foreach (var (position, value) in _grid.AllExtended())
+        {
+            if (value is not Box)
+                continue;
+
+            sum += 100 * position.Y + position.X;
+        }
+
+        return sum;
     }
 }

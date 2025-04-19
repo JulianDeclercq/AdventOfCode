@@ -158,4 +158,50 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
            ########
          */
     }
+
+    [Fact]
+    private void Large_example_should_be_correct()
+    {
+        var day = new Day15("input/day15e2.txt");
+        day.Solve();
+
+        var grid = day.GetGrid();
+        testOutputHelper.WriteLine(grid.ToString());
+        Assert.Equal(Day15.Box, grid.At(2, 1));
+        Assert.Equal(Day15.Box, grid.At(2, 4));
+        Assert.Equal(Day15.Robot, grid.At(3, 4));
+        Assert.Equal(Day15.Empty, grid.At(4, 4));
+        Assert.Equal(Day15.Empty, grid.At(3, 5));
+
+        /*
+         * ##########
+           #.O.O.OOO#
+           #........#
+           #OO......#
+           #OO@.....#
+           #O#.....O#
+           #O.....OO#
+           #O.....OO#
+           #OO....OO#
+           ##########
+         */
+    }
+
+    [Fact]
+    private void Large_example_gps_sum_should_be_correct()
+    {
+        var day = new Day15("input/day15e2.txt");
+        day.Solve();
+        
+        Assert.Equal(10092, day.GpsSum());
+    }
+    
+    [Fact]
+    private void Part1_gps_sum_should_be_correct()
+    {
+        var day = new Day15("input/day15.txt");
+        day.Solve();
+        
+        Assert.Equal(1441031, day.GpsSum());
+    }
 }

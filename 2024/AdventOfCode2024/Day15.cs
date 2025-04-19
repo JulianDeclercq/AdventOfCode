@@ -22,23 +22,14 @@ public class Day15
         _moves = lines.Skip(gridLines.Length + 1).SelectMany(l => l).ToArray();
         _grid = new Grid<char>(gridLines.First().Length, gridLines.Length, gridLines.SelectMany(l => l), '-');
 
-        foreach (var cell in _grid.AllExtended())
-        {
-            if (cell.Value is '@')
-            {
-                _cachedRobotPosition = cell.Position;
-                return;
-            }
-        }
-
-        throw new Exception("Couldn't find robot");
+        _cachedRobotPosition = _grid.AllExtended().Single(x => x.Value is Robot).Position;
     }
 
     public void Solve()
     {
         for (var i = 0; i < _moves.Length; ++i)
             Step();
-        
+
         Console.WriteLine(GpsSum());
     }
 
@@ -47,16 +38,6 @@ public class Day15
         _grid.Set(_cachedRobotPosition, Empty);
         _grid.Set(target, Robot);
         _cachedRobotPosition = target;
-    }
-
-    private void PushBox(Point robotTarget, Point emptySpace)
-    {
-        // we can cheat a bit, instead of moving the whole row: move the first barrel to the end of the box instead
-        // where the robot moves is where the first box was
-        _grid.Set(_cachedRobotPosition, Empty);
-        _grid.Set(robotTarget, Robot);
-        _grid.Set(emptySpace, Box);
-        _cachedRobotPosition = robotTarget;
     }
 
     private void PushBoxRow(GridElement<char> firstBox, Direction direction)
@@ -71,7 +52,12 @@ public class Day15
         {
             case Edge: break;
             case Empty:
-                PushBox(firstBox.Position, furthestNeighbour.Position);
+                // we can cheat a bit, instead of moving the whole row: move the first box to the end of the row instead
+                // where the robot moves is where the first box was
+                _grid.Set(_cachedRobotPosition, Empty);
+                _grid.Set(firstBox.Position, Robot);
+                _grid.Set(furthestNeighbour.Position, Box);
+                _cachedRobotPosition = firstBox.Position;
                 break;
             case Box: break;
             case null: throw new Exception("FurthestNeighbour is null");
@@ -101,7 +87,6 @@ public class Day15
                 }
 
                 break;
-
             case '>':
                 var east = _grid.GetNeighbour(_cachedRobotPosition, Direction.East);
                 switch (east?.Value)
@@ -144,9 +129,8 @@ public class Day15
                     case Box:
                         PushBoxRow(west, Direction.West);
                         break;
-
                     case null:
-                        throw new Exception("West neighbour is null, should never happen it should be # at edges");
+                        throw new Exception("west null");
                 }
 
                 break;
@@ -159,15 +143,8 @@ public class Day15
 
     public int GpsSum()
     {
-        var sum = 0;
-        foreach (var (position, value) in _grid.AllExtended())
-        {
-            if (value is not Box)
-                continue;
-
-            sum += 100 * position.Y + position.X;
-        }
-
-        return sum;
+        return _grid.AllExtended()
+            .Where(x => x.Value is Box)
+            .Sum(box => 100 * box.Position.Y + box.Position.X);
     }
 }

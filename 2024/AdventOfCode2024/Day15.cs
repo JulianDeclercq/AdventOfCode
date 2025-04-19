@@ -64,75 +64,32 @@ public class Day15
         }
     }
 
+    private readonly Dictionary<char, Direction> _directionMap = new()
+    {
+        ['^'] = Direction.North,
+        ['>'] = Direction.East,
+        ['v'] = Direction.South,
+        ['<'] = Direction.West,
+    };
+
     public void Step()
     {
         if (_currentStep >= _moves.Length)
             throw new Exception("No steps left to take!");
 
         var step = _moves[_currentStep];
-        switch (step)
+        var direction = _directionMap[step];
+        var neighbour = _grid.GetNeighbour(_cachedRobotPosition, direction);
+        if (neighbour is null)
+            throw new Exception("Neighbour is null");
+
+        switch (neighbour.Value)
         {
-            case '^':
-                var north = _grid.GetNeighbour(_cachedRobotPosition, Direction.North);
-                switch (north?.Value)
-                {
-                    case Edge: break;
-                    case Empty:
-                        MoveRobot(north.Position);
-                        break;
-                    case Box:
-                        PushBoxRow(north, Direction.North);
-                        break;
-                    case null: throw new Exception("north null");
-                }
-
+            case Empty:
+                MoveRobot(neighbour.Position);
                 break;
-            case '>':
-                var east = _grid.GetNeighbour(_cachedRobotPosition, Direction.East);
-                switch (east?.Value)
-                {
-                    case Edge: break;
-                    case Empty:
-                        MoveRobot(east.Position);
-                        break;
-                    case Box:
-                        PushBoxRow(east, Direction.East);
-                        break;
-                    case null: throw new Exception("east null");
-                }
-
-                break;
-            case 'v':
-                var south = _grid.GetNeighbour(_cachedRobotPosition, Direction.South);
-                switch (south?.Value)
-                {
-                    case Edge: break;
-                    case Empty:
-                        MoveRobot(south.Position);
-                        break;
-                    case Box:
-                        PushBoxRow(south, Direction.South);
-                        break;
-                    case null: throw new Exception("south null");
-                }
-
-                break;
-            case '<':
-                var west = _grid.GetNeighbour(_cachedRobotPosition, Direction.West);
-
-                switch (west?.Value)
-                {
-                    case Edge: break;
-                    case Empty:
-                        MoveRobot(west.Position);
-                        break;
-                    case Box:
-                        PushBoxRow(west, Direction.West);
-                        break;
-                    case null:
-                        throw new Exception("west null");
-                }
-
+            case Box:
+                PushBoxRow(neighbour, direction);
                 break;
         }
 

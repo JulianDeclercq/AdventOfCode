@@ -48,20 +48,16 @@ public class Day15
             furthestNeighbour = _grid.GetNeighbour(furthestNeighbour.Position, direction);
         } while (furthestNeighbour?.Value == Box);
 
-        switch (furthestNeighbour?.Value)
-        {
-            case Edge: break;
-            case Empty:
-                // we can cheat a bit, instead of moving the whole row: move the first box to the end of the row instead
-                // where the robot moves is where the first box was
-                _grid.Set(_cachedRobotPosition, Empty);
-                _grid.Set(firstBox.Position, Robot);
-                _grid.Set(furthestNeighbour.Position, Box);
-                _cachedRobotPosition = firstBox.Position;
-                break;
-            case Box: break;
-            case null: throw new Exception("FurthestNeighbour is null");
-        }
+        // only push the row if we have found an empty space at the end that we can push the row into
+        if (furthestNeighbour!.Value is not Empty)
+            return;
+
+        // we can cheat a bit, instead of moving the whole row: move the first box to the end of the row instead
+        // where the robot moves is where the first box was
+        _grid.Set(_cachedRobotPosition, Empty);
+        _grid.Set(firstBox.Position, Robot);
+        _grid.Set(furthestNeighbour.Position, Box);
+        _cachedRobotPosition = firstBox.Position;
     }
 
     private readonly Dictionary<char, Direction> _directionMap = new()

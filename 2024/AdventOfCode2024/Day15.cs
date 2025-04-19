@@ -52,11 +52,11 @@ public class Day15
         {
             furthestNeighbour = _grid.GetNeighbour(furthestNeighbour.Position, direction);
         } while (furthestNeighbour?.Value == Box);
-        
+
         switch (furthestNeighbour?.Value)
         {
             case Edge: break;
-            case Empty: 
+            case Empty:
                 PushBox(firstBox.Position, furthestNeighbour.Position);
                 break;
             case Box: break;
@@ -68,6 +68,7 @@ public class Day15
     {
         // we can cheat a bit, instead of moving the whole row: move the first barrel to the end of the box instead
         // where the robot moves is where the first box was
+        _grid.Set(_cachedRobotPosition, Empty);
         _grid.Set(robotTarget, Robot);
         _grid.Set(emptySpace, Box);
         _cachedRobotPosition = robotTarget;
@@ -90,18 +91,7 @@ public class Day15
                         MoveRobot(north.Position);
                         break;
                     case Box:
-                        var boxNorth = _grid.GetNeighbour(north.Position, Direction.North);
-                        switch (boxNorth?.Value)
-                        {
-                            case Edge: break;
-                            case Empty:
-                                PushBox(boxNorth.Position, north.Position);
-                                break;
-                            case Box:
-                                break;
-                            case null: throw new Exception("boxnorth null");
-                        }
-
+                        PushBoxRow(north, Direction.North);
                         break;
                     case null: throw new Exception("north null");
                 }
@@ -132,17 +122,7 @@ public class Day15
                         MoveRobot(south.Position);
                         break;
                     case Box:
-                        var boxSouth = _grid.GetNeighbour(south.Position, Direction.South);
-                        switch (boxSouth?.Value)
-                        {
-                            case Edge: break;
-                            case Empty:
-                                PushBox(boxSouth.Position, south.Position);
-                                break;
-                            case Box: break;
-                            case null: throw new Exception("boxsouth is null");
-                        }
-
+                        PushBoxRow(south, Direction.South);
                         break;
                     case null: throw new Exception("south null");
                 }
@@ -158,20 +138,7 @@ public class Day15
                         MoveRobot(west.Position);
                         break;
                     case Box:
-                        var boxWest = _grid.GetNeighbour(west.Position, Direction.West);
-
-                        switch (boxWest?.Value)
-                        {
-                            case Edge: break;
-                            case Empty:
-                                PushBox(boxWest.Position, west.Position);
-                                break;
-                            case Box: break;
-                            case null:
-                                throw new Exception(
-                                    "West BOX neighbour is null, should never happen it should be # at edges");
-                        }
-
+                        PushBoxRow(west, Direction.West);
                         break;
 
                     case null:

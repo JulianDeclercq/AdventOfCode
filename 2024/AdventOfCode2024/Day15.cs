@@ -1,4 +1,5 @@
-﻿using AdventOfCode2024.helpers;
+﻿using System.Text;
+using AdventOfCode2024.helpers;
 
 namespace AdventOfCode2024;
 
@@ -11,14 +12,48 @@ public class Day15
     public const char Robot = '@';
     public const char Empty = '.';
     public const char Box = 'O';
+    public const char BoxLeft = '[';
+    public const char BoxRight = ']';
     private const char Edge = '#';
 
     public Grid<char> GetGrid() => _grid;
 
-    public Day15(string filePath)
+    public Day15(string filePath, int part = 1)
     {
         var lines = File.ReadAllLines(filePath);
         var gridLines = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
+
+        if (part is 2)
+        {
+            gridLines = gridLines.Select(s =>
+            {
+                var sb = new StringBuilder();
+                foreach (var c in s)
+                {
+                    switch (c)
+                    {
+                        case Robot:
+                            sb.Append(Robot);
+                            sb.Append(Empty);
+                            break;
+                        case Empty:
+                            sb.Append(Empty, 2);
+                            break;
+                        case Box:
+                            sb.Append(BoxLeft);
+                            sb.Append(BoxRight);
+                            break;
+                        case Edge:
+                            sb.Append(Edge, 2);
+                            break;
+                        default: throw new Exception($"Invalid character {c}");
+                    }
+                }
+
+                return sb.ToString();
+            }).ToArray();
+        }
+
         _moves = lines.Skip(gridLines.Length + 1).SelectMany(l => l).ToArray();
         _grid = new Grid<char>(gridLines.First().Length, gridLines.Length, gridLines.SelectMany(l => l), '-');
 

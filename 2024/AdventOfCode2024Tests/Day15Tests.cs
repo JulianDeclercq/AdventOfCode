@@ -204,4 +204,28 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
         
         Assert.Equal(1441031, day.GpsSum());
     }
+    
+    [Fact]
+    private void Part2_example_should_have_wide_grid()
+    {
+        var day = new Day15("input/day15e3.txt", part: 2);
+        var grid = day.GetGrid();
+        testOutputHelper.WriteLine(grid.ToString());
+
+        Assert.Equal(Day15.BoxLeft, grid.At(8, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(9, 3));
+        Assert.Equal(Day15.BoxLeft, grid.At(6, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(7, 3));
+        Assert.Equal(Day15.Robot, grid.At(10, 3));
+
+        /*
+            ##############
+            ##......##..##
+            ##..........##
+            ##....[][]@.##
+            ##....[]....##
+            ##..........##
+            ##############
+         */
+    }
 }

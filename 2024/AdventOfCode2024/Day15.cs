@@ -95,6 +95,57 @@ public class Day15
         _cachedRobotPosition = firstBox.Position;
     }
 
+    private static bool IsBox(GridElement<char>? element)
+    {
+        if (element is null)
+            throw new Exception("Element is null");
+
+        return element.Value is Box or BoxLeft or BoxRight;
+    }
+
+    private void PushBoxRow2(GridElement<char> firstBox, Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.East:
+            case Direction.West:
+            {
+                var furthestNeighbour = firstBox;
+                do
+                {
+                    furthestNeighbour = _grid.GetNeighbour(furthestNeighbour!.Position, direction);
+                } while (IsBox(furthestNeighbour));
+
+                // only push the row if we have found an empty space at the end that we can push the row into
+                if (furthestNeighbour!.Value is not Empty)
+                    return;
+
+                // move the robot
+                _grid.Set(firstBox.Position, Robot);
+                _grid.Set(_cachedRobotPosition, Empty);
+                _cachedRobotPosition = firstBox.Position;
+
+                // shift all boxes
+                // TODO: Fix flow with cases lol
+                if (direction is Direction.West)
+                {
+                    var diff = firstBox.Position.X - furthestNeighbour.Position.X;
+                    for (var i = 1; i <= diff; ++i)
+                    {
+                        var newPos = new Point(firstBox.Position.X - i, firstBox.Position.Y);
+                        _grid.Set(newPos, i % 2 == 0 ? BoxLeft : BoxRight);
+                    }
+                }
+
+                break;
+            }
+
+            case Direction.North:
+            case Direction.South:
+                break;
+        }
+    }
+
     private readonly Dictionary<char, Direction> _directionMap = new()
     {
         ['^'] = Direction.North,
@@ -103,7 +154,7 @@ public class Day15
         ['<'] = Direction.West,
     };
 
-    public void Step()
+    public void Step(int part = 1)
     {
         if (_currentStep >= _moves.Length)
             throw new Exception("No steps left to take!");
@@ -120,7 +171,18 @@ public class Day15
                 MoveRobot(neighbour.Position);
                 break;
             case Box:
-                PushBoxRow(neighbour, direction);
+            case BoxLeft:
+            case BoxRight:
+            {
+                if (part is 1)
+                {
+                    PushBoxRow(neighbour, direction);
+                }
+                else
+                {
+                    PushBoxRow2(neighbour, direction);
+                }
+            }
                 break;
         }
 

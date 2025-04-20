@@ -192,19 +192,19 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     {
         var day = new Day15("input/day15e2.txt");
         day.Solve();
-        
+
         Assert.Equal(10092, day.GpsSum());
     }
-    
+
     [Fact]
     private void Part1_gps_sum_should_be_correct()
     {
         var day = new Day15("input/day15.txt");
         day.Solve();
-        
+
         Assert.Equal(1441031, day.GpsSum());
     }
-    
+
     [Fact]
     private void Part2_example_should_have_wide_grid()
     {
@@ -223,6 +223,33 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
             ##......##..##
             ##..........##
             ##....[][]@.##
+            ##....[]....##
+            ##..........##
+            ##############
+         */
+    }
+
+    [Fact]
+    private void Part2_should_push_wide_boxes_west()
+    {
+        var day = new Day15("input/day15e3.txt", part: 2);
+        var grid = day.GetGrid();
+        testOutputHelper.WriteLine(grid.ToString());
+
+        day.Step(part: 2);
+        testOutputHelper.WriteLine(grid.ToString());
+
+        Assert.Equal(Day15.BoxLeft, grid.At(7, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(8, 3));
+        Assert.Equal(Day15.BoxLeft, grid.At(5, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(6, 3));
+        Assert.Equal(Day15.Robot, grid.At(9, 3));
+
+        /*
+            ##############
+            ##......##..##
+            ##..........##
+            ##...[][]@..##
             ##....[]....##
             ##..........##
             ##############

@@ -263,7 +263,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 
-       for (var i = 0; i < 6; ++i)
+       for (var i = 0; i < 11; ++i)
         {
             day.Step(part: 2);
             testOutputHelper.WriteLine(grid.ToString());

@@ -145,10 +145,22 @@ public class Day15
                 List<GridElement<char>> toMove = [];
                 if (CanMove(firstBox, Direction.North, toMove))
                 {
-                    foreach (var box in toMove)
+                    var sorted = toMove.OrderBy(b => b.Position.Y).ThenBy(b => b.Position.X).ToArray();
+                    for (var i = 0; i < sorted.Length; ++i)
                     {
-                        _grid.Set(box.Position, 'X');
+                        var box = sorted[i];
+                        // _grid.Set(box.Position, (char)('0' + i));
+                        _grid.Set(box.Position + new Point(0, -1), box.Value);
+                        _grid.Set(box.Position, Empty);
                     }
+
+                    _grid.Set(_cachedRobotPosition, Empty);
+                    _grid.Set(_cachedRobotPosition + new Point(0, -1), Robot);
+                    _cachedRobotPosition += new Point(0, -1);
+                    // _grid.Set(_cachedRobotPosition, Empty);
+                    // _grid.Set(firstBox.Position, Robot);
+                    // _grid.Set(furthestNeighbour.Position, Box);
+                    // _cachedRobotPosition = firstBox.Position;
                 }
 
                 break;

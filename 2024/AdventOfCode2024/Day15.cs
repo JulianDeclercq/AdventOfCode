@@ -141,8 +141,78 @@ public class Day15
             }
 
             case Direction.North:
+            {
+                List<GridElement<char>> toMove = [];
+                if (CanMove(firstBox, Direction.North, toMove))
+                {
+                    foreach (var box in toMove)
+                    {
+                        _grid.Set(box.Position, 'X');
+                    }
+                }
+
+                break;
+            }
             case Direction.South:
                 break;
+        }
+    }
+
+    // only part 2
+    private bool CanMove(GridElement<char> boxHalf, Direction direction, List<GridElement<char>> toMove)
+    {
+        var otherBoxHalf = GetOtherBoxHalf(boxHalf);
+        switch (direction)
+        {
+            case Direction.North:
+            {
+                var neighbour = _grid.GetNeighbour(boxHalf.Position, Direction.North)!;
+                var otherNeighbour = _grid.GetNeighbour(otherBoxHalf.Position, Direction.North)!;
+
+                if (neighbour.Value is Edge || otherNeighbour.Value is Edge)
+                    return false;
+
+                if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
+                {
+                    // toMove.Add(neighbour);
+                    // toMove.Add(otherNeighbour);
+                    toMove.Add(boxHalf);
+                    toMove.Add(otherBoxHalf);
+                    return true;
+                }
+
+                // TODO: Avoid duplicate checking if boxes are aligned perfectly
+                if (CanMove(neighbour, Direction.North, toMove) && CanMove(otherNeighbour, Direction.North, toMove))
+                {
+                    toMove.Add(boxHalf);
+                    toMove.Add(otherBoxHalf);
+                    return true;
+                }
+
+                return false;
+            }
+            case Direction.East:
+            case Direction.West:
+                throw new NotImplementedException();
+            case Direction.South:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+        }
+
+        // TODO: WHAT SHOULD DEFAULT BE
+        return true;
+    }
+
+    private GridElement<char> GetOtherBoxHalf(GridElement<char> box)
+    {
+        switch (box.Value)
+        {
+            case BoxLeft:
+                return _grid.GetNeighbour(box.Position, Direction.East)!;
+            case BoxRight:
+                return _grid.GetNeighbour(box.Position, Direction.West)!;
+            default: throw new Exception($"Invalid box in CanMove {box.Value}");
         }
     }
 

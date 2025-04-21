@@ -255,4 +255,34 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
             ##############
          */
     }
+
+    [Fact]
+    private void Part2_should_push_wide_boxes_north_when_split()
+    {
+        var day = new Day15("input/day15e3.txt", part: 2);
+        var grid = day.GetGrid();
+        testOutputHelper.WriteLine(grid.ToString());
+
+       for (var i = 0; i < 6; ++i)
+        {
+            day.Step(part: 2);
+            testOutputHelper.WriteLine(grid.ToString());
+        }
+
+        // Assert.Equal(Day15.BoxLeft, grid.At(7, 3));
+        // Assert.Equal(Day15.BoxRight, grid.At(8, 3));
+        // Assert.Equal(Day15.BoxLeft, grid.At(5, 3));
+        // Assert.Equal(Day15.BoxRight, grid.At(6, 3));
+        // Assert.Equal(Day15.Robot, grid.At(9, 3));
+        //
+        /*
+            ##############
+            ##......##..##
+            ##..........##
+            ##...[][]@..##
+            ##....[]....##
+            ##..........##
+            ##############
+         */
+    }
 }

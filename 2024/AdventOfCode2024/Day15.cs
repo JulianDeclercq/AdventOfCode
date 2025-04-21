@@ -136,6 +136,15 @@ public class Day15
                         _grid.Set(newPos, i % 2 == 0 ? BoxLeft : BoxRight);
                     }
                 }
+                else if (direction is Direction.East)
+                {
+                    var diff = furthestNeighbour.Position.X - firstBox.Position.X;
+                    for (var i = 1; i <= diff; ++i)
+                    {
+                        var newPos = new Point(firstBox.Position.X + i, firstBox.Position.Y);
+                        _grid.Set(newPos, i % 2 != 0 ? BoxLeft : BoxRight);
+                    }
+                }
 
                 break;
             }
@@ -146,10 +155,8 @@ public class Day15
                 if (CanMove(firstBox, Direction.North, toMove))
                 {
                     var sorted = toMove.OrderBy(b => b.Position.Y).ThenBy(b => b.Position.X).ToArray();
-                    for (var i = 0; i < sorted.Length; ++i)
+                    foreach (var box in sorted)
                     {
-                        var box = sorted[i];
-                        // _grid.Set(box.Position, (char)('0' + i));
                         _grid.Set(box.Position + new Point(0, -1), box.Value);
                         _grid.Set(box.Position, Empty);
                     }
@@ -157,10 +164,6 @@ public class Day15
                     _grid.Set(_cachedRobotPosition, Empty);
                     _grid.Set(_cachedRobotPosition + new Point(0, -1), Robot);
                     _cachedRobotPosition += new Point(0, -1);
-                    // _grid.Set(_cachedRobotPosition, Empty);
-                    // _grid.Set(firstBox.Position, Robot);
-                    // _grid.Set(furthestNeighbour.Position, Box);
-                    // _cachedRobotPosition = firstBox.Position;
                 }
 
                 break;

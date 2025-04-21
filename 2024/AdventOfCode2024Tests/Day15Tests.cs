@@ -1,4 +1,5 @@
 ﻿using AdventOfCode2024;
+using AdventOfCode2024.helpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -257,29 +258,59 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    private void Part2_should_push_wide_boxes_north_when_split()
+    private void Part2_should_push_two_boxes_north_when_pushing_single_box()
     {
         var day = new Day15("input/day15e3.txt", part: 2);
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 
-       for (var i = 0; i < 11; ++i)
+        for (var i = 0; i < 6; ++i)
         {
             day.Step(part: 2);
             testOutputHelper.WriteLine(grid.ToString());
         }
 
-        // Assert.Equal(Day15.BoxLeft, grid.At(7, 3));
-        // Assert.Equal(Day15.BoxRight, grid.At(8, 3));
-        // Assert.Equal(Day15.BoxLeft, grid.At(5, 3));
-        // Assert.Equal(Day15.BoxRight, grid.At(6, 3));
-        // Assert.Equal(Day15.Robot, grid.At(9, 3));
-        //
+        Assert.Equal(Day15.Robot, grid.At(7, 4));
+        Assert.Equal(Day15.BoxRight, grid.At(7, 3));
+        Assert.Equal(Day15.BoxLeft, grid.At(7, 2));
+        Assert.Equal(Day15.BoxRight, grid.At(6, 2));
+        Assert.Equal(Day15.BoxLeft, grid.At(5, 2));
+
+        /*
+            ##############
+            ##......##..##
+            ##...[][]...##
+            ##....[]....##
+            ##.....@....##
+            ##..........##
+            ##############
+         */
+    }
+
+    [Fact]
+    private void Part2_should_push_wide_boxes_east()
+    {
+        var day = new Day15("input/day15ecustom.txt", part: 2);
+        var grid = day.GetGrid();
+        testOutputHelper.WriteLine(grid.ToString());
+
+        for (var i = 0; i < 2; ++i)
+        {
+            day.Step(part: 2);
+            testOutputHelper.WriteLine(grid.ToString());
+        }
+
+        Assert.Equal(Day15.Robot, grid.At(6, 3));
+        Assert.Equal(Day15.BoxLeft, grid.At(7, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(8, 3));
+        Assert.Equal(Day15.BoxLeft, grid.At(9, 3));
+        Assert.Equal(Day15.BoxRight, grid.At(10, 3));
+
         /*
             ##############
             ##......##..##
             ##..........##
-            ##...[][]@..##
+            ##..@[][]...##
             ##....[]....##
             ##..........##
             ##############

@@ -10,7 +10,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Robot_shouldnt_move_into_wall()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
 
         day.Step();
 
@@ -32,7 +32,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Robot_should_move_into_free_space()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
 
         for (var i = 0; i < 2; ++i)
             day.Step();
@@ -56,7 +56,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Robot_should_move_single_box_into_free_space()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
 
         for (var i = 0; i < 4; ++i)
         {
@@ -84,7 +84,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Robot_should_move_double_box_into_free_space()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
 
         for (var i = 0; i < 5; ++i)
             day.Step();
@@ -110,7 +110,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Robot_should_move_box_row_into_free_space()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
 
         for (var i = 0; i < 7; ++i)
         {
@@ -138,7 +138,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Short_example_should_be_correct()
     {
-        var day = new Day15("input/day15e1.txt");
+        var day = new Day15("input/example/day15e1.txt");
         day.Solve();
 
         var grid = day.GetGrid();
@@ -163,7 +163,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Large_example_should_be_correct()
     {
-        var day = new Day15("input/day15e2.txt");
+        var day = new Day15("input/example/day15e2.txt");
         day.Solve();
 
         var grid = day.GetGrid();
@@ -191,7 +191,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Large_example_gps_sum_should_be_correct()
     {
-        var day = new Day15("input/day15e2.txt");
+        var day = new Day15("input/example/day15e2.txt");
         day.Solve();
 
         Assert.Equal(10092, day.GpsSum());
@@ -200,7 +200,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Part1_gps_sum_should_be_correct()
     {
-        var day = new Day15("input/day15.txt");
+        var day = new Day15("input/real/day15.txt");
         day.Solve();
 
         Assert.Equal(1441031, day.GpsSum());
@@ -209,7 +209,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Part2_example_should_have_wide_grid()
     {
-        var day = new Day15("input/day15e3.txt", part: 2);
+        var day = new Day15("input/example/day15e3.txt", part: 2);
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 
@@ -233,7 +233,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Part2_should_push_wide_boxes_west()
     {
-        var day = new Day15("input/day15e3.txt", part: 2);
+        var day = new Day15("input/example/day15e3.txt", part: 2);
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 
@@ -260,7 +260,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Part2_should_push_two_boxes_north_when_pushing_single_box()
     {
-        var day = new Day15("input/day15e3.txt", part: 2);
+        var day = new Day15("input/example/day15e3.txt", part: 2);
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 
@@ -290,7 +290,7 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
     [Fact]
     private void Part2_should_push_wide_boxes_east()
     {
-        var day = new Day15("input/day15ecustom.txt", part: 2);
+        var day = new Day15("input/example/day15e4.txt", part: 2);
         var grid = day.GetGrid();
         testOutputHelper.WriteLine(grid.ToString());
 

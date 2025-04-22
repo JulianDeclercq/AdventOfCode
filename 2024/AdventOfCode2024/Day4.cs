@@ -8,7 +8,7 @@ public class Day4
     private int _part1Answer = 0;
     public void SolvePart1()
     {
-        var lines = File.ReadAllLines("input/day4.txt");
+        var lines = File.ReadAllLines("input/real/day4.txt");
         const char invalid = '@';
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
         
@@ -48,7 +48,7 @@ public class Day4
 
     public void SolvePart2()
     {
-        var lines = File.ReadAllLines("input/day4.txt");
+        var lines = File.ReadAllLines("input/real/day4.txt");
         const char invalid = '@';
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), invalid);
         var answer = 0;

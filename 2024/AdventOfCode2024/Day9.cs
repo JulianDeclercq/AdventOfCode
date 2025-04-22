@@ -33,7 +33,7 @@ public class Day9
             throw new Exception($"Invalid part {part}");
 
         var input =
-            System.IO.File.ReadAllLines("input/day9.txt").First()
+            System.IO.File.ReadAllLines("input/real/day9.txt").First()
             // "2333133121414131402"
             .Select(c => (int)char.GetNumericValue(c))
             .ToArray();

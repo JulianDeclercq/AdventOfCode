@@ -165,7 +165,7 @@ public static class Day14Tests
     private static void Part1_Solution_should_be_correct()
     {
         var day = new Day14();
-        day.InitializeFromFile("input/day14.txt");
+        day.InitializeFromFile("input/real/day14.txt");
         
         Assert.Equal(229421808, day.Solve());
     }
@@ -174,7 +174,7 @@ public static class Day14Tests
     private static void Part2_Solution_should_be_correct()
     {
         var day = new Day14();
-        day.InitializeFromFile("input/day14.txt");
+        day.InitializeFromFile("input/real/day14.txt");
         
         Assert.Equal(6577, day.Solve2());
     }

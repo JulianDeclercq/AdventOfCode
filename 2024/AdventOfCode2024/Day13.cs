@@ -23,7 +23,7 @@ public class Day13
             throw new Exception($"Invalid part {part}");
                 
         Console.WriteLine(
-            ParseInput("day13.txt", part)
+            ParseInput("real/day13.txt", part)
             .Select(FewestTokensForWin2)
             .Where(x => x is not null)
             .Sum());

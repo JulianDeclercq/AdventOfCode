@@ -10,7 +10,7 @@ public class Day7
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
                 
-        var lines = File.ReadAllLines("input/day7.txt");
+        var lines = File.ReadAllLines("input/real/day7.txt");
         var helper = new RegexHelper(new Regex(@"(\d+): (.+)"), "result", "operands");
         long answer = 0;
         

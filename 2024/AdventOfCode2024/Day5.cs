@@ -7,7 +7,7 @@ public class Day5
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
                 
-        var lines = File.ReadAllLines("input/day5.txt");
+        var lines = File.ReadAllLines("input/real/day5.txt");
         var rules = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
 
         Dictionary<int, List<int>> lookup = [], reverseLookup = [];

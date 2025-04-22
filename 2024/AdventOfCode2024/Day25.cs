@@ -7,7 +7,7 @@ public class Day25
     public static void Solve()
     {
         const int height = 7;
-        var lines = File.ReadAllLines("input/day25.txt").ToList();
+        var lines = File.ReadAllLines("input/real/day25.txt").ToList();
         List<List<int>> locks = [];
         List<List<int>> keys = [];
         for (;;)

@@ -31,7 +31,7 @@ public class Day24
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
 
-        var lines = File.ReadAllLines("input/day24.txt").ToList();
+        var lines = File.ReadAllLines("input/real/day24.txt").ToList();
         var wireDefinitions = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToList();
         var gateDefinitions = lines.Skip(wireDefinitions.Count + 1).ToList();
 

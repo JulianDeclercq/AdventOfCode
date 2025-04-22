@@ -11,7 +11,7 @@ public class Day22
             throw new Exception($"Invalid part {part}");
         
         const int steps = 2000;
-        var secrets = File.ReadAllLines("input/day22e.txt").Select(long.Parse).ToList();
+        var secrets = File.ReadAllLines("input/real/day22e.txt").Select(long.Parse).ToList();
 
         if (part is 1)
         {

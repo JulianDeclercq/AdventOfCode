@@ -9,7 +9,7 @@ public class Day10
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
         
-        var lines = File.ReadAllLines("input/day10.txt");
+        var lines = File.ReadAllLines("input/real/day10.txt");
         const char invalid = '@';
         
         // handle non-digits to try out the examples that have '.'

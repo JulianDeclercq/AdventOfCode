@@ -6,7 +6,7 @@ public class Day3
 {
     public static void Solve()
     {
-        var lines = File.ReadAllLines("input/day3.txt");
+        var lines = File.ReadAllLines("input/real/day3.txt");
         var input = string.Join("", lines);
         Console.WriteLine(ProcessValidMultipliers(input)); // part 1
 

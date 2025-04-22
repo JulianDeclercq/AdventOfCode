@@ -10,7 +10,7 @@ public class Day6
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
         
-        var lines = File.ReadAllLines("input/day6.txt");
+        var lines = File.ReadAllLines("input/real/day6.txt");
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), Invalid);
         var start = grid.AllExtended().Single(cell => cell.Value is Guard).Position;
 

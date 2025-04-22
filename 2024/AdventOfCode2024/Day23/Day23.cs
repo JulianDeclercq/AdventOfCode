@@ -7,7 +7,7 @@ public class Day23
         if (part != 1 && part != 2)
             throw new Exception($"Invalid part {part}");
         
-        var lines = File.ReadAllLines("input/day23.txt");
+        var lines = File.ReadAllLines("input/real/day23.txt");
         Dictionary<string, HashSet<string>> connections = [];
         foreach (var line in lines)
         {

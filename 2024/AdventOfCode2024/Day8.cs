@@ -10,7 +10,7 @@ public class Day8
             throw new Exception($"Invalid part {part}");
         
         const char invalid = '@', antiNode = '#';
-        var lines = File.ReadAllLines("input/day8.txt");
+        var lines = File.ReadAllLines("input/real/day8.txt");
         var characters = lines.SelectMany(c => c).ToArray();
         var antennas = new Grid<char>(lines[0].Length, lines.Length, characters, invalid);
         var antiNodes = new Grid<char>(antennas.Width, antennas.Height, 

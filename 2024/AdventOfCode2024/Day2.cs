@@ -4,7 +4,7 @@ public class Day2
 {
     public static void Solve()
     {
-        var reports = File.ReadAllLines("input/day2.txt")
+        var reports = File.ReadAllLines("input/real/day2.txt")
             .Select(s => s.Split(' ')
                 .Select(int.Parse)
                 .ToArray())

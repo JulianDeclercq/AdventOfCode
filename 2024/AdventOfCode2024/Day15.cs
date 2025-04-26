@@ -15,15 +15,18 @@ public class Day15
     public const char BoxLeft = '[';
     public const char BoxRight = ']';
     private const char Edge = '#';
+    private readonly int _part;
 
     public Grid<char> GetGrid() => _grid;
 
-    public Day15(string filePath, int part = 1)
+    // TODO: remove transformgrid, it's for debugging
+    public Day15(string filePath, int part = 1, bool transformGridPart2 = true)
     {
         var lines = File.ReadAllLines(filePath);
         var gridLines = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
+        _part = part;
 
-        if (part is 2)
+        if (_part is 2 && transformGridPart2)
         {
             gridLines = gridLines.Select(s =>
             {
@@ -63,7 +66,10 @@ public class Day15
     public void Solve()
     {
         for (var i = 0; i < _moves.Length; ++i)
+        {
             Step();
+            Console.WriteLine(_grid);
+        }
 
         Console.WriteLine(GpsSum());
     }
@@ -169,7 +175,31 @@ public class Day15
                 break;
             }
             case Direction.South:
+            {
+                List<GridElement<char>> toMove = [];
+                if (CanMove(firstBox, Direction.South, toMove))
+                {
+                    // sort descending to start moving up from the bottom so that you don't overwrite the ones you still
+                    // have to process
+                    var sorted = toMove.OrderByDescending(b => b.Position.Y).ThenBy(b => b.Position.X).ToArray();
+                    foreach (var box in sorted)
+                    {
+                        _grid.Set(box.Position + new Point(0, 1), box.Value);
+                        _grid.Set(box.Position, Empty);
+                        Console.WriteLine(_grid);
+                    }
+
+                    // Console.WriteLine(_grid);
+                    // for (var i = 0; i < sorted.Length; ++i)
+                    //     _grid.Set(sorted[i].Position, (char)(i + '0'));
+
+                    _grid.Set(_cachedRobotPosition, Empty);
+                    _grid.Set(_cachedRobotPosition + new Point(0, 1), Robot);
+                    _cachedRobotPosition += new Point(0, 1);
+                }
+
                 break;
+            }
         }
     }
 
@@ -196,6 +226,30 @@ public class Day15
                     return true;
                 }
 
+                if (IsBox(neighbour) && !IsBox(otherNeighbour))
+                {
+                    if (CanMove(neighbour, Direction.North, toMove))
+                    {
+                        toMove.Add(boxHalf);
+                        toMove.Add(otherBoxHalf);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                if (IsBox(otherNeighbour) && !IsBox(neighbour))
+                {
+                    if (CanMove(otherNeighbour, Direction.North, toMove))
+                    {
+                        toMove.Add(boxHalf);
+                        toMove.Add(otherBoxHalf);
+                        return true;
+                    }
+
+                    return false;
+                }
+
                 // TODO: Avoid duplicate checking if boxes are aligned perfectly
                 if (CanMove(neighbour, Direction.North, toMove) && CanMove(otherNeighbour, Direction.North, toMove))
                 {
@@ -210,7 +264,53 @@ public class Day15
             case Direction.West:
                 throw new NotImplementedException();
             case Direction.South:
-                break;
+            {
+                var neighbour = _grid.GetNeighbour(boxHalf.Position, Direction.South)!;
+                var otherNeighbour = _grid.GetNeighbour(otherBoxHalf.Position, Direction.South)!;
+
+                if (neighbour.Value is Edge || otherNeighbour.Value is Edge)
+                    return false;
+
+                if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
+                {
+                    toMove.Add(boxHalf);
+                    toMove.Add(otherBoxHalf);
+                    return true;
+                }
+
+                if (IsBox(neighbour) && !IsBox(otherNeighbour))
+                {
+                    if (CanMove(neighbour, Direction.South, toMove))
+                    {
+                        toMove.Add(boxHalf);
+                        toMove.Add(otherBoxHalf);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                if (IsBox(otherNeighbour) && !IsBox(neighbour))
+                {
+                    if (CanMove(otherNeighbour, Direction.South, toMove))
+                    {
+                        toMove.Add(boxHalf);
+                        toMove.Add(otherBoxHalf);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                if (CanMove(neighbour, Direction.South, toMove) && CanMove(otherNeighbour, Direction.South, toMove))
+                {
+                    toMove.Add(boxHalf);
+                    toMove.Add(otherBoxHalf);
+                    return true;
+                }
+
+                return false;
+            }
             default:
                 throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
         }
@@ -227,7 +327,11 @@ public class Day15
                 return _grid.GetNeighbour(box.Position, Direction.East)!;
             case BoxRight:
                 return _grid.GetNeighbour(box.Position, Direction.West)!;
-            default: throw new Exception($"Invalid box in CanMove {box.Value}");
+            default:
+            {
+                int bkpt = 5;
+                throw new Exception($"Invalid box in CanMove {box}");
+            }
         }
     }
 
@@ -239,12 +343,13 @@ public class Day15
         ['<'] = Direction.West,
     };
 
-    public void Step(int part = 1)
+    public void Step()
     {
         if (_currentStep >= _moves.Length)
             throw new Exception("No steps left to take!");
 
         var step = _moves[_currentStep];
+        Console.WriteLine($"moving {step}");
         var direction = _directionMap[step];
         var neighbour = _grid.GetNeighbour(_cachedRobotPosition, direction);
         if (neighbour is null)
@@ -259,7 +364,7 @@ public class Day15
             case BoxLeft:
             case BoxRight:
             {
-                if (part is 1)
+                if (_part is 1)
                 {
                     PushBoxRow(neighbour, direction);
                 }

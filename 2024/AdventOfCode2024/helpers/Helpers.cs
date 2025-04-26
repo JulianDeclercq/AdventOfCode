@@ -2,13 +2,22 @@
 
 public static class Helpers
 {
+    // returns the int 1 as '1', 2 as '2' etc.
+    public static char AsChar(int n)
+    {
+        if (n is < 0 or > 10)
+            throw new Exception($"i needs to be between single character, got {n}");
+
+        return (char)('0' + n);
+    }
+
     public static int ToInt(char c) => int.Parse(c.ToString());
 
     public static bool AllSmallerThan(this IEnumerable<int> collection, int target)
     {
         return collection.All(x => x < target);
     }
-    
+
     public static void AssertEqual<T>(T expected, T value)
     {
         if (!value.Equals(expected))

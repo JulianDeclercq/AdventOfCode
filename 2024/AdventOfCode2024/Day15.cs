@@ -66,10 +66,7 @@ public class Day15
     public void Solve()
     {
         for (var i = 0; i < _moves.Length; ++i)
-        {
             Step();
-            Console.WriteLine(_grid);
-        }
 
         Console.WriteLine(GpsSum());
     }
@@ -186,7 +183,7 @@ public class Day15
                     {
                         _grid.Set(box.Position + new Point(0, 1), box.Value);
                         _grid.Set(box.Position, Empty);
-                        Console.WriteLine(_grid);
+                        // Console.WriteLine(_grid);
                     }
 
                     // Console.WriteLine(_grid);
@@ -349,7 +346,7 @@ public class Day15
             throw new Exception("No steps left to take!");
 
         var step = _moves[_currentStep];
-        Console.WriteLine($"moving {step}");
+        // Console.WriteLine($"moving {step}");
         var direction = _directionMap[step];
         var neighbour = _grid.GetNeighbour(_cachedRobotPosition, direction);
         if (neighbour is null)
@@ -383,8 +380,17 @@ public class Day15
 
     public int GpsSum()
     {
+        if (_part is 1)
+        {
+            return _grid.AllExtended()
+                .Where(x => x.Value is Box)
+                .Sum(box => 100 * box.Position.Y + box.Position.X);
+            
+        }
+        
+        Console.WriteLine(_grid);
         return _grid.AllExtended()
-            .Where(x => x.Value is Box)
+            .Where(x => x.Value is BoxLeft)
             .Sum(box => 100 * box.Position.Y + box.Position.X);
     }
 }

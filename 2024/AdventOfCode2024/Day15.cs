@@ -25,6 +25,7 @@ public class Day15
         var gridLines = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
         _part = part;
 
+        // make the grid twice as wide
         if (_part is 2)
         {
             gridLines = gridLines.Select(s =>
@@ -76,6 +77,14 @@ public class Day15
         _grid.Set(target, Robot);
         _cachedRobotPosition = target;
     }
+    
+    private static bool IsBox(GridElement<char>? element)
+    {
+        if (element is null)
+            throw new Exception("Element is null");
+
+        return element.Value is Box or BoxLeft or BoxRight;
+    }
 
     private void PushBoxRow(GridElement<char> firstBox, Direction direction)
     {
@@ -85,24 +94,16 @@ public class Day15
             furthestNeighbour = _grid.GetNeighbour(furthestNeighbour.Position, direction);
         } while (furthestNeighbour?.Value == Box);
 
-        // only push the row if we have found an empty space at the end that we can push the row into
+        // only push the row when there's an empty space at the end that the row can be pushed into
         if (furthestNeighbour!.Value is not Empty)
             return;
 
-        // we can cheat a bit, instead of moving the whole row: move the first box to the end of the row instead
+        // cheat a bit, instead of moving the whole row: move the first box to the end of the row instead
         // where the robot moves is where the first box was
         _grid.Set(_cachedRobotPosition, Empty);
         _grid.Set(firstBox.Position, Robot);
         _grid.Set(furthestNeighbour.Position, Box);
         _cachedRobotPosition = firstBox.Position;
-    }
-
-    private static bool IsBox(GridElement<char>? element)
-    {
-        if (element is null)
-            throw new Exception("Element is null");
-
-        return element.Value is Box or BoxLeft or BoxRight;
     }
 
     private void PushBoxRow2(GridElement<char> firstBox, Direction direction)
@@ -128,7 +129,6 @@ public class Day15
                 _cachedRobotPosition = firstBox.Position;
 
                 // shift all boxes
-                // TODO: Fix flow with cases lol
                 if (direction is Direction.West)
                 {
                     var diff = firstBox.Position.X - furthestNeighbour.Position.X;
@@ -138,7 +138,7 @@ public class Day15
                         _grid.Set(newPos, i % 2 == 0 ? BoxLeft : BoxRight);
                     }
                 }
-                else if (direction is Direction.East)
+                else // east
                 {
                     var diff = furthestNeighbour.Position.X - firstBox.Position.X;
                     for (var i = 1; i <= diff; ++i)
@@ -150,12 +150,13 @@ public class Day15
 
                 break;
             }
-
             case Direction.North:
             {
                 List<GridElement<char>> toMove = [];
-                if (CanMove(firstBox, Direction.North, toMove))
+                if (CanMovePart2(firstBox, Direction.North, toMove))
                 {
+                    // sort to start moving down from the top so that you don't overwrite the ones you still
+                    // have to process
                     var sorted = toMove.OrderBy(b => b.Position.Y).ThenBy(b => b.Position.X).ToArray();
                     foreach (var box in sorted)
                     {
@@ -173,7 +174,7 @@ public class Day15
             case Direction.South:
             {
                 List<GridElement<char>> toMove = [];
-                if (CanMove(firstBox, Direction.South, toMove))
+                if (CanMovePart2(firstBox, Direction.South, toMove))
                 {
                     // sort descending to start moving up from the bottom so that you don't overwrite the ones you still
                     // have to process
@@ -182,12 +183,7 @@ public class Day15
                     {
                         _grid.Set(box.Position + new Point(0, 1), box.Value);
                         _grid.Set(box.Position, Empty);
-                        // Console.WriteLine(_grid);
                     }
-
-                    // Console.WriteLine(_grid);
-                    // for (var i = 0; i < sorted.Length; ++i)
-                    //     _grid.Set(sorted[i].Position, (char)(i + '0'));
 
                     _grid.Set(_cachedRobotPosition, Empty);
                     _grid.Set(_cachedRobotPosition + new Point(0, 1), Robot);
@@ -199,8 +195,7 @@ public class Day15
         }
     }
 
-    // only part 2
-    private bool CanMove(GridElement<char> boxHalf, Direction direction, List<GridElement<char>> toMove)
+    private bool CanMovePart2(GridElement<char> boxHalf, Direction direction, List<GridElement<char>> toMove)
     {
         var otherBoxHalf = GetOtherBoxHalf(boxHalf);
         switch (direction)
@@ -215,8 +210,6 @@ public class Day15
 
                 if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
                 {
-                    // toMove.Add(neighbour);
-                    // toMove.Add(otherNeighbour);
                     toMove.Add(boxHalf);
                     toMove.Add(otherBoxHalf);
                     return true;
@@ -224,7 +217,7 @@ public class Day15
 
                 if (IsBox(neighbour) && !IsBox(otherNeighbour))
                 {
-                    if (CanMove(neighbour, Direction.North, toMove))
+                    if (CanMovePart2(neighbour, Direction.North, toMove))
                     {
                         toMove.Add(boxHalf);
                         toMove.Add(otherBoxHalf);
@@ -236,7 +229,7 @@ public class Day15
 
                 if (IsBox(otherNeighbour) && !IsBox(neighbour))
                 {
-                    if (CanMove(otherNeighbour, Direction.North, toMove))
+                    if (CanMovePart2(otherNeighbour, Direction.North, toMove))
                     {
                         toMove.Add(boxHalf);
                         toMove.Add(otherBoxHalf);
@@ -247,7 +240,8 @@ public class Day15
                 }
 
                 // TODO: Avoid duplicate checking if boxes are aligned perfectly
-                if (CanMove(neighbour, Direction.North, toMove) && CanMove(otherNeighbour, Direction.North, toMove))
+                if (CanMovePart2(neighbour, Direction.North, toMove) &&
+                    CanMovePart2(otherNeighbour, Direction.North, toMove))
                 {
                     toMove.Add(boxHalf);
                     toMove.Add(otherBoxHalf);
@@ -276,7 +270,7 @@ public class Day15
 
                 if (IsBox(neighbour) && !IsBox(otherNeighbour))
                 {
-                    if (CanMove(neighbour, Direction.South, toMove))
+                    if (CanMovePart2(neighbour, Direction.South, toMove))
                     {
                         toMove.Add(boxHalf);
                         toMove.Add(otherBoxHalf);
@@ -288,7 +282,7 @@ public class Day15
 
                 if (IsBox(otherNeighbour) && !IsBox(neighbour))
                 {
-                    if (CanMove(otherNeighbour, Direction.South, toMove))
+                    if (CanMovePart2(otherNeighbour, Direction.South, toMove))
                     {
                         toMove.Add(boxHalf);
                         toMove.Add(otherBoxHalf);
@@ -298,7 +292,8 @@ public class Day15
                     return false;
                 }
 
-                if (CanMove(neighbour, Direction.South, toMove) && CanMove(otherNeighbour, Direction.South, toMove))
+                if (CanMovePart2(neighbour, Direction.South, toMove) &&
+                    CanMovePart2(otherNeighbour, Direction.South, toMove))
                 {
                     toMove.Add(boxHalf);
                     toMove.Add(otherBoxHalf);
@@ -310,9 +305,6 @@ public class Day15
             default:
                 throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
         }
-
-        // TODO: WHAT SHOULD DEFAULT BE
-        return true;
     }
 
     private GridElement<char> GetOtherBoxHalf(GridElement<char> box)
@@ -324,10 +316,7 @@ public class Day15
             case BoxRight:
                 return _grid.GetNeighbour(box.Position, Direction.West)!;
             default:
-            {
-                int bkpt = 5;
-                throw new Exception($"Invalid box in CanMove {box}");
-            }
+                throw new Exception($"Trying to get other half for invalid box {box}");
         }
     }
 
@@ -345,7 +334,6 @@ public class Day15
             throw new Exception("No steps left to take!");
 
         var step = _moves[_currentStep];
-        // Console.WriteLine($"moving {step}");
         var direction = _directionMap[step];
         var neighbour = _grid.GetNeighbour(_cachedRobotPosition, direction);
         if (neighbour is null)
@@ -372,23 +360,14 @@ public class Day15
                 break;
         }
 
-        // Console.WriteLine($"Step {_currentStep}");
-        // Console.WriteLine(_grid);
         _currentStep++;
     }
 
     public int GpsSum()
     {
-        if (_part is 1)
-        {
-            return _grid.AllExtended()
-                .Where(x => x.Value is Box)
-                .Sum(box => 100 * box.Position.Y + box.Position.X);
-            
-        }
-        
+        var targetValue = _part is 1 ? Box : BoxLeft;
         return _grid.AllExtended()
-            .Where(x => x.Value is BoxLeft)
+            .Where(x => x.Value == targetValue)
             .Sum(box => 100 * box.Position.Y + box.Position.X);
     }
 }

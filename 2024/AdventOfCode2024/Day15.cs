@@ -19,14 +19,13 @@ public class Day15
 
     public Grid<char> GetGrid() => _grid;
 
-    // TODO: remove transformgrid, it's for debugging
-    public Day15(string filePath, int part = 1, bool transformGridPart2 = true)
+    public Day15(string filePath, int part = 1)
     {
         var lines = File.ReadAllLines(filePath);
         var gridLines = lines.TakeWhile(l => !string.IsNullOrWhiteSpace(l)).ToArray();
         _part = part;
 
-        if (_part is 2 && transformGridPart2)
+        if (_part is 2)
         {
             gridLines = gridLines.Select(s =>
             {
@@ -388,7 +387,6 @@ public class Day15
             
         }
         
-        Console.WriteLine(_grid);
         return _grid.AllExtended()
             .Where(x => x.Value is BoxLeft)
             .Sum(box => 100 * box.Position.Y + box.Position.X);

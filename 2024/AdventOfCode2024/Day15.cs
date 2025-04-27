@@ -17,6 +17,14 @@ public class Day15
     private const char Edge = '#';
     private readonly int _part;
 
+    private readonly Dictionary<char, Direction> _directionMap = new()
+    {
+        ['^'] = Direction.North,
+        ['>'] = Direction.East,
+        ['v'] = Direction.South,
+        ['<'] = Direction.West,
+    };
+
     public Grid<char> GetGrid() => _grid;
 
     public Day15(string filePath, int part = 1)
@@ -77,7 +85,7 @@ public class Day15
         _grid.Set(target, Robot);
         _cachedRobotPosition = target;
     }
-    
+
     private static bool IsBox(GridElement<char>? element)
     {
         if (element is null)
@@ -153,7 +161,7 @@ public class Day15
             case Direction.North:
             {
                 List<GridElement<char>> toMove = [];
-                if (CanMovePart2(firstBox, Direction.North, toMove))
+                if (CanPushPart2(firstBox, Direction.North, toMove))
                 {
                     // sort to start moving down from the top so that you don't overwrite the ones you still
                     // have to process
@@ -174,7 +182,7 @@ public class Day15
             case Direction.South:
             {
                 List<GridElement<char>> toMove = [];
-                if (CanMovePart2(firstBox, Direction.South, toMove))
+                if (CanPushPart2(firstBox, Direction.South, toMove))
                 {
                     // sort descending to start moving up from the bottom so that you don't overwrite the ones you still
                     // have to process
@@ -195,116 +203,61 @@ public class Day15
         }
     }
 
-    private bool CanMovePart2(GridElement<char> boxHalf, Direction direction, List<GridElement<char>> toMove)
+    private bool CanPushPart2(
+        GridElement<char> boxHalf,
+        Direction direction,
+        List<GridElement<char>> toShove)
     {
+        if (direction is not Direction.North and not Direction.South)
+            throw new Exception($"Invalid {direction}, this code is only for checking vertical pushing in part 2");
+
         var otherBoxHalf = GetOtherBoxHalf(boxHalf);
-        switch (direction)
+        var neighbour = _grid.GetNeighbour(boxHalf.Position, direction)!;
+        var otherNeighbour = _grid.GetNeighbour(otherBoxHalf.Position, direction)!;
+
+        if (neighbour.Value is Edge || otherNeighbour.Value is Edge)
+            return false;
+
+        if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
         {
-            case Direction.North:
-            {
-                var neighbour = _grid.GetNeighbour(boxHalf.Position, Direction.North)!;
-                var otherNeighbour = _grid.GetNeighbour(otherBoxHalf.Position, Direction.North)!;
-
-                if (neighbour.Value is Edge || otherNeighbour.Value is Edge)
-                    return false;
-
-                if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
-                {
-                    toMove.Add(boxHalf);
-                    toMove.Add(otherBoxHalf);
-                    return true;
-                }
-
-                if (IsBox(neighbour) && !IsBox(otherNeighbour))
-                {
-                    if (CanMovePart2(neighbour, Direction.North, toMove))
-                    {
-                        toMove.Add(boxHalf);
-                        toMove.Add(otherBoxHalf);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                if (IsBox(otherNeighbour) && !IsBox(neighbour))
-                {
-                    if (CanMovePart2(otherNeighbour, Direction.North, toMove))
-                    {
-                        toMove.Add(boxHalf);
-                        toMove.Add(otherBoxHalf);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                // TODO: Avoid duplicate checking if boxes are aligned perfectly
-                if (CanMovePart2(neighbour, Direction.North, toMove) &&
-                    CanMovePart2(otherNeighbour, Direction.North, toMove))
-                {
-                    toMove.Add(boxHalf);
-                    toMove.Add(otherBoxHalf);
-                    return true;
-                }
-
-                return false;
-            }
-            case Direction.East:
-            case Direction.West:
-                throw new NotImplementedException();
-            case Direction.South:
-            {
-                var neighbour = _grid.GetNeighbour(boxHalf.Position, Direction.South)!;
-                var otherNeighbour = _grid.GetNeighbour(otherBoxHalf.Position, Direction.South)!;
-
-                if (neighbour.Value is Edge || otherNeighbour.Value is Edge)
-                    return false;
-
-                if (neighbour.Value is Empty && otherNeighbour.Value is Empty)
-                {
-                    toMove.Add(boxHalf);
-                    toMove.Add(otherBoxHalf);
-                    return true;
-                }
-
-                if (IsBox(neighbour) && !IsBox(otherNeighbour))
-                {
-                    if (CanMovePart2(neighbour, Direction.South, toMove))
-                    {
-                        toMove.Add(boxHalf);
-                        toMove.Add(otherBoxHalf);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                if (IsBox(otherNeighbour) && !IsBox(neighbour))
-                {
-                    if (CanMovePart2(otherNeighbour, Direction.South, toMove))
-                    {
-                        toMove.Add(boxHalf);
-                        toMove.Add(otherBoxHalf);
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                if (CanMovePart2(neighbour, Direction.South, toMove) &&
-                    CanMovePart2(otherNeighbour, Direction.South, toMove))
-                {
-                    toMove.Add(boxHalf);
-                    toMove.Add(otherBoxHalf);
-                    return true;
-                }
-
-                return false;
-            }
-            default:
-                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            toShove.Add(boxHalf);
+            toShove.Add(otherBoxHalf);
+            return true;
         }
+
+        if (IsBox(neighbour) && !IsBox(otherNeighbour))
+        {
+            if (CanPushPart2(neighbour, direction, toShove))
+            {
+                toShove.Add(boxHalf);
+                toShove.Add(otherBoxHalf);
+                return true;
+            }
+
+            return false;
+        }
+
+        if (IsBox(otherNeighbour) && !IsBox(neighbour))
+        {
+            if (CanPushPart2(otherNeighbour, direction, toShove))
+            {
+                toShove.Add(boxHalf);
+                toShove.Add(otherBoxHalf);
+                return true;
+            }
+
+            return false;
+        }
+
+        if (CanPushPart2(neighbour, direction, toShove) &&
+            CanPushPart2(otherNeighbour, direction, toShove))
+        {
+            toShove.Add(boxHalf);
+            toShove.Add(otherBoxHalf);
+            return true;
+        }
+
+        return false;
     }
 
     private GridElement<char> GetOtherBoxHalf(GridElement<char> box)
@@ -319,14 +272,6 @@ public class Day15
                 throw new Exception($"Trying to get other half for invalid box {box}");
         }
     }
-
-    private readonly Dictionary<char, Direction> _directionMap = new()
-    {
-        ['^'] = Direction.North,
-        ['>'] = Direction.East,
-        ['v'] = Direction.South,
-        ['<'] = Direction.West,
-    };
 
     public void Step()
     {

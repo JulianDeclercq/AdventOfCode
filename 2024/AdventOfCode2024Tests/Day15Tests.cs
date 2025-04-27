@@ -386,4 +386,12 @@ public class Day15Tests(ITestOutputHelper testOutputHelper)
         day.Solve();
         Assert.Equal(9021, day.GpsSum());
     }
+
+    [Fact]
+    private void Part2_gps_sum_should_be_correct()
+    {
+        var day = new Day15("input/real/day15.txt", part: 2);
+        day.Solve();
+        Assert.Equal(1425169, day.GpsSum());
+    }
 }

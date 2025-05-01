@@ -35,6 +35,18 @@ public static class Helpers
             _ => throw new Exception("Couldn't determine direction, only the 4 main ones are implement atm")
         };
     }
+
+    public static Point DirectionToPoint(Direction direction)
+    {
+        return direction switch
+        {
+            Direction.North => new Point(0, -1),
+            Direction.East => new Point(1, 0),
+            Direction.South => new Point(0, 1),
+            Direction.West => new Point(-1, 0),
+            _ => throw new Exception("Couldn't determine direction point, only the 4 main ones are implement atm")
+        };
+    }
 }
 
 public enum Direction

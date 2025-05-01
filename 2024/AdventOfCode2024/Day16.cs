@@ -6,6 +6,8 @@ public class Day16
 {
     private Grid<char> _grid;
     public const char Wall = '#';
+    public const char End = 'E';
+    private List<int> _scores = [];
 
     public Day16(string filePath)
     {
@@ -30,6 +32,13 @@ public class Day16
             score++;
             visitedCopy.Add(easyNeighbour!.Position);
             position += Helpers.DirectionToPoint(direction);
+
+            if (easyNeighbour.Value is End)
+            {
+                _scores.Add(score);
+                return;
+            }
+            
             Step(position, direction, score, visitedCopy);
             return;
         }

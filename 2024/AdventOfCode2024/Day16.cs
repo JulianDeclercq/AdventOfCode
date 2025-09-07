@@ -54,11 +54,11 @@ public class Day16
         Step(start.Position, InitialDirection, 0, [start.Position]);
 
         var winner = _paths.MinBy(p => p.Score);
-        // Console.WriteLine($"Winner score: {winner!.Score}\n{winner!.VisualiseOnGrid(_grid)}");
+        Console.WriteLine($"Winner score: {winner!.Score}\n{winner!.VisualiseOnGrid(_grid)}");
 
-        Console.WriteLine($"{_paths.Count} paths found");
-        foreach (var path in _paths)
-            Console.WriteLine($"Path\n{path.VisualiseOnGrid(_grid)}\nScore: {path.Score}");
+        // Console.WriteLine($"{_paths.Count} paths found");
+        // foreach (var path in _paths)
+        //     Console.WriteLine($"Path\n{path.VisualiseOnGrid(_grid)}\nScore: {path.Score}");
     }
 
     private static bool CanMoveTo(GridElement<char>? neighbour, HashSet<Point> visited)
@@ -93,10 +93,10 @@ public class Day16
         // Console.WriteLine(dbg.VisualiseOnGrid(_grid, position, direction));
         
         var notVisitedNeighbours = _grid.NeighboursExtended(position, includeDiagonals: false)
-            .Where(n => n.Value is not Wall)
+            .Where(n => n.Value is not Wall && !visited.Contains(n.Position))
             .ToArray();
 
-        if (position.Equals(new Point(3, 9)))
+        if (position.Equals(new Point(3, 7)))
         {
             int kbkpt = 5;
         }
@@ -106,12 +106,10 @@ public class Day16
         {
             var neighbour = notVisitedNeighbours[i];
             
-            if (position.Equals(new Point(3, 9)))
+            if (position.Equals(new Point(3, 7)))
             {
                 int kbkpt = 5;
             }
-            if (visited.Contains(neighbour.Position))
-                continue;
 
             var neighbourDirection = Helpers.CalculateCardinalDirection(position, neighbour.Position);
             if (neighbourDirection is null)
@@ -122,27 +120,34 @@ public class Day16
                 var canRotate = CanRotateTowards(direction, neighbourDirection.Value);
                 if (canRotate)
                 {
-                    // rotate
-                    score += 1000;
-                    Step(Point.Copy(position), neighbourDirection.Value, score, visited.ToHashSet());
-                    // continue;
+                    // rotate and step there
+                    score += 1001;
+                    var newPosition = Point.Copy(neighbour.Position);
+                    var visitedCopy2 = visited.ToHashSet();
+                    visitedCopy2.Add(newPosition);
+                    if (neighbour.Value is End)
+                    {
+                        _paths.Add(new Path
+                        {
+                            Visited = visitedCopy2,
+                            Score = score,
+                        });
+                        return;
+                    }
+                    
+                    Step(newPosition, neighbourDirection.Value, score, visitedCopy2);
                 }
-                continue; // TODO: Not sure about this continue. It was inside canrotate before. But in that case
-                // the following code below seems to move into the neighbours position even when the neighbour is not 
-                // in that direction
+                continue;
             }
             
-            // TODO: Multiple rotations in the "same" turn? Even though it adds a lot to score, might be some paths.
-
-            
-            // Is it possible that canmove is 
             var visitedCopy = visited.ToHashSet();
             if (CanMoveTo(neighbour, visitedCopy))
             {
                 score++;
                 visitedCopy.Add(neighbour.Position);
-                position += Helpers.DirectionToPoint(direction);
-                if (position.Equals(new Point(4, 9)))
+                // var newPosition = Point.Copy(position) + Helpers.DirectionToPoint(direction);
+                var newPosition = Point.Copy(neighbour.Position);
+                if (newPosition.Equals(new Point(4, 9)))
                 {
                     int bkpt = 5;
                 }
@@ -157,7 +162,7 @@ public class Day16
                     return;
                 }
 
-                Step(Point.Copy(position), direction, score, visitedCopy);
+                Step(newPosition, direction, score, visitedCopy);
             }
         }
     }

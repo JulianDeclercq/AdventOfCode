@@ -6,9 +6,11 @@ public class Day16
 {
     public class Path
     {
+        // private void Step(Point position, Direction direction, int score, HashSet<Point> visited)
+        public required Point CurrentPosition { get; set; }
+        public Direction CurrentDirection { get; set; }
         public HashSet<Point> Visited { get; init; } = [];
-        public int Score { get; init; }
-
+        public int Score { get; set; }
         public string VisualiseOnGrid(Grid<char> grid, Point? position = null, Direction? direction = null)
         {
             var copy = grid.ShallowCopy();
@@ -32,6 +34,17 @@ public class Day16
             
             return copy.ToString();
         }
+
+        public Path Copy()
+        {
+            return new Path
+            {
+                CurrentPosition = Point.Copy(CurrentPosition),
+                CurrentDirection = CurrentDirection,
+                Visited = Visited.ToHashSet(),
+                Score = Score,
+            };
+        }
     }
 
     private Grid<char> _grid;
@@ -51,7 +64,14 @@ public class Day16
     public void Solve()
     {
         var start = _grid.AllExtended().Single(x => x.Value is Start);
-        Step(start.Position, InitialDirection, 0, [start.Position]);
+        var path = new Path
+        {
+            CurrentPosition = start.Position,
+            CurrentDirection = InitialDirection,
+            Score = 0,
+            Visited = [start.Position]
+        };
+        Step(path);
 
         var winner = _paths.MinBy(p => p.Score);
         Console.WriteLine($"Winner score: {winner!.Score}\n{winner!.VisualiseOnGrid(_grid)}");
@@ -83,86 +103,58 @@ public class Day16
         };
     }
 
-    private void Step(Point position, Direction direction, int score, HashSet<Point> visited)
+    // private void Step(Point position, Direction direction, int score, HashSet<Point> visited)
+    private void Step(Path path)
     {
-        var dbg = new Path
-        {
-            Visited = visited,
-            Score = 1337
-        };
-        // Console.WriteLine(dbg.VisualiseOnGrid(_grid, position, direction));
-        
-        var notVisitedNeighbours = _grid.NeighboursExtended(position, includeDiagonals: false)
-            .Where(n => n.Value is not Wall && !visited.Contains(n.Position))
+        var notVisitedNeighbours = _grid.NeighboursExtended(path.CurrentPosition, includeDiagonals: false)
+            .Where(n => n.Value is not Wall && !path.Visited.Contains(n.Position))
             .ToArray();
-
-        if (position.Equals(new Point(3, 7)))
-        {
-            int kbkpt = 5;
-        }
 
         // foreach (var neighbour in neighbours)
         for (var i = 0; i < notVisitedNeighbours.Length; ++i)
         {
             var neighbour = notVisitedNeighbours[i];
-            
-            if (position.Equals(new Point(3, 7)))
-            {
-                int kbkpt = 5;
-            }
-
-            var neighbourDirection = Helpers.CalculateCardinalDirection(position, neighbour.Position);
+            var neighbourDirection = Helpers.CalculateCardinalDirection(path.CurrentPosition, neighbour.Position);
             if (neighbourDirection is null)
                 continue;
             
-            if (neighbourDirection != direction)
+            if (neighbourDirection != path.CurrentDirection)
             {
-                var canRotate = CanRotateTowards(direction, neighbourDirection.Value);
+                var canRotate = CanRotateTowards(path.CurrentDirection, neighbourDirection.Value);
                 if (canRotate)
                 {
                     // rotate and step there
-                    score += 1001;
                     var newPosition = Point.Copy(neighbour.Position);
-                    var visitedCopy2 = visited.ToHashSet();
-                    visitedCopy2.Add(newPosition);
+                    var branch = path.Copy();
+                    branch.Score += 1001;
+                    branch.CurrentPosition = newPosition;
+                    branch.CurrentDirection = neighbourDirection.Value;
+                    branch.Visited.Add(newPosition);
                     if (neighbour.Value is End)
                     {
-                        _paths.Add(new Path
-                        {
-                            Visited = visitedCopy2,
-                            Score = score,
-                        });
+                        _paths.Add(branch);
                         return;
                     }
                     
-                    Step(newPosition, neighbourDirection.Value, score, visitedCopy2);
+                    Step(branch);
                 }
                 continue;
             }
             
-            var visitedCopy = visited.ToHashSet();
-            if (CanMoveTo(neighbour, visitedCopy))
+            var branch2 = path.Copy();
+            if (CanMoveTo(neighbour, branch2.Visited))
             {
-                score++;
-                visitedCopy.Add(neighbour.Position);
-                // var newPosition = Point.Copy(position) + Helpers.DirectionToPoint(direction);
-                var newPosition = Point.Copy(neighbour.Position);
-                if (newPosition.Equals(new Point(4, 9)))
-                {
-                    int bkpt = 5;
-                }
-
+                var newPosition2 = Point.Copy(neighbour.Position);
+                branch2.Score++;
+                branch2.CurrentPosition = newPosition2;
+                branch2.Visited.Add(newPosition2);
                 if (neighbour.Value is End)
                 {
-                    _paths.Add(new Path
-                    {
-                        Visited = visitedCopy,
-                        Score = score,
-                    });
+                    _paths.Add(branch2);
                     return;
                 }
 
-                Step(newPosition, direction, score, visitedCopy);
+                Step(branch2);
             }
         }
     }

@@ -13,7 +13,7 @@ public static class Helpers
 
     public static int ToInt(char c) => int.Parse(c.ToString());
 
-    public static Direction CalculateDirection(Point from, Point to)
+    public static Direction? CalculateCardinalDirection(Point from, Point to)
     {
         return (to - from) switch
         {
@@ -21,7 +21,7 @@ public static class Helpers
             { X: 1, Y: 0 } => Direction.East,
             { X: 0, Y: 1 } => Direction.South,
             { X: -1, Y: 0 } => Direction.West,
-            _ => throw new Exception("Couldn't determine direction, only the 4 main ones are implement atm")
+            _ => null // Return null if the direction is not cardinal
         };
     }
 

@@ -26,6 +26,8 @@ public class Point : IEquatable<Point>
     public override string ToString() => $"{X},{Y}";
     public static Point operator +(Point a, Point b) => new(a.X + b.X, a.Y + b.Y);
     public static Point operator -(Point a, Point b) => new(a.X - b.X, a.Y - b.Y);
+    
+    public static Point Copy(Point a) => new(a.X, a.Y);
 
     #region IEquatable
     

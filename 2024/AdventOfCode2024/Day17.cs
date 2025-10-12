@@ -8,7 +8,7 @@ public class Day17(string inputFilePath)
         public int RegisterA = 0;
         public int RegisterB = 0;
         public int RegisterC = 0;
-        public string Output = "";
+        public List<int> Output = [];
         private int _instructionPointer = 0;
 
         public void InitializeFromFile(string filePath)
@@ -22,16 +22,16 @@ public class Day17(string inputFilePath)
             Program = temp;
         }
 
-        public void Run()
+        public void Run(bool part2)
         {
             var hasNext = false;
             do
             {
-                hasNext = ReadNextInstruction();
+                hasNext = ExecuteNextInstruction(part2);
             } while (hasNext);
         }
 
-        private bool ReadNextInstruction()
+        private bool ExecuteNextInstruction(bool part2)
         {
             if (_instructionPointer >= Program.Count)
             {
@@ -72,7 +72,6 @@ public class Day17(string inputFilePath)
                     throw new Exception("Unknown opcode: " + opcode);
             }
 
-            // TODO: don't do this on a jump instruction?
             // move the pointer
             if (!hasJumped)
                 _instructionPointer += 2;
@@ -123,7 +122,7 @@ public class Day17(string inputFilePath)
              * then outputs that value.
              * (If a program outputs multiple values, they are separated by commas.) */
             var value = GetComboOperandValue(comboOperand) % 8;
-            Output = string.IsNullOrWhiteSpace(Output) ? value.ToString() : Output + $",{value}";
+            Output.Add(value);
         }
 
         private void Bdv(int comboOperand)
@@ -157,8 +156,7 @@ public class Day17(string inputFilePath)
 
         public bool OutputsSelf()
         {
-            var parsed = Output.Trim().Split(',').Select(int.Parse);
-            return parsed.SequenceEqual(Program); // TODO: Verify if this works
+            return Program.SequenceEqual(Output); // TODO: Verify if this works
         }
         
         public override string ToString()
@@ -184,10 +182,11 @@ public class Day17(string inputFilePath)
     {
         var computer = new Computer();
         computer.InitializeFromFile(inputFilePath);
-        computer.Run();
+        computer.Run(part2: false);
         Console.WriteLine("Program ran with output:");
         Console.WriteLine(computer.Output);
-        return computer.Output;
+        
+        return string.Join(",", computer.Output);
     }
     
     public int Part2()
@@ -202,7 +201,7 @@ public class Day17(string inputFilePath)
             computer.RegisterA = i;
             // computer.RegisterA = 117440;
 
-            computer.Run();
+            computer.Run(part2: true);
             if (computer.OutputsSelf())
             {
                 Console.WriteLine($"Program outputs self with register A: {i}");

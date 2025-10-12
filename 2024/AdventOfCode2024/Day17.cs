@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace AdventOfCode2024;
 
 public class Day17(string inputFilePath)
@@ -11,15 +13,74 @@ public class Day17(string inputFilePath)
         public readonly List<int> Output = [];
         private int _instructionPointer = 0;
 
-        public static Computer CopyProgramAndRegisters(Computer computer)
+        private int _originalA = 0;
+        private int _originalB = 0;
+        private int _originalC = 0;
+
+        public void Reset()
         {
-            return new Computer
+            RegisterA = _originalA;
+            _registerB = _originalB;
+            _registerC = _originalC;
+            _instructionPointer = 0;
+            Output.Clear();
+        }
+
+        public string OutputAsString()
+        {
+            return string.Join(",", Output);
+        }
+        
+        private BigInteger StringToBigInteger(string str)
+        {
+            BigInteger result = 0;
+            foreach (var c in str)
             {
-                _program = computer._program,
-                RegisterA = computer.RegisterA,
-                _registerB = computer._registerB,
-                _registerC = computer._registerC,
-            };
+                if (c != '0' && c != '1')
+                    throw new FormatException("Non-binary character found.");
+
+                result <<= 1;
+                result += c - '0'; // '0'->0, '1'->1
+            }
+
+            return result;
+        }
+    
+        public void BuildPossibilities()
+        {
+            List<string> threeBitNumbers = // 0 to 7 in 3 bit representation
+            [
+                "000", // 0 
+                "001", // 1
+                "010", // 2
+                "011", // 3
+                "100", // 4
+                "101", // 5
+                "110", // 6
+                "111", // 7
+            ];
+            
+            // cartesian product with repetition
+            IEnumerable<string> Sequences(IReadOnlyList<string> alphabet, int length)
+            {
+                if (length == 0) { yield return ""; yield break; }
+
+                var idx = new int[length]; // base-N odometer
+                while (true)
+                {
+                    yield return string.Join(" ", Enumerable.Range(0, length).Select(p => alphabet[idx[p]]));
+
+                    var pos = length - 1;
+                    while (pos >= 0 && ++idx[pos] == alphabet.Count) { idx[pos] = 0; pos--; }
+                    if (pos < 0) yield break;
+                }
+            }
+
+            foreach (var possibility in Sequences(threeBitNumbers, _program.Count))
+            {
+                Console.WriteLine(possibility);
+                var bigInteger = StringToBigInteger(possibility); // TODO: try this for reg A
+            }
         }
 
         public void InitializeFromFile(string filePath)
@@ -33,6 +94,10 @@ public class Day17(string inputFilePath)
 
         public void Run(bool part2)
         {
+            _originalA = RegisterA;
+            _originalB = _registerB;
+            _originalC = _registerC;
+            
             var hasNext = false;
             do
             {
@@ -130,13 +195,16 @@ public class Day17(string inputFilePath)
             _registerB ^= _registerC;
         }
 
-        private void Out(int comboOperand)
+        private int Out(int comboOperand, bool performant = false)
         {
             /* * The out instruction (opcode 5) calculates the value of its combo operand modulo 8,
              * then outputs that value.
              * (If a program outputs multiple values, they are separated by commas.) */
             var value = GetComboOperandValue(comboOperand) % 8;
-            Output.Add(value);
+            if (!performant)
+                Output.Add(value);
+            
+            return value;
         }
 
         private void Bdv(int comboOperand)
@@ -191,7 +259,7 @@ public class Day17(string inputFilePath)
                 """;
         }
     }
-    
+
     public string Part1()
     {
         var computer = new Computer();
@@ -205,24 +273,49 @@ public class Day17(string inputFilePath)
     
     public int Part2()
     {
-        const int startAt = 302000000; 
-        var fromFile = new Computer();
-        fromFile.InitializeFromFile(inputFilePath);
-        
-        for (var i = startAt;; i++)
+        var computer = new Computer();
+        computer.InitializeFromFile(inputFilePath);
+
+        const int test = 7;
+        for (var i = 0;; i++)
         {
             if (i % 10_000_000 == 0)
                 Console.WriteLine($"loop: {i}");
 
-            var computer = Computer.CopyProgramAndRegisters(fromFile);
+            computer.Reset();
             computer.RegisterA = i;
-            
+            computer.RegisterA = 7;
             computer.Run(part2: true);
+            Console.WriteLine($"{test}: {computer.OutputAsString()}");
             if (computer.OutputsSelf())
             {
                 Console.WriteLine($"Program outputs self with register A: {i}");
                 return i;
             }
+
+            break;
         }
+
+        throw new Exception("oops");
+    }
+
+    public string TestRegisterA(int registerA)
+    {
+        var computer = new Computer();
+        computer.InitializeFromFile(inputFilePath);
+        computer.Reset();
+        computer.RegisterA = registerA;
+        computer.BuildPossibilities();
+        // computer.Run(part2: true);
+        return computer.OutputAsString();
+    }
+
+    public void Test()
+    {
+        var computer = new Computer();
+        computer.InitializeFromFile(inputFilePath);
+        computer.Reset();
+        computer.BuildPossibilities();
+        // computer.Run(part2: true);
     }
 }

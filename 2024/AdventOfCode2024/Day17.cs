@@ -8,8 +8,19 @@ public class Day17(string inputFilePath)
         public int RegisterA = 0;
         public int RegisterB = 0;
         public int RegisterC = 0;
+        public string Output = "";
         private int _instructionPointer = 0;
-        private string _output = "";
+
+        public void InitializeFromFile(string filePath)
+        {
+            var lines = File.ReadAllLines(filePath);
+            RegisterA = int.Parse(lines[0].Split(':').Last().Trim());
+            RegisterB = int.Parse(lines[1].Split(':').Last().Trim());
+            RegisterC = int.Parse(lines[2].Split(':').Last().Trim());
+            
+            var temp = lines[4].Split(':').Last().Trim().Split(',').Select(int.Parse).ToList();
+            Program = temp;
+        }
 
         public void Run()
         {
@@ -18,15 +29,13 @@ public class Day17(string inputFilePath)
             {
                 hasNext = ReadNextInstruction();
             } while (hasNext);
-            Console.WriteLine("Program ran with output:");
-            Console.WriteLine(_output);
         }
 
         private bool ReadNextInstruction()
         {
             if (_instructionPointer >= Program.Count)
             {
-                Console.WriteLine("Program halted, out of instructions!");
+                // Console.WriteLine("Program halted, out of instructions!");
                 return false;
             }
             
@@ -114,7 +123,7 @@ public class Day17(string inputFilePath)
              * then outputs that value.
              * (If a program outputs multiple values, they are separated by commas.) */
             var value = GetComboOperandValue(comboOperand) % 8;
-            _output = string.IsNullOrWhiteSpace(_output) ? value.ToString() : _output + $",{value}";
+            Output = string.IsNullOrWhiteSpace(Output) ? value.ToString() : Output + $",{value}";
         }
 
         private void Bdv(int comboOperand)
@@ -145,6 +154,12 @@ public class Day17(string inputFilePath)
                 _ => throw new ArgumentOutOfRangeException(nameof(comboOperand), comboOperand, null)
             };
         }
+
+        public bool OutputsSelf()
+        {
+            var parsed = Output.Trim().Split(',').Select(int.Parse);
+            return parsed.SequenceEqual(Program); // TODO: Verify if this works
+        }
         
         public override string ToString()
         {
@@ -165,17 +180,34 @@ public class Day17(string inputFilePath)
         }
     }
     
-    public void Solve()
+    public string Part1()
     {
         var computer = new Computer();
-        
-        var lines = File.ReadAllLines(inputFilePath);
-        computer.RegisterA = int.Parse(lines[0].Split(':').Last().Trim());
-        computer.RegisterB = int.Parse(lines[1].Split(':').Last().Trim());
-        computer.RegisterC = int.Parse(lines[2].Split(':').Last().Trim());
-        computer.Program = lines[4].Split(':').Last().Trim().Split(',').Select(int.Parse).ToList();
-        // Console.WriteLine(computer);
-        
+        computer.InitializeFromFile(inputFilePath);
         computer.Run();
+        Console.WriteLine("Program ran with output:");
+        Console.WriteLine(computer.Output);
+        return computer.Output;
+    }
+    
+    public int Part2()
+    {
+        for (var i = 0;; i++)
+        {
+            if (i % 100_000 == 0)
+                Console.WriteLine($"loop: {i}");
+
+            var computer = new Computer();
+            computer.InitializeFromFile(inputFilePath);
+            computer.RegisterA = i;
+            // computer.RegisterA = 117440;
+
+            computer.Run();
+            if (computer.OutputsSelf())
+            {
+                Console.WriteLine($"Program outputs self with register A: {i}");
+                return i;
+            }
+        }
     }
 }

@@ -4,22 +4,31 @@ public class Day17(string inputFilePath)
 {
     private class Computer
     {
-        public List<int> Program = [];
+        private List<int> _program = [];
         public int RegisterA = 0;
-        public int RegisterB = 0;
-        public int RegisterC = 0;
-        public List<int> Output = [];
+        private int _registerB = 0;
+        private int _registerC = 0;
+        public readonly List<int> Output = [];
         private int _instructionPointer = 0;
+
+        public static Computer CopyProgramAndRegisters(Computer computer)
+        {
+            return new Computer
+            {
+                _program = computer._program,
+                RegisterA = computer.RegisterA,
+                _registerB = computer._registerB,
+                _registerC = computer._registerC,
+            };
+        }
 
         public void InitializeFromFile(string filePath)
         {
             var lines = File.ReadAllLines(filePath);
             RegisterA = int.Parse(lines[0].Split(':').Last().Trim());
-            RegisterB = int.Parse(lines[1].Split(':').Last().Trim());
-            RegisterC = int.Parse(lines[2].Split(':').Last().Trim());
-            
-            var temp = lines[4].Split(':').Last().Trim().Split(',').Select(int.Parse).ToList();
-            Program = temp;
+            _registerB = int.Parse(lines[1].Split(':').Last().Trim());
+            _registerC = int.Parse(lines[2].Split(':').Last().Trim());
+            _program = lines[4].Split(':').Last().Trim().Split(',').Select(int.Parse).ToList();
         }
 
         public void Run(bool part2)
@@ -33,14 +42,11 @@ public class Day17(string inputFilePath)
 
         private bool ExecuteNextInstruction(bool part2)
         {
-            if (_instructionPointer >= Program.Count)
-            {
-                // Console.WriteLine("Program halted, out of instructions!");
+            if (_instructionPointer >= _program.Count)
                 return false;
-            }
             
-            var opcode = Program[_instructionPointer];
-            var operand = Program[_instructionPointer + 1];
+            var opcode = _program[_instructionPointer];
+            var operand = _program[_instructionPointer + 1];
             var hasJumped = false;
             switch (opcode)
             {
@@ -61,6 +67,14 @@ public class Day17(string inputFilePath)
                     break;
                 case 5:
                     Out(operand);
+                    
+                    if (part2)
+                    {
+                        // TODO: More performant check?
+                        if (Output.Last() != _program[Output.Count - 1])
+                            return false;
+                    }
+            
                     break;
                 case 6: 
                     Bdv(operand);
@@ -75,7 +89,7 @@ public class Day17(string inputFilePath)
             // move the pointer
             if (!hasJumped)
                 _instructionPointer += 2;
-            
+
             return true;
         }
 
@@ -87,7 +101,7 @@ public class Day17(string inputFilePath)
         private void Bxl(int literalOperand)
         {
             // TODO: This might be completely wrong since im not ACTUALLY using 3 bit stuff but a whole integer instead
-            RegisterB ^= literalOperand;
+            _registerB ^= literalOperand;
         }
 
         private void Bst(int comboOperand)
@@ -96,7 +110,7 @@ public class Day17(string inputFilePath)
             /* *The bst instruction (opcode 2) calculates the value of its combo operand modulo 8
              * (thereby keeping only its lowest 3 bits), then writes that value to the B register. */
             var result = GetComboOperandValue(comboOperand) % 8;
-            RegisterB = result;
+            _registerB = result;
         }
 
         private bool Jnz(int literalOperand)
@@ -113,7 +127,7 @@ public class Day17(string inputFilePath)
             /* * The bxc instruction (opcode 4) calculates the bitwise XOR of register B and register C,
              * then stores the result in register B.
              * (For legacy reasons, this instruction reads an operand but ignores it.) */
-            RegisterB ^= RegisterC;
+            _registerB ^= _registerC;
         }
 
         private void Out(int comboOperand)
@@ -127,12 +141,12 @@ public class Day17(string inputFilePath)
 
         private void Bdv(int comboOperand)
         {
-            RegisterB = SharedDv(comboOperand);
+            _registerB = SharedDv(comboOperand);
         }
         
         private void Cdv(int comboOperand)
         {
-            RegisterC = SharedDv(comboOperand);
+            _registerC = SharedDv(comboOperand);
         }
 
         private int SharedDv(int comboOperand)
@@ -148,30 +162,30 @@ public class Day17(string inputFilePath)
             {
                 0 or 1 or 2 or 3 => comboOperand,
                 4 => RegisterA,
-                5 => RegisterB,
-                6 => RegisterC,
+                5 => _registerB,
+                6 => _registerC,
                 _ => throw new ArgumentOutOfRangeException(nameof(comboOperand), comboOperand, null)
             };
         }
 
         public bool OutputsSelf()
         {
-            return Program.SequenceEqual(Output); // TODO: Verify if this works
+            return _program.SequenceEqual(Output); // TODO: Verify if this works
         }
         
         public override string ToString()
         {
-            var programStr = string.Join(",", Program);
-            var marker = _instructionPointer >= 0 && _instructionPointer < Program.Count 
-                ? $" (at position {_instructionPointer}: {Program[_instructionPointer]})" 
+            var programStr = string.Join(",", _program);
+            var marker = _instructionPointer >= 0 && _instructionPointer < _program.Count 
+                ? $" (at position {_instructionPointer}: {_program[_instructionPointer]})" 
                 : " (out of bounds)";
             
             return $"""
                 Computer State:
                 ---------------
                 Register A: {RegisterA}
-                Register B: {RegisterB}
-                Register C: {RegisterC}
+                Register B: {_registerB}
+                Register C: {_registerC}
                 Instruction Pointer: {_instructionPointer}{marker}
                 Program: [{programStr}]
                 """;
@@ -191,16 +205,18 @@ public class Day17(string inputFilePath)
     
     public int Part2()
     {
-        for (var i = 0;; i++)
+        const int startAt = 302000000; 
+        var fromFile = new Computer();
+        fromFile.InitializeFromFile(inputFilePath);
+        
+        for (var i = startAt;; i++)
         {
-            if (i % 100_000 == 0)
+            if (i % 10_000_000 == 0)
                 Console.WriteLine($"loop: {i}");
 
-            var computer = new Computer();
-            computer.InitializeFromFile(inputFilePath);
+            var computer = Computer.CopyProgramAndRegisters(fromFile);
             computer.RegisterA = i;
-            // computer.RegisterA = 117440;
-
+            
             computer.Run(part2: true);
             if (computer.OutputsSelf())
             {

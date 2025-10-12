@@ -9,21 +9,55 @@ public class Day17(string inputFilePath)
         public int RegisterB = 0;
         public int RegisterC = 0;
         private int _instructionPointer = 0;
+        private string _output = "";
 
-        public void ReadNextInstruction()
+        public void Run()
+        {
+            var hasNext = false;
+            do
+            {
+                hasNext = ReadNextInstruction();
+            } while (hasNext);
+            Console.WriteLine("Program ran with output:");
+            Console.WriteLine(_output);
+        }
+
+        private bool ReadNextInstruction()
         {
             if (_instructionPointer >= Program.Count)
             {
                 Console.WriteLine("Program halted, out of instructions!");
-                return;
+                return false;
             }
             
             var opcode = Program[_instructionPointer];
             var operand = Program[_instructionPointer + 1];
+            var hasJumped = false;
             switch (opcode)
             {
                 case 0:
                     Adv(operand);
+                    break;
+                case 1:
+                    Bxl(operand);
+                    break;
+                case 2:
+                    Bst(operand);
+                    break;
+                case 3:
+                    hasJumped = Jnz(operand);
+                    break;
+                case 4:
+                    Bxc(operand);
+                    break;
+                case 5:
+                    Out(operand);
+                    break;
+                case 6: 
+                    Bdv(operand);
+                    break;
+                case 7: 
+                    Cdv(operand);
                     break;
                 default:
                     throw new Exception("Unknown opcode: " + opcode);
@@ -31,28 +65,77 @@ public class Day17(string inputFilePath)
 
             // TODO: don't do this on a jump instruction?
             // move the pointer
-            _instructionPointer += 2;
+            if (!hasJumped)
+                _instructionPointer += 2;
+            
+            return true;
         }
 
         private void Adv(int comboOperand)
         {
-            var numerator = RegisterA;
-            var denominator = Math.Pow(2, GetComboOperandValue(comboOperand));
-            var result = numerator / (int)denominator;
-            RegisterA = result;
+            RegisterA = SharedDv(comboOperand);
         }
 
         private void Bxl(int literalOperand)
         {
+            // TODO: This might be completely wrong since im not ACTUALLY using 3 bit stuff but a whole integer instead
+            RegisterB ^= literalOperand;
+        }
+
+        private void Bst(int comboOperand)
+        {
+            // TODO: i ignored thereby keeping only its lowest 3 bits, assuming it's just extra info. might have to change
+            /* *The bst instruction (opcode 2) calculates the value of its combo operand modulo 8
+             * (thereby keeping only its lowest 3 bits), then writes that value to the B register. */
+            var result = GetComboOperandValue(comboOperand) % 8;
+            RegisterB = result;
+        }
+
+        private bool Jnz(int literalOperand)
+        {
+            if (RegisterA == 0)
+                return false;
+
+            _instructionPointer = literalOperand;
+            return true;
+        }
+
+        private void Bxc(int literalOperand)
+        {
+            /* * The bxc instruction (opcode 4) calculates the bitwise XOR of register B and register C,
+             * then stores the result in register B.
+             * (For legacy reasons, this instruction reads an operand but ignores it.) */
+            RegisterB ^= RegisterC;
+        }
+
+        private void Out(int comboOperand)
+        {
+            /* * The out instruction (opcode 5) calculates the value of its combo operand modulo 8,
+             * then outputs that value.
+             * (If a program outputs multiple values, they are separated by commas.) */
+            var value = GetComboOperandValue(comboOperand) % 8;
+            _output = string.IsNullOrWhiteSpace(_output) ? value.ToString() : _output + $",{value}";
+        }
+
+        private void Bdv(int comboOperand)
+        {
+            RegisterB = SharedDv(comboOperand);
+        }
+        
+        private void Cdv(int comboOperand)
+        {
+            RegisterC = SharedDv(comboOperand);
+        }
+
+        private int SharedDv(int comboOperand)
+        {
+            var numerator = RegisterA;
+            var denominator = Math.Pow(2, GetComboOperandValue(comboOperand));
+            return numerator / (int)denominator;
         }
 
         private int GetComboOperandValue(int comboOperand)
         {
-            // Combo operands 0 through 3 represent literal values 0 through 3.
-            // Combo operand 4 represents the value of register A.
-            // Combo operand 5 represents the value of register B.
-            // Combo operand 6 represents the value of register C.
-            // Combo operand 7 is reserved and will not appear in valid programs.
             return comboOperand switch
             {
                 0 or 1 or 2 or 3 => comboOperand,
@@ -62,6 +145,7 @@ public class Day17(string inputFilePath)
                 _ => throw new ArgumentOutOfRangeException(nameof(comboOperand), comboOperand, null)
             };
         }
+        
         public override string ToString()
         {
             var programStr = string.Join(",", Program);
@@ -90,7 +174,8 @@ public class Day17(string inputFilePath)
         computer.RegisterB = int.Parse(lines[1].Split(':').Last().Trim());
         computer.RegisterC = int.Parse(lines[2].Split(':').Last().Trim());
         computer.Program = lines[4].Split(':').Last().Trim().Split(',').Select(int.Parse).ToList();
+        // Console.WriteLine(computer);
         
-        Console.WriteLine(computer);
+        computer.Run();
     }
 }

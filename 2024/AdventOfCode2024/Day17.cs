@@ -57,6 +57,81 @@ public class Day17(string inputFilePath)
         throw new Exception("oops");
     }
 
+    // Calling it Part3 just to test around
+    public BigInteger Part3()
+    {
+        var computer = new Computer();
+        computer.InitializeFromFile(inputFilePath);
+
+        var program = computer.GetProgram();
+
+        // Work backwards: find values of A that produce the program output
+        var result = FindRegisterA(computer, program, 0, program.Count - 1);
+
+        if (result == null)
+            throw new Exception("No solution found");
+
+        Console.WriteLine($"Program outputs self with register A: {result}");
+        return result.Value;
+    }
+
+    /// <summary>
+    /// Recursively find the value of Register A that produces the desired output. /// Works backwards from the last output to the first.
+    /// </summary>
+    /// <param name="computer">The computer to run</param>
+    /// <param name="targetOutput">The full program we want to output</param>
+    /// <param name="currentA">The value of A we've built so far</param>
+    /// <param name="outputIndex">Which output position we're trying to match (counting from end)</param>
+    private BigInteger? FindRegisterA(Computer computer, List<int> targetOutput, BigInteger currentA, int outputIndex)
+    {
+        // Base case: we've matched all outputs
+        if (outputIndex < 0)
+        {
+            return currentA;
+        }
+
+        // Try all possible 3-bit values (0-7) for this position
+        for (int candidate = 0; candidate < 8; candidate++)
+        {
+            // Build the next value of A by shifting left 3 bits and adding the candidate
+            BigInteger testA = (currentA << 3) | candidate;
+
+            // Run the program with this value of A
+            computer.Reset();
+            computer.RegisterA = testA;
+            computer.Run(false);
+
+            var output = computer.GetOutput();
+
+            // Check if the output matches what we need
+            // We need to match from position outputIndex to the end
+            int outputLength = targetOutput.Count - outputIndex;
+            if (output.Count >= outputLength)
+            {
+                bool matches = true;
+                for (int i = 0; i < outputLength; i++)
+                {
+                    if (output[i] != targetOutput[outputIndex + i])
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+
+                if (matches)
+                {
+                    // This candidate works! Try to continue building
+                    var result = FindRegisterA(computer, targetOutput, testA, outputIndex - 1);
+                    if (result != null)
+                        return result;
+                }
+            }
+        }
+
+        // No valid candidate found at this position
+        return null;
+    }
+
     // Adapted from https://stackoverflow.com/a/8774175/4584421
     private static BigInteger BinaryStringToBigInteger(string str)
     {

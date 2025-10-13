@@ -107,10 +107,10 @@
       <None Update="input\example\day17e2.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-        <None Update="input\example\day18e.txt">
+      <None Update="input\example\day19e.txt">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-      <None Update="input\real\day18.txt">
+      <None Update="input\real\day19.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

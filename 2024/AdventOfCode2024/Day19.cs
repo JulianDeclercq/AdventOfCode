@@ -1,6 +1,6 @@
 namespace AdventOfCode2024;
 
-public class Day18(string inputFilePath)
+public class Day19(string inputFilePath)
 {
     public int Part1()
     {

@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace AdventOfCode2024;
 
 public class Day19(string inputFilePath)
@@ -12,12 +14,15 @@ public class Day19(string inputFilePath)
         return answer;
     }
 
-    public int Part2()
+    public BigInteger Part2()
     {
         var lines = File.ReadAllLines(inputFilePath);
         var patterns = lines[0].Split(", ").ToList();
 
-        var answer = lines.Skip(2).Sum(l => CountDesignPossibleWays(patterns, l));
+        BigInteger answer = 0;
+        foreach (var design in lines.Skip(2))
+            answer += CountDesignPossibleWays(patterns, design);
+        
         Console.WriteLine(answer);
         return answer;
     }
@@ -31,12 +36,25 @@ public class Day19(string inputFilePath)
         return candidates.Any(candidate => IsDesignPossible(patterns, design[candidate.Length..]));
     }
 
-    private static int CountDesignPossibleWays(IReadOnlyCollection<string> patterns, string design)
+    private static readonly Dictionary<string, BigInteger> Memo = [];
+
+    private static BigInteger CountDesignPossibleWays(IReadOnlyCollection<string> patterns, string design)
     {
         if (design.Length == 0)
             return 1;
 
-        var candidates = patterns.Where(design.StartsWith);
-        return candidates.Sum(candidate => CountDesignPossibleWays(patterns, design[candidate.Length..]));
+        if (Memo.TryGetValue(design, out var memodCount))
+            return memodCount;
+
+        BigInteger count = 0;
+        foreach (var candidate in patterns.Where(design.StartsWith))
+        {
+            var candidateCount = CountDesignPossibleWays(patterns, design[candidate.Length..]);
+            count += candidateCount;
+        }
+
+        // memo it
+        Memo[design] = count;
+        return count;
     }
 }

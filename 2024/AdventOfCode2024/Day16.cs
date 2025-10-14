@@ -82,7 +82,8 @@ public class Day16
         pq.Enqueue(initialPath, 0);
 
         Path? bestPath = null;
-        int bestScore = int.MaxValue;
+        List<Path> bestPaths = [];
+        var bestScore = int.MaxValue;
 
         while (pq.Count > 0)
         {
@@ -96,6 +97,13 @@ public class Day16
                 {
                     bestScore = currentPath.Score;
                     bestPath = currentPath;
+
+                    bestPaths.Clear();
+                    bestPaths.Add(currentPath);
+                }
+                else if (currentPath.Score == bestScore)
+                {
+                    bestPaths.Add(currentPath);
                 }
 
                 continue;
@@ -160,6 +168,9 @@ public class Day16
         {
             Console.WriteLine("No path found!");
         }
+
+        var uniquePoints = bestPaths.SelectMany(path => path.Visited).ToHashSet();
+        Console.WriteLine($"Part 2 : {uniquePoints.Count}");
     }
 
     private static int CalculateRotationCost(Direction current, Direction target)

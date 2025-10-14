@@ -62,7 +62,7 @@ public class Day16
         // Console.WriteLine(_grid);
     }
 
-    public void Solve()
+    public int Solve(bool part2 = false)
     {
         var start = _grid.AllExtended().Single(x => x.Value is Start);
         var endPos = _grid.AllExtended().Single(x => x.Value is End).Position;
@@ -159,18 +159,26 @@ public class Day16
             }
         }
 
-        if (bestPath != null)
+        if (!part2)
         {
-            Console.WriteLine($"Winner score: {bestPath.Score}");
-            // Console.WriteLine($"Winner score: {bestPath.Score}\n{bestPath.VisualiseOnGrid(_grid)}");
+            if (bestPath != null)
+            {
+                Console.WriteLine($"Winner score: {bestPath.Score}");
+                return bestPath.Score;
+                // Console.WriteLine($"Winner score: {bestPath.Score}\n{bestPath.VisualiseOnGrid(_grid)}");
+            }
+            else
+            {
+                Console.WriteLine("No path found!");
+                return int.MinValue;
+            }
         }
-        else
+        else // part 2
         {
-            Console.WriteLine("No path found!");
+            var uniquePoints = bestPaths.SelectMany(path => path.Visited).ToHashSet();
+            Console.WriteLine($"Part 2 : {uniquePoints.Count}");
+            return uniquePoints.Count;
         }
-
-        var uniquePoints = bestPaths.SelectMany(path => path.Visited).ToHashSet();
-        Console.WriteLine($"Part 2 : {uniquePoints.Count}");
     }
 
     private static int CalculateRotationCost(Direction current, Direction target)

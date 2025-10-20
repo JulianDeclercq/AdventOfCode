@@ -39,7 +39,9 @@ public class Day18(string inputPath)
 
     public string Part2()
     {
-        for (var i = 1;; ++i)
+        // optimization: we know that part1 always returns a legit path, so start from there to find a solution without a path
+        var startAt = Part1() - 1;
+        for (var i = startAt;; ++i)
         {
             var grid = ParseInput(i);
             if (Solve(grid) == -1)

@@ -28,4 +28,12 @@ public class Day18Tests
         var result = day.Part2();
         Assert.Equal("6,1", result);
     }
+
+    [Fact]
+    public void Part2_Real()
+    {
+        var day = new Day18("input/real/day18.txt");
+        var result = day.Part2();
+        Assert.Equal("52,5", result);
+    }
 }

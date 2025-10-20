@@ -4,21 +4,20 @@ namespace AdventOfCode2024;
 
 public class Day18(string inputPath)
 {
-
-    public int Solve()
+    private Grid<char> ParseInput(int? bytesToTakeOverride = null)
     {
         int width, height, bytesToTake;
         if (inputPath.Contains("example"))
         {
             width = 7;
             height = 7;
-            bytesToTake = 12;
+            bytesToTake = bytesToTakeOverride ?? 12;
         }
         else // real input
         {
             width = 71;
             height = 71;
-            bytesToTake = 1024;
+            bytesToTake = bytesToTakeOverride ?? 1024;
         }
 
         var input = File.ReadAllLines(inputPath);
@@ -29,18 +28,43 @@ public class Day18(string inputPath)
             grid.Set(split[0], split[1], '#');
         }
 
+        return grid;
+    }
+
+    public int Part1()
+    {
+        var grid = ParseInput();
+        return Solve(grid);
+    }
+
+    public string Part2()
+    {
+        for (var i = 1;; ++i)
+        {
+            var grid = ParseInput(i);
+            if (Solve(grid) == -1)
+            {
+                var index = i - 1;
+                var corrupted = File.ReadAllLines(inputPath);
+                var blockerCoordinate = corrupted[index].Split(',').Select(int.Parse).ToArray();
+                return $"{blockerCoordinate[0]},{blockerCoordinate[1]}";
+            }
+        }
+    }
+
+    private static int Solve(Grid<char> grid)
+    {
         // Use simple BFS since all moves cost 1
         var queue = new Queue<(Point position, int steps)>();
         var visited = new HashSet<Point>();
 
         var start = new Point(0, 0);
-        var end = new Point(width - 1, height - 1);
+        var end = new Point(grid.Width - 1, grid.Height - 1);
 
         queue.Enqueue((start, 0));
         visited.Add(start);
 
         int? shortestPath = null;
-
         while (queue.Count > 0)
         {
             var (currentPos, currentSteps) = queue.Dequeue();
@@ -66,14 +90,8 @@ public class Day18(string inputPath)
 
         // Print and return the result
         if (shortestPath.HasValue)
-        {
-            Console.WriteLine($"Shortest path found! Steps: {shortestPath.Value}");
             return shortestPath.Value;
-        }
-        else
-        {
-            Console.WriteLine("No path found!");
-            return -1; // Return -1 to indicate no path found
-        }
+
+        return -1; // Return -1 to indicate no path found
     }
 }

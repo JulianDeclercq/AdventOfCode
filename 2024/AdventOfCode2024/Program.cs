@@ -4,7 +4,8 @@ var watch = System.Diagnostics.Stopwatch.StartNew();
 
 // var day = new Day18("input/example/day18e.txt");
 var day = new Day18("input/real/day18.txt");
-day.Solve();
+day.Part2();
+Console.WriteLine(day.Part2());
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

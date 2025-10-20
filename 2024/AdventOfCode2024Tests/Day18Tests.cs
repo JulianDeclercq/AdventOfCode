@@ -9,7 +9,7 @@ public class Day18Tests
     public void Part1_Example()
     {
         var day = new Day18("input/example/day18e.txt");
-        var result = day.Solve();
+        var result = day.Part1();
         Assert.Equal(22, result);
     }
     
@@ -17,7 +17,15 @@ public class Day18Tests
     public void Part1_Real()
     {
         var day = new Day18("input/real/day18.txt");
-        var result = day.Solve();
+        var result = day.Part1();
         Assert.Equal(288, result);
+    }
+
+    [Fact]
+    public void Part2_Example()
+    {
+        var day = new Day18("input/example/day18e.txt");
+        var result = day.Part2();
+        Assert.Equal("6,1", result);
     }
 }

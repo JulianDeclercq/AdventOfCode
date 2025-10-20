@@ -5,7 +5,7 @@ namespace AdventOfCode2024;
 public class Day18(string inputPath)
 {
 
-    public void Solve()
+    public int Solve()
     {
         int width, height, bytesToTake;
         if (inputPath.Contains("example"))
@@ -64,14 +64,16 @@ public class Day18(string inputPath)
             }
         }
 
-        // Print the result
+        // Print and return the result
         if (shortestPath.HasValue)
         {
             Console.WriteLine($"Shortest path found! Steps: {shortestPath.Value}");
+            return shortestPath.Value;
         }
         else
         {
             Console.WriteLine("No path found!");
+            return -1; // Return -1 to indicate no path found
         }
     }
 }

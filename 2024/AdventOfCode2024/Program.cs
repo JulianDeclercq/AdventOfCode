@@ -2,9 +2,8 @@
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
-var day = new Day18("input/example/day18e.txt");
-// var day = new Day16("input/example/day16e2.txt");
-// var day = new Day16("input/real/day16.txt");
+// var day = new Day18("input/example/day18e.txt");
+var day = new Day18("input/real/day18.txt");
 day.Solve();
 
 watch.Stop();

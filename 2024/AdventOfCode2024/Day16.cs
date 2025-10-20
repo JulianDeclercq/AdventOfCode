@@ -1,4 +1,5 @@
 using AdventOfCode2024.helpers;
+using Path = AdventOfCode2024.helpers.Path;
 
 namespace AdventOfCode2024;
 
@@ -6,49 +7,6 @@ public class Day16
 {
     private record State(Point Position, Direction Direction);
     
-    public class Path
-    {
-        public required Point CurrentPosition { get; set; }
-        public Direction CurrentDirection { get; set; }
-        public HashSet<Point> Visited { get; init; } = [];
-        public int Score { get; set; }
-        
-        public string VisualiseOnGrid(Grid<char> grid, Point? position = null, Direction? direction = null)
-        {
-            var copy = grid.ShallowCopy();
-            
-            foreach (var point in Visited)
-                copy.Set(point, '@');
-
-            if (position is not null && direction is not null)
-            {
-                var target = direction switch
-                {
-                    Direction.North => 'N',
-                    Direction.East => 'E',
-                    Direction.South => 'S',
-                    Direction.West => 'W',
-                    _ => throw new Exception("Invalid direction inside VisualiseOnGrid")
-                };
-                
-                copy.Set(position, target);
-            }
-            
-            return copy.ToString();
-        }
-
-        public Path Copy()
-        {
-            return new Path
-            {
-                CurrentPosition = Point.Copy(CurrentPosition),
-                CurrentDirection = CurrentDirection,
-                Visited = Visited.ToHashSet(),
-                Score = Score,
-            };
-        }
-    }
-
     private Grid<char> _grid;
     private const char Wall = '#';
     private const char End = 'E';

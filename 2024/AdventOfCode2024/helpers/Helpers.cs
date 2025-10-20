@@ -50,3 +50,46 @@ public enum Direction
     SouthWest = 7,
     NorthWest = 8
 }
+
+public class Path
+{
+    public required Point CurrentPosition { get; set; }
+    public Direction CurrentDirection { get; set; }
+    public HashSet<Point> Visited { get; init; } = [];
+    public int Score { get; set; }
+
+    public string VisualiseOnGrid(Grid<char> grid, Point? position = null, Direction? direction = null)
+    {
+        var copy = grid.ShallowCopy();
+
+        foreach (var point in Visited)
+            copy.Set(point, '@');
+
+        if (position is not null && direction is not null)
+        {
+            var target = direction switch
+            {
+                Direction.North => 'N',
+                Direction.East => 'E',
+                Direction.South => 'S',
+                Direction.West => 'W',
+                _ => throw new Exception("Invalid direction inside VisualiseOnGrid")
+            };
+
+            copy.Set(position, target);
+        }
+
+        return copy.ToString();
+    }
+
+    public Path Copy()
+    {
+        return new Path
+        {
+            CurrentPosition = Point.Copy(CurrentPosition),
+            CurrentDirection = CurrentDirection,
+            Visited = Visited.ToHashSet(),
+            Score = Score,
+        };
+    }
+}

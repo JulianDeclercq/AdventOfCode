@@ -24,15 +24,9 @@ public class Day21(string inputPath)
     public void Solve(bool part2 = false)
     {
         _numericLayers = part2 ? 25 : 2;
-        // I had a nice solution but then gaps came in and I became lazy, so I'm hardcoding the paths
-        // Let's ignore the gaps for now? it's never further with gaps involved, just different inputs but same dist
-        // I also just realised you only need the diff, you don't actually need the path so you could just add up
-        // a number instead haha :)
 
         var codes = File.ReadAllLines(inputPath);
-        // var example = "029A";
-
-        var invalid = '@';
+        const char invalid = '@';
         var numericPad = new Grid<char>(3, 4,
         [
             '7', '8', '9',
@@ -235,17 +229,5 @@ public class Day21(string inputPath)
 
         if (!p.Equals(mapping[value]))
             throw new Exception($"Expected value {value} at {p} instead of at {mapping[value]}");
-    }
-
-    private static void TestDirectionalMapping(Point p, Grid<char> numericPad,
-        Dictionary<char, Point> numericToPosition)
-    {
-        var value = numericPad.At(p);
-
-        if (value == numericPad._invalid)
-            return;
-
-        if (!p.Equals(numericToPosition[value]))
-            throw new Exception("lel");
     }
 }

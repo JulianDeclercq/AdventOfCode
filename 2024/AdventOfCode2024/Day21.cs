@@ -18,8 +18,13 @@ public class Day21(string inputPath)
      */
     public void Part1()
     {
-        // var lines = File.ReadAllLines(inputPath);
-        var example = "029A";
+        // I had a nice solution but then gaps came in and I became lazy, so I'm hardcoding the paths
+        // Let's ignore the gaps for now? it's never further with gaps involved, just different inputs but same dist
+        // I also just realised you only need the diff, you don't actually need the path so you could just add up
+        // a number instead haha :)
+
+        var codes = File.ReadAllLines(inputPath);
+        // var example = "029A";
 
         var invalid = '@';
         var numericPad = new Grid<char>(3, 4,
@@ -66,16 +71,22 @@ public class Day21(string inputPath)
         foreach (var point in directionalPad.AllExtendedLookup().Keys)
             TestMapping(point, directionalPad, directionalMapping);
 
-        var commands = new StringBuilder();
-        var first = ControlArm(example, numericMapping);
-        commands.Append(first);
-        Console.WriteLine(commands);
+        var result = codes.Sum(c => CodeComplexity(c, numericMapping, directionalMapping));
+        Console.WriteLine(result);
+    }
+
+    private static int CodeComplexity(
+        string code, Dictionary<char, Point> numericMapping, Dictionary<char, Point> directionalMapping)
+    {
+        var first = ControlArm(code, numericMapping);
         var second = ControlArm(first, directionalMapping);
-        commands.Append(second);
-        Console.WriteLine(commands);
         var third = ControlArm(second, directionalMapping);
-        commands.Append(third);
-        Console.WriteLine(commands);
+
+        var length = third.Length;
+        var numeric = int.Parse(code[..3]);
+        Console.WriteLine($"{code}: {length} * {numeric} = {length * numeric}");
+        Console.WriteLine($"{code}: {third}");
+        return third.Length * int.Parse(code[..3]);
     }
 
     // targetOutput is what you want the next robot to enter

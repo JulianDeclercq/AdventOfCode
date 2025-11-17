@@ -3,7 +3,8 @@
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
 // var day = new Day18("input/example/day18e.txt");
-var day = new Day21("input/real/day18.txt");
+var day = new Day21("input/example/day21e.txt");
+// var day = new Day21("input/real/day18.txt");
 day.Part1();
 // Console.WriteLine(day.Part2());
 

@@ -71,53 +71,158 @@ public class Day21(string inputPath)
         foreach (var point in directionalPad.AllExtendedLookup().Keys)
             TestMapping(point, directionalPad, directionalMapping);
 
-        var result = codes.Sum(c => CodeComplexity(c, numericMapping, directionalMapping));
+        var memo = new Dictionary<(int padId, int layersRemaining, char from, char to), long>();
+        long result = 0;
+        foreach (var code in codes)
+            result += CodeComplexity(code, numericMapping, directionalMapping, numericPad, directionalPad, memo);
+
         Console.WriteLine(result);
     }
 
-    private static int CodeComplexity(
-        string code, Dictionary<char, Point> numericMapping, Dictionary<char, Point> directionalMapping)
+    private static long CodeComplexity(string code, Dictionary<char, Point> numericMapping,
+        Dictionary<char, Point> directionalMapping, Grid<char> numericPad, Grid<char> directionalPad,
+        Dictionary<(int padId, int layersRemaining, char from, char to), long> memo)
     {
-        var first = ControlArm(code, numericMapping);
-        var second = ControlArm(first, directionalMapping);
-        var third = ControlArm(second, directionalMapping);
-
-        var length = third.Length;
+        var length = SequenceCost(code, numericMapping, numericPad, NumericPadId, NumericLayers, directionalMapping,
+            directionalPad, memo);
         var numeric = int.Parse(code[..3]);
         Console.WriteLine($"{code}: {length} * {numeric} = {length * numeric}");
-        Console.WriteLine($"{code}: {third}");
-        return third.Length * int.Parse(code[..3]);
+        return length * numeric;
     }
 
-    // targetOutput is what you want the next robot to enter
-    private static string ControlArm(string targetOutput, Dictionary<char, Point> mapping)
+    private static long SequenceCost(string target,
+        Dictionary<char, Point> mapping, Grid<char> pad, int padId, int layersRemaining,
+        Dictionary<char, Point> directionalMapping, Grid<char> directionalPad,
+        Dictionary<(int padId, int layersRemaining, char from, char to), long> memo)
     {
-        var commands = new StringBuilder();
-        var fingerPosition = mapping['A'];
-        foreach (var target in targetOutput)
+        var finger = 'A';
+        long total = 0;
+        foreach (var symbol in target)
         {
-            var targetPosition = mapping[target];
-            var diff = targetPosition - fingerPosition;
-            commands.Append(DiffToCommand(diff)); // move
-            commands.Append('A'); // confirm
-            fingerPosition = targetPosition;
-            int bkp = 5;
+            total += MoveCost(finger, symbol, mapping, pad, padId, layersRemaining, directionalMapping,
+                directionalPad, memo);
+            finger = symbol;
         }
 
-        return commands.ToString();
+        return total;
     }
 
-    private static string DiffToCommand(Point diff)
+    private static long MoveCost(char from, char to, Dictionary<char, Point> mapping, Grid<char> pad, int padId,
+        int layersRemaining, Dictionary<char, Point> directionalMapping, Grid<char> directionalPad,
+        Dictionary<(int padId, int layersRemaining, char from, char to), long> memo)
     {
-        var result = new StringBuilder();
-        for (var i = 0; i < Math.Abs(diff.X); i++)
-            result.Append(diff.X > 0 ? '>' : '<');
+        var key = (padId, layersRemaining, from, to);
+        if (memo.TryGetValue(key, out var cached))
+            return cached;
 
-        for (var i = 0; i < Math.Abs(diff.Y); i++)
-            result.Append(diff.Y > 0 ? 'v' : '^');
+        var fromPoint = mapping[from];
+        var toPoint = mapping[to];
+        var candidates = GetMoveCandidates(fromPoint, toPoint, pad).ToArray();
 
-        return result.ToString();
+        if (candidates.Length == 0)
+            throw new Exception($"No valid path found from {from} to {to} on pad {padId}.");
+
+        long best = long.MaxValue;
+        foreach (var candidate in candidates)
+        {
+            var command = candidate + "A";
+            var cost = layersRemaining == 0
+                ? command.Length
+                : CommandCost(command, layersRemaining, directionalMapping, directionalPad, memo);
+
+            best = Math.Min(best, cost);
+        }
+
+        memo[key] = best;
+        return best;
     }
+
+    private static long CommandCost(string commands, int layersRemaining, Dictionary<char, Point> directionalMapping,
+        Grid<char> directionalPad, Dictionary<(int padId, int layersRemaining, char from, char to), long> memo)
+    {
+        if (layersRemaining == 0)
+            return commands.Length;
+
+        long total = 0;
+        var finger = 'A';
+        foreach (var symbol in commands)
+        {
+            total += MoveCost(finger, symbol, directionalMapping, directionalPad, DirectionalPadId,
+                layersRemaining - 1, directionalMapping, directionalPad, memo);
+            finger = symbol;
+        }
+
+        return total;
+    }
+
+    private static IEnumerable<string> GetMoveCandidates(Point from, Point to, Grid<char> pad)
+    {
+        var options = new List<string>();
+        var horizontalFirst = TryBuildPath(from, to, pad, horizontalFirst: true);
+        if (horizontalFirst != null)
+            options.Add(horizontalFirst);
+
+        var verticalFirst = TryBuildPath(from, to, pad, horizontalFirst: false);
+        if (verticalFirst != null && (horizontalFirst == null || verticalFirst != horizontalFirst))
+            options.Add(verticalFirst);
+
+        return options;
+    }
+
+    private static string? TryBuildPath(Point from, Point to, Grid<char> pad, bool horizontalFirst)
+    {
+        var builder = new StringBuilder();
+        var currentX = from.X;
+        var currentY = from.Y;
+
+        if (horizontalFirst)
+        {
+            if (!AppendSteps(ref currentX, ref currentY, to.X - currentX, true, pad, builder))
+                return null;
+            if (!AppendSteps(ref currentX, ref currentY, to.Y - currentY, false, pad, builder))
+                return null;
+        }
+        else
+        {
+            if (!AppendSteps(ref currentX, ref currentY, to.Y - currentY, false, pad, builder))
+                return null;
+            if (!AppendSteps(ref currentX, ref currentY, to.X - currentX, true, pad, builder))
+                return null;
+        }
+
+        return builder.ToString();
+    }
+
+    private static bool AppendSteps(ref int currentX, ref int currentY, int steps, bool horizontal, Grid<char> pad,
+        StringBuilder builder)
+    {
+        if (steps == 0)
+            return true;
+
+        var stepChar = horizontal
+            ? steps > 0 ? '>' : '<'
+            : steps > 0 ? 'v' : '^';
+
+        var deltaX = horizontal ? (steps > 0 ? 1 : -1) : 0;
+        var deltaY = horizontal ? 0 : (steps > 0 ? 1 : -1);
+
+        for (var i = 0; i < Math.Abs(steps); i++)
+        {
+            currentX += deltaX;
+            currentY += deltaY;
+
+            if (pad.At(currentX, currentY) == pad._invalid)
+                return false;
+
+            builder.Append(stepChar);
+        }
+
+        return true;
+    }
+
+    private const int NumericPadId = 0;
+    private const int DirectionalPadId = 1;
+    private const int NumericLayers = 2;
 
     private static void TestMapping(Point p, Grid<char> pad, Dictionary<char, Point> mapping)
     {

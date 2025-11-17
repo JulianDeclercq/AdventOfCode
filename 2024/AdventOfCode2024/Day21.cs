@@ -38,22 +38,42 @@ public class Day21(string inputPath)
             ['0'] = new Point(1, 3), ['A'] = new Point(2, 3),
         };
 
-        // will throw if mapping is not correct
+        /*
+         *     +---+---+
+               | ^ | A |
+           +---+---+---+
+           | < | v | > |
+           +---+---+---+
+         */
+        var directionalPad = new Grid<char>(3, 2,
+        [
+            invalid, '^', 'A',
+            '<', 'v', '>',
+        ], invalid);
+
+        var directionalToPosition = new Dictionary<char, Point>
+        {
+            ['^'] = new Point(1, 0),
+            ['A'] = new Point(2, 0),
+            ['<'] = new Point(0, 1),
+            ['v'] = new Point(1, 1),
+            ['>'] = new Point(2, 1)
+        };
+
         foreach (var point in numericPad.AllExtendedLookup().Keys)
             TestMapping(point, numericPad, numericToPosition);
 
-        // foreach (var lel in numericToPosition.Keys) Console.WriteLine($"{lel}, {(int)lel}");
+        foreach (var point in directionalPad.AllExtendedLookup().Keys)
+            TestMapping(point, directionalPad, directionalToPosition);
 
         var commands = new StringBuilder();
         var fingerPosition = numericToPosition['A'];
         foreach (var target in example)
         {
             var targetPosition = numericToPosition[target];
-            // var diff = fingerPosition - targetPosition;
             var diff = targetPosition - fingerPosition;
             commands.Append(DiffToCommand(diff)); // move
             commands.Append('A'); // confirm
-            // TODO: add commands
             fingerPosition = targetPosition;
             int bkp = 5;
         }
@@ -73,7 +93,19 @@ public class Day21(string inputPath)
         return result.ToString();
     }
 
-    private static void TestMapping(Point p, Grid<char> numericPad, Dictionary<char, Point> numericToPosition)
+    private static void TestMapping(Point p, Grid<char> pad, Dictionary<char, Point> mapping)
+    {
+        var value = pad.At(p);
+
+        if (value == pad._invalid)
+            return;
+
+        if (!p.Equals(mapping[value]))
+            throw new Exception($"Expected value {value} at {p} instead of at {mapping[value]}");
+    }
+
+    private static void TestDirectionalMapping(Point p, Grid<char> numericPad,
+        Dictionary<char, Point> numericToPosition)
     {
         var value = numericPad.At(p);
 

@@ -16,8 +16,14 @@ public class Day21(string inputPath)
            | 0 | A |
            +---+---+
      */
-    public void Part1()
+
+    private const int NumericPadId = 0;
+    private const int DirectionalPadId = 1;
+    private static int _numericLayers = -1;
+
+    public void Solve(bool part2 = false)
     {
+        _numericLayers = part2 ? 25 : 2;
         // I had a nice solution but then gaps came in and I became lazy, so I'm hardcoding the paths
         // Let's ignore the gaps for now? it's never further with gaps involved, just different inputs but same dist
         // I also just realised you only need the diff, you don't actually need the path so you could just add up
@@ -83,7 +89,7 @@ public class Day21(string inputPath)
         Dictionary<char, Point> directionalMapping, Grid<char> numericPad, Grid<char> directionalPad,
         Dictionary<(int padId, int layersRemaining, char from, char to), long> memo)
     {
-        var length = SequenceCost(code, numericMapping, numericPad, NumericPadId, NumericLayers, directionalMapping,
+        var length = SequenceCost(code, numericMapping, numericPad, NumericPadId, _numericLayers, directionalMapping,
             directionalPad, memo);
         var numeric = int.Parse(code[..3]);
         Console.WriteLine($"{code}: {length} * {numeric} = {length * numeric}");
@@ -219,11 +225,7 @@ public class Day21(string inputPath)
 
         return true;
     }
-
-    private const int NumericPadId = 0;
-    private const int DirectionalPadId = 1;
-    private const int NumericLayers = 2;
-
+    
     private static void TestMapping(Point p, Grid<char> pad, Dictionary<char, Point> mapping)
     {
         var value = pad.At(p);

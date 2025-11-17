@@ -1,3 +1,4 @@
+using System.Text;
 using AdventOfCode2024.helpers;
 
 namespace AdventOfCode2024;
@@ -37,10 +38,39 @@ public class Day21(string inputPath)
             ['0'] = new Point(1, 3), ['A'] = new Point(2, 3),
         };
 
+        // will throw if mapping is not correct
         foreach (var point in numericPad.AllExtendedLookup().Keys)
             TestMapping(point, numericPad, numericToPosition);
 
-        Console.WriteLine("nice!");
+        // foreach (var lel in numericToPosition.Keys) Console.WriteLine($"{lel}, {(int)lel}");
+
+        var commands = new StringBuilder();
+        var fingerPosition = numericToPosition['A'];
+        foreach (var target in example)
+        {
+            var targetPosition = numericToPosition[target];
+            // var diff = fingerPosition - targetPosition;
+            var diff = targetPosition - fingerPosition;
+            commands.Append(DiffToCommand(diff)); // move
+            commands.Append('A'); // confirm
+            // TODO: add commands
+            fingerPosition = targetPosition;
+            int bkp = 5;
+        }
+        
+        Console.WriteLine(commands);
+    }
+
+    private static string DiffToCommand(Point diff)
+    {
+        var result = new StringBuilder();
+        for (var i = 0; i < Math.Abs(diff.X); i++)
+            result.Append(diff.X > 0 ? '>' : '<');
+
+        for (var i = 0; i < Math.Abs(diff.Y); i++)
+            result.Append(diff.Y > 0 ? 'v' : '^');
+
+        return result.ToString();
     }
 
     private static void TestMapping(Point p, Grid<char> numericPad, Dictionary<char, Point> numericToPosition)

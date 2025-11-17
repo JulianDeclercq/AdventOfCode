@@ -30,7 +30,7 @@ public class Day21(string inputPath)
             invalid, '0', 'A'
         ], invalid);
 
-        var numericToPosition = new Dictionary<char, Point>
+        var numericMapping = new Dictionary<char, Point>
         {
             ['7'] = new Point(0, 0), ['8'] = new Point(1, 0), ['9'] = new Point(2, 0),
             ['4'] = new Point(0, 1), ['5'] = new Point(1, 1), ['6'] = new Point(2, 1),
@@ -51,7 +51,7 @@ public class Day21(string inputPath)
             '<', 'v', '>',
         ], invalid);
 
-        var directionalToPosition = new Dictionary<char, Point>
+        var directionalMapping = new Dictionary<char, Point>
         {
             ['^'] = new Point(1, 0),
             ['A'] = new Point(2, 0),
@@ -61,24 +61,36 @@ public class Day21(string inputPath)
         };
 
         foreach (var point in numericPad.AllExtendedLookup().Keys)
-            TestMapping(point, numericPad, numericToPosition);
+            TestMapping(point, numericPad, numericMapping);
 
         foreach (var point in directionalPad.AllExtendedLookup().Keys)
-            TestMapping(point, directionalPad, directionalToPosition);
+            TestMapping(point, directionalPad, directionalMapping);
 
         var commands = new StringBuilder();
-        var fingerPosition = numericToPosition['A'];
-        foreach (var target in example)
+        var first = ControlArm(example, numericMapping);
+        commands.Append(first);
+        Console.WriteLine(commands);
+        var second = ControlArm(first, directionalMapping);
+        commands.Append(second);
+        Console.WriteLine(commands);
+    }
+
+    // targetOutput is what you want the next robot to enter
+    private static string ControlArm(string targetOutput, Dictionary<char, Point> mapping)
+    {
+        var commands = new StringBuilder();
+        var fingerPosition = mapping['A'];
+        foreach (var target in targetOutput)
         {
-            var targetPosition = numericToPosition[target];
+            var targetPosition = mapping[target];
             var diff = targetPosition - fingerPosition;
             commands.Append(DiffToCommand(diff)); // move
             commands.Append('A'); // confirm
             fingerPosition = targetPosition;
             int bkp = 5;
         }
-        
-        Console.WriteLine(commands);
+
+        return commands.ToString();
     }
 
     private static string DiffToCommand(Point diff)

@@ -350,7 +350,7 @@ public class Grid<T>
 
     public int Width { get; }
     public int Height { get; }
-    private readonly T _invalid;
+    public readonly T _invalid;
     private readonly List<T> _cells = [];
 
     public override string ToString()

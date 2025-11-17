@@ -3,9 +3,9 @@
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
 // var day = new Day18("input/example/day18e.txt");
-var day = new Day18("input/real/day18.txt");
-day.Part2();
-Console.WriteLine(day.Part2());
+var day = new Day21("input/real/day18.txt");
+day.Part1();
+// Console.WriteLine(day.Part2());
 
 watch.Stop();
 Console.WriteLine(watch.Elapsed);

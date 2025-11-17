@@ -73,6 +73,9 @@ public class Day21(string inputPath)
         var second = ControlArm(first, directionalMapping);
         commands.Append(second);
         Console.WriteLine(commands);
+        var third = ControlArm(second, directionalMapping);
+        commands.Append(third);
+        Console.WriteLine(commands);
     }
 
     // targetOutput is what you want the next robot to enter

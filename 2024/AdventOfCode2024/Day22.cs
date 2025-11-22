@@ -3,7 +3,6 @@ namespace AdventOfCode2024;
 public class Day22
 {
     private record PriceChange(int Price, int Change);
-    private record CombinationPrice(string Combination, int Price);
     
     public static void Solve(int part)
     {
@@ -11,7 +10,7 @@ public class Day22
             throw new Exception($"Invalid part {part}");
         
         const int steps = 2000;
-        var secrets = File.ReadAllLines("input/real/day22e.txt").Select(long.Parse).ToList();
+        var secrets = File.ReadAllLines("input/real/day22.txt").Select(long.Parse).ToList();
 
         if (part is 1)
         {
@@ -19,39 +18,47 @@ public class Day22
             return;
         }
 
-        Dictionary<long, List<PriceChange>> changes = [];
-        Dictionary<long, List<CombinationPrice>> combinations = [];
+        // For each buyer, generate prices and changes
+        Dictionary<long, List<PriceChange>> buyerChanges = [];
         foreach (var secret in secrets)
         {
-            if (!changes.TryAdd(secret, NextXStepsDifferences(secret, steps)))
+            if (!buyerChanges.TryAdd(secret, NextXStepsDifferences(secret, steps)))
                 throw new Exception($"Duplicate secret {secret}");
         }
 
-        foreach (var (key, value) in changes)
+        // For each buyer, find first occurrence of each 4-change sequence
+        // Key: sequence tuple (c1, c2, c3, c4), Value: price at first occurrence
+        Dictionary<(int, int, int, int), int> sequenceFirstPrices = [];
+        
+        foreach (var (buyerSecret, changes) in buyerChanges)
         {
-            for (var i = 0; i < value.Count - 3; ++i) // TODO: Bound check
+            // Track which sequences we've seen for this buyer (only first occurrence counts)
+            HashSet<(int, int, int, int)> seenSequences = [];
+            
+            for (var i = 0; i < changes.Count - 3; ++i)
             {
-                var combos = combinations.TryGetValue(key, out var existing) ? existing : [];
+                var sequence = (changes[i].Change, changes[i + 1].Change, changes[i + 2].Change, changes[i + 3].Change);
                 
-                var combinationPrice =
-                    new CombinationPrice(
-                        $"{value[i].Change}{value[i + 1].Change}{value[i + 2].Change}{value[i + 3].Change}",
-                        value[i + 3].Price);
-                
-                combos.Add(combinationPrice);
-                combinations[key] = combos;
+                // Only record first occurrence for this buyer
+                if (!seenSequences.Contains(sequence))
+                {
+                    seenSequences.Add(sequence);
+                    
+                    // The price at which we sell is the price after the 4th change
+                    var sellPrice = changes[i + 3].Price;
+                    
+                    // Add to total for this sequence (will sum across all buyers)
+                    if (!sequenceFirstPrices.ContainsKey(sequence))
+                        sequenceFirstPrices[sequence] = 0;
+                    
+                    sequenceFirstPrices[sequence] += sellPrice;
+                }
             }
         }
 
-        // var distinctCombinations = combinations.Values.SelectMany(combo => combo).ToHashSet();
-        var distinctCombinations = combinations.Values
-            .SelectMany(combo => combo)
-            .DistinctBy(c => c.Combination)
-            .ToHashSet();
-        
-        Console.WriteLine(distinctCombinations.Count);
-
-        var brkpt = 5;
+        // Find the maximum total bananas
+        var maxBananas = sequenceFirstPrices.Values.Max();
+        Console.WriteLine(maxBananas);
     }
 
     private static long NextXSteps(long secret, int steps)
@@ -65,22 +72,29 @@ public class Day22
 
     private static List<PriceChange> NextXStepsDifferences(long secret, int steps)
     {
-        List<PriceChange> differences = [];
+        List<PriceChange> changes = [];
         var current = secret;
-        var currentSmall = (int)char.GetNumericValue(secret.ToString()[^1]); 
+        var currentPrice = GetOnesDigit(current);
+        
+        // Generate 2000 new secret numbers, each gives a price
         for (var i = 0; i < steps; ++i)
         {
             var next = Next(current);
-            var nextSmall = (int)char.GetNumericValue(next.ToString()[^1]);
+            var nextPrice = GetOnesDigit(next);
+            var change = nextPrice - currentPrice;
 
-            var priceChange = new PriceChange(nextSmall, nextSmall - currentSmall);
-            differences.Add(priceChange);
+            changes.Add(new PriceChange(nextPrice, change));
             
             current = next;
-            currentSmall = nextSmall;
+            currentPrice = nextPrice;
         }
 
-        return differences;
+        return changes;
+    }
+
+    private static int GetOnesDigit(long number)
+    {
+        return (int)(Math.Abs(number) % 10);
     }
 
     private static long Next(long secret)

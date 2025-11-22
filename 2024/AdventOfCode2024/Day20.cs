@@ -4,23 +4,24 @@ namespace AdventOfCode2024;
 
 public class Day20(string inputPath)
 {
-    public int Part1(int minSavings = 100)
+    public int Solve(bool part1)
     {
+        const int minSavings = 100;
         var lines = File.ReadAllLines(inputPath);
-        
+
         // Parse grid
         var grid = new Grid<char>(lines[0].Length, lines.Length, lines.SelectMany(c => c), '@');
-        
-        // Find start and end positions
+
+        // Find start
         var start = grid.AllExtended().Single(x => x.Value == 'S').Position;
-        var end = grid.AllExtended().Single(x => x.Value == 'E').Position;
-        
+
         // Compute distances from start using BFS
         var distancesFromStart = ComputeDistances(grid, start);
-        
+
         // Find all valid cheats
-        var cheatCount = CountCheats(grid, distancesFromStart, maxCheatDistance: 2, minSavings);
-        
+        var maxCheatDistance = part1 ? 2 : 20;
+        var cheatCount = CountCheats(grid, distancesFromStart, maxCheatDistance, minSavings);
+
         Console.WriteLine($"Part 1: {cheatCount} cheats save at least {minSavings} picoseconds");
         return cheatCount;
     }
@@ -78,11 +79,11 @@ public class Day20(string inputPath)
                         continue;
                     
                     // Check if endpoint is reachable in normal path
-                    if (!distancesFromStart.ContainsKey(endPoint))
+                    if (!distancesFromStart.TryGetValue(endPoint, out var value))
                         continue;
                     
                     // Calculate time saved
-                    var normalDistance = distancesFromStart[endPoint] - distancesFromStart[startPoint];
+                    var normalDistance = value - distancesFromStart[startPoint];
                     var timeSaved = normalDistance - cheatDistance;
                     
                     if (timeSaved >= minSavings)

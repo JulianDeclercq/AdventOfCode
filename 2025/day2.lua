@@ -31,15 +31,25 @@ local function is_invalid_pattern(id, pattern)
 		return false
 	end
 
-	for i = 1, #id, #pattern do -- not sure about this for loop hihi
+	for i = 1, #id, #pattern do
 		local temp = id:sub(i, i + #pattern - 1)
 		-- print("temp " .. temp)
-		if temp ~= pattern then
+		if tonumber(temp) ~= tonumber(pattern) then
 			return false
 		end
 	end
 
 	return true
+end
+
+local function is_invalid_part1(id)
+	if #id % 2 ~= 0 then
+		return false
+	end
+	local pattern = id:sub(1, #id / 2)
+	-- return false
+	-- return is_invalid_pattern(id, id:sub(1, #id / 2)) -- 111 is a false match
+	return is_invalid_pattern(id, pattern)
 end
 
 local function is_invalid_part2(id)
@@ -50,22 +60,18 @@ local function is_invalid_part2(id)
 		table.insert(patterns, id:sub(1, i))
 	end
 
-	-- print(table.concat(patterns, "\n"))
-
 	for _, pattern in ipairs(patterns) do
 		if is_invalid_pattern(id, pattern) then
-			-- print("invalid pattern found for " .. id .. ":" .. pattern)
 			return true
 		end
 	end
 	return false
 end
 
-local function solve()
+local function solve(part)
 	-- local line = io.lines("example/day2.txt")() -- () for first line only
 	local line = io.lines("input/day2.txt")() -- () for first line only
 	local ranges = split(line, ",")
-	-- print(table.concat(ranges, "\n"))
 	local answer = 0
 	for _, range in ipairs(ranges) do
 		-- print(range)
@@ -73,14 +79,21 @@ local function solve()
 		local min, max = limits[1], limits[2]
 		for i = min, max, 1 do
 			local id = tostring(i)
-			if is_invalid_part2(id) then
-				-- print("invalid " .. id)
+			local invalid = false
+			if part == 1 then
+				invalid = is_invalid_part1(id)
+				-- if invalid then print(id) end
+			else
+				invalid = is_invalid_part2(id)
+			end
+
+			if invalid then
 				answer = answer + tonumber(id)
 			end
 		end
 	end
-	print(answer)
+	print("answer " .. answer)
 end
 
-solve()
--- is_invalid_part2("696969")
+solve(1)
+-- is_invalid_part1("111")

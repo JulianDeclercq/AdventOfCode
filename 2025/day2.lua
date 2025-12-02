@@ -11,7 +11,7 @@ local function split(str, delimiter)
 	return result
 end
 
-local function is_valid_id(id)
+local function is_invalid(id)
 	local first_str = id:sub(0, #id / 2)
 	local first = tonumber(first_str)
 	local second_str = id:sub((#id / 2) + 1)
@@ -25,9 +25,45 @@ local function is_valid_id(id)
 	end
 end
 
-local function part1()
-	-- local input = io.lines("example/day2.txt")
-	local line = io.lines("input/day2.txt")() -- first line only
+local function is_invalid_pattern(id, pattern)
+	-- if id length isn't a multiple of the pattern it can't be invalid
+	if #id % #pattern ~= 0 then
+		return false
+	end
+
+	for i = 1, #id, #pattern do -- not sure about this for loop hihi
+		local temp = id:sub(i, i + #pattern - 1)
+		-- print("temp " .. temp)
+		if temp ~= pattern then
+			return false
+		end
+	end
+
+	return true
+end
+
+local function is_invalid_part2(id)
+	local patterns = {}
+
+	-- and at -1 to avoid full string being a match
+	for i = 1, #id - 1, 1 do
+		table.insert(patterns, id:sub(1, i))
+	end
+
+	-- print(table.concat(patterns, "\n"))
+
+	for _, pattern in ipairs(patterns) do
+		if is_invalid_pattern(id, pattern) then
+			-- print("invalid pattern found for " .. id .. ":" .. pattern)
+			return true
+		end
+	end
+	return false
+end
+
+local function solve()
+	-- local line = io.lines("example/day2.txt")() -- () for first line only
+	local line = io.lines("input/day2.txt")() -- () for first line only
 	local ranges = split(line, ",")
 	-- print(table.concat(ranges, "\n"))
 	local answer = 0
@@ -37,7 +73,8 @@ local function part1()
 		local min, max = limits[1], limits[2]
 		for i = min, max, 1 do
 			local id = tostring(i)
-			if is_valid_id(id) then
+			if is_invalid_part2(id) then
+				-- print("invalid " .. id)
 				answer = answer + tonumber(id)
 			end
 		end
@@ -45,4 +82,5 @@ local function part1()
 	print(answer)
 end
 
-part1()
+solve()
+-- is_invalid_part2("696969")

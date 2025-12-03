@@ -36,4 +36,4 @@ end
 
 print(solve(2))
 print(string.format("%.0f", solve(12)))
--- vim.api.nvim_buf_set_lines(0, -1, -1, false, { "-- part2: " .. string.format("%.0f", part2()) })
+-- vim.api.nvim_buf_set_lines(0, -1, -1, false, { "-- part2: " .. string.format("%.0f", solve(12)) })

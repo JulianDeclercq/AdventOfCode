@@ -66,29 +66,29 @@ local function part_2()
 		print(string.format("range %d: min=%d, max=%d", i, r.min, r.max))
 	end
 
+	-- sort the ranges by min so you can always compare "the next one with the previous one" instead of having to try in both directions
+	local function range_sorting(lhs, rhs)
+		return lhs.min < rhs.min
+	end
+	table.sort(ranges, range_sorting)
+
 	-- combine the ranges
 	local combined_ranges = {}
-	for _, range in ipairs(ranges) do
-		local got_combined = false
-		for _, combined_range in ipairs(combined_ranges) do
-			-- if the min of the new range is INSIDE the combined range
-			if range.min >= combined_range.min and range.min <= combined_range.max then
-				-- combine the ranges if it's now bigger
-				if range.max > combined_range.max then
-					combined_range.max = range.max
-					got_combined = true
-					break
-				end
-			end
+
+	for i, range in ipairs(ranges) do
+		print("range " .. range.min .. " " .. range.max)
+	end
+
+	local search = true
+	while search do
+		for i = 1, #ranges - 1 do
+			local current = ranges[i]
+			local next = ranges[i + 1]
+			print("range " .. ranges[i].min .. " " .. ranges[i].max)
 		end
 
-		-- add as new combined range since it wasn't combinable with any existing
-		if not got_combined then
-			table.insert(combined_ranges, range)
-		end
+		-- somewhere here put search to false
 	end
-	print(combined_ranges.min)
-	print(combined_ranges.max)
 end
 
 part_2()

@@ -13,4 +13,19 @@ function helpers.split(str, delimiter)
 	return result
 end
 
+function helpers.dump(object)
+	if type(object) == "table" then
+		local s = "{ "
+		for k, v in pairs(object) do
+			if type(k) ~= "number" then
+				k = '"' .. k .. '"'
+			end
+			s = s .. "[" .. k .. "] = " .. helpers.dump(v) .. ","
+		end
+		return s .. "} "
+	else
+		return tostring(object)
+	end
+end
+
 return helpers

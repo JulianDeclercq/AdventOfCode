@@ -51,7 +51,6 @@ local function connect(box1, box2)
 	local box1_circuit = box_to_circuit_lookup[box1.id]
 	local box2_circuit = box_to_circuit_lookup[box2.id]
 
-	dbg_locals()
 	if box1_circuit == box2_circuit then
 		return
 	end
@@ -65,10 +64,12 @@ local function connect(box1, box2)
 	-- TODO: What if this circuit has more than just one? do both get joined? I suppose so? if so i need to implement it with a loop
 	local target_circuit_id = box_to_circuit_lookup[target.id]
 	local from_circuit_id = box_to_circuit_lookup[to_move.id] -- TODO Double check this is not a reference
-	box_to_circuit_lookup[to_move] = target_circuit_id
+	box_to_circuit_lookup[to_move.id] = target_circuit_id
 	table.insert(circuits[target_circuit_id], to_move.id) -- add the new box id to the circuit
 
 	circuits[from_circuit_id] = nil -- remove the old circuit
+
+	-- dbg_locals()
 end
 
 local distances_lookup = {} -- only used to prevent duplicate pairs (a <-> b and b <-> a)
@@ -94,13 +95,14 @@ local function part1()
 	end)
 
 	-- traverse the pairs and make circuits
+	local AMOUNT = 10
 	for i, dist in ipairs(distances_list) do
 		print("circuits")
 		for key, circuit in pairs(circuits) do
 			print(key, " => ", inspect(circuit))
 		end
-		-- TODO: Remove me
-		if i > 4 then
+
+		if i > AMOUNT then
 			break
 		end
 

@@ -2,8 +2,8 @@ package.loaded["helpers"] = nil
 local helpers = require("helpers")
 local inspect = require("inspect")
 
-local input_file = "example/day8.txt"
--- local input_file = "input/day8.txt"
+-- local input_file = "example/day8.txt"
+local input_file = "input/day8.txt"
 local lines = io.lines(input_file)
 local boxes = {}
 local circuits = {}

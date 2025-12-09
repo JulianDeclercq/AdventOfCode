@@ -28,6 +28,14 @@ function helpers.dump(object)
 	end
 end
 
+function helpers.table_length(t)
+	local count = 0
+	for _ in pairs(t) do
+		count = count + 1
+	end
+	return count
+end
+
 math.randomseed(os.time())
 local random = math.random
 function helpers.uuid()

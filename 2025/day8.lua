@@ -14,13 +14,20 @@ end
 
 local function unique_key(p1, p2)
 	local sorted = { p1, p2 }
-	table.sort(sorted, function()
-		return p1.x < p2.x
+	table.sort(sorted, function(lhs, rhs)
+		if lhs.x ~= rhs.x then
+			return lhs.x < rhs.x
+		elseif lhs.y ~= rhs.y then
+			return lhs.y < rhs.y
+		else
+			return lhs.z < rhs.z
+		end
 	end)
 	return inspect(sorted) -- use inspect as a general "to string"
 end
 
-local distances = {}
+local distances_lookup = {}
+local distances_list = {}
 local function part1()
 	for amount = 1, 10 do
 		local lowest_distance = 99999999999999
@@ -29,19 +36,24 @@ local function part1()
 			for j, inner in ipairs(boxes) do
 				if inner ~= outer then
 					local key = unique_key(outer, inner)
-					if distances[key] == nil then
+					if distances_lookup[key] == nil then
 						local distance = euclidean_distance(outer, inner)
-						distances[key] = { p1 = outer, p2 = inner, distance = distance }
+						local box = { p1 = outer, p2 = inner, distance = distance }
+						distances_lookup[key] = box
+						table.insert(distances_list, box)
 					end
 				end
 			end
 		end
 	end
+
+	table.sort(distances_list, function(lhs, rhs)
+		return lhs.distance < rhs.distance
+	end)
+	for _, dist in pairs(distances_list) do
+		print(inspect(dist))
+		-- break
+	end
 end
 
 part1()
-
-local key = unique_key(boxes[1], boxes[2])
--- print(key)
--- print("lel")
-print(inspect(distances[key]))

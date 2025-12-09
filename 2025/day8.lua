@@ -2,8 +2,8 @@ package.loaded["helpers"] = nil
 local helpers = require("helpers")
 local inspect = require("inspect")
 
--- local input_file = "example/day8.txt"
-local input_file = "input/day8.txt"
+local input_file = "example/day8.txt"
+-- local input_file = "input/day8.txt"
 local lines = io.lines(input_file)
 local boxes = {}
 local circuits = {}
@@ -132,4 +132,50 @@ local function part1()
 	print("Part 1 answer", circuit_counts[1] * circuit_counts[2] * circuit_counts[3])
 end
 
-part1()
+local function part2()
+	for _, outer in ipairs(boxes) do
+		for _, inner in ipairs(boxes) do
+			if inner ~= outer then
+				local key = unique_key(outer, inner)
+				if distances_lookup[key] == nil then
+					local distance = euclidean_distance(outer, inner)
+					local box = { p1 = outer, p2 = inner, distance = distance }
+					distances_lookup[key] = box
+					table.insert(distances_list, box)
+				end
+			end
+		end
+	end
+
+	-- sort by distance
+	table.sort(distances_list, function(lhs, rhs)
+		return lhs.distance < rhs.distance
+	end)
+
+	-- print("INITIAL circuits")
+	-- for key, circuit in pairs(circuits) do
+	-- 	print(key, " => ", inspect(circuit))
+	-- end
+
+	-- traverse the pairs and make circuits
+	local last = nil
+	for _, dist in ipairs(distances_list) do
+		if helpers.table_length(circuits) == 1 then
+			print("circuits unified")
+			-- print(inspect(last))
+			break
+		end
+
+		connect(dist.p1, dist.p2)
+
+		-- print("circuits")
+		-- for key, circuit in pairs(circuits) do
+		-- 	print(key, " => ", inspect(circuit))
+		-- end
+		last = dist
+	end
+
+	print("Part 2 answer", last.p1.x * last.p2.x)
+end
+
+part2()

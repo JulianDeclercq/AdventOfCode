@@ -1,11 +1,14 @@
--- package.loaded["helpers"] = nil
+package.loaded["helpers"] = nil
 local helpers = require("helpers")
 local inspect = require("inspect")
 local lines = io.lines("example/day8.txt")
 local boxes = {}
 for line in lines do
 	local split = helpers.split(line, ",")
-	table.insert(boxes, { x = split[1], y = split[2], z = split[3] })
+	table.insert(
+		boxes,
+		{ x = tonumber(split[1]), y = tonumber(split[2]), z = tonumber(split[3]), circuit = helpers.uuid() }
+	)
 end
 
 local function euclidean_distance(p1, p2)
@@ -47,10 +50,14 @@ local function part1()
 		end
 	end
 
+	-- sort by distance
 	table.sort(distances_list, function(lhs, rhs)
 		return lhs.distance < rhs.distance
 	end)
-	for _, dist in pairs(distances_list) do
+
+	-- traverse the pairs and start making circuits
+	local circuits = {}
+	for _, dist in ipairs(distances_list) do
 		print(inspect(dist))
 		-- break
 	end

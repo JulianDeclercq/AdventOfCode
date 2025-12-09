@@ -7,8 +7,8 @@ local circuits = {}
 local box_to_circuit_lookup = {}
 for line in lines do
 	local split = helpers.split(line, ",")
-	local box_id = helpers.uuid()
-	local circuit_id = helpers.uuid()
+	local box_id = "box-" .. helpers.short_id()
+	local circuit_id = "circuit-" .. helpers.short_id()
 	local box = { id = box_id, x = tonumber(split[1]), y = tonumber(split[2]), z = tonumber(split[3]) }
 	table.insert(boxes, box)
 	circuits[circuit_id] = { box_id }
@@ -48,7 +48,11 @@ end
 
 local function connect(box1, box2)
 	-- if already in same circuit, move on
-	if box_to_circuit_lookup[box1.id] == box_to_circuit_lookup[box2.id] then
+	local box1_circuit = box_to_circuit_lookup[box1.id]
+	local box2_circuit = box_to_circuit_lookup[box2.id]
+
+	dbg_locals()
+	if box1_circuit == box2_circuit then
 		return
 	end
 
@@ -65,7 +69,6 @@ local function connect(box1, box2)
 	table.insert(circuits[target_circuit_id], to_move.id) -- add the new box id to the circuit
 
 	circuits[from_circuit_id] = nil -- remove the old circuit
-	-- dbg_locals()
 end
 
 local distances_lookup = {} -- only used to prevent duplicate pairs (a <-> b and b <-> a)
@@ -92,6 +95,10 @@ local function part1()
 
 	-- traverse the pairs and make circuits
 	for i, dist in ipairs(distances_list) do
+		print("circuits")
+		for key, circuit in pairs(circuits) do
+			print(key, " => ", inspect(circuit))
+		end
 		-- TODO: Remove me
 		if i > 4 then
 			break
@@ -102,11 +109,6 @@ local function part1()
 		print("connecting " .. inspect(dist))
 
 		connect(dist.p1, dist.p2)
-	end
-
-	print("circuits")
-	for _, circuit in pairs(circuits) do
-		print(inspect(circuit))
 	end
 end
 

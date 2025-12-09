@@ -38,4 +38,9 @@ function helpers.uuid()
 	end)
 end
 
+function helpers.short_id()
+	local uuid = helpers.uuid()
+	return uuid:sub(1, 8)
+end
+
 return helpers

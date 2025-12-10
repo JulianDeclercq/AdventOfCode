@@ -1,38 +1,43 @@
 local helpers = require("helpers")
 
+-- local input_file = "example/day8.txt"
+local input_file = "input/day8.txt"
+
 local function euclidean_distance(p1, p2)
 	return math.sqrt(math.pow(p1.x - p2.x, 2) + math.pow(p1.y - p2.y, 2) + math.pow(p1.z - p2.z, 2))
 end
 
--- local input_file = "example/day8.txt"
-local input_file = "input/day8.txt"
-local lines = io.lines(input_file)
-local boxes, circuits, box_to_circuit_lookup = {}, {}, {}
-local distances_list = {}
+local function parse_input()
+	local lines = io.lines(input_file)
+	local boxes, circuits, box_to_circuit_lookup = {}, {}, {}
+	local distances_list = {}
 
-for line in lines do
-	local split = helpers.split(line, ",")
-	local box_id = "box-" .. helpers.short_id()
-	local circuit_id = "circuit-" .. helpers.short_id()
-	local box = { id = box_id, x = tonumber(split[1]), y = tonumber(split[2]), z = tonumber(split[3]) }
-	table.insert(boxes, box)
-	circuits[circuit_id] = { box_id }
-	box_to_circuit_lookup[box_id] = circuit_id
-end
-
-for i = 1, #boxes - 1 do
-	for j = i + 1, #boxes do
-		local distance = euclidean_distance(boxes[i], boxes[j])
-		local box = { p1 = boxes[i], p2 = boxes[j], distance = distance }
-		table.insert(distances_list, box)
+	for line in lines do
+		local split = helpers.split(line, ",")
+		local box_id = "box-" .. helpers.short_id()
+		local circuit_id = "circuit-" .. helpers.short_id()
+		local box = { id = box_id, x = tonumber(split[1]), y = tonumber(split[2]), z = tonumber(split[3]) }
+		table.insert(boxes, box)
+		circuits[circuit_id] = { box_id }
+		box_to_circuit_lookup[box_id] = circuit_id
 	end
+
+	for i = 1, #boxes - 1 do
+		for j = i + 1, #boxes do
+			local distance = euclidean_distance(boxes[i], boxes[j])
+			local box = { p1 = boxes[i], p2 = boxes[j], distance = distance }
+			table.insert(distances_list, box)
+		end
+	end
+
+	table.sort(distances_list, function(lhs, rhs)
+		return lhs.distance < rhs.distance
+	end)
+
+	return circuits, box_to_circuit_lookup, distances_list
 end
 
-table.sort(distances_list, function(lhs, rhs)
-	return lhs.distance < rhs.distance
-end)
-
-local function connect(box1, box2)
+local function connect(box1, box2, circuits, box_to_circuit_lookup)
 	-- if already in same circuit, move on
 	if box_to_circuit_lookup[box1.id] == box_to_circuit_lookup[box2.id] then
 		return
@@ -50,13 +55,14 @@ local function connect(box1, box2)
 end
 
 local function part1()
+	local circuits, box_to_circuit_lookup, distances_list = parse_input()
 	local CONNECTIONS_TO_MAKE = string.find(input_file, "example") and 10 or 1000
 	for i, dist in ipairs(distances_list) do
 		if i > CONNECTIONS_TO_MAKE then
 			break
 		end
 
-		connect(dist.p1, dist.p2)
+		connect(dist.p1, dist.p2, circuits, box_to_circuit_lookup)
 	end
 
 	local circuit_counts = {}
@@ -71,13 +77,14 @@ local function part1()
 end
 
 local function part2()
+	local circuits, box_to_circuit_lookup, distances_list = parse_input()
 	local last = nil
 	for _, dist in ipairs(distances_list) do
 		if helpers.table_length(circuits) == 1 then
 			break
 		end
 
-		connect(dist.p1, dist.p2)
+		connect(dist.p1, dist.p2, circuits, box_to_circuit_lookup)
 		last = dist
 	end
 	print("Part 2 answer", last.p1.x * last.p2.x)

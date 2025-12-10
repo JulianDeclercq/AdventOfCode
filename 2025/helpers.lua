@@ -1,3 +1,4 @@
+local inspect = require("inspect")
 local helpers = {}
 
 function helpers.split(str, delimiter)
@@ -34,6 +35,17 @@ function helpers.table_length(t)
 		count = count + 1
 	end
 	return count
+end
+
+function helpers.debug_locals()
+	print("debugging locals!")
+	for i = 1, math.huge do
+		local name, value = debug.getlocal(2, i)
+		if not name then
+			break
+		end
+		print(i, inspect(name), inspect(value))
+	end
 end
 
 math.randomseed(os.time())

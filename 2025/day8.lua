@@ -1,6 +1,4 @@
-package.loaded["helpers"] = nil
 local helpers = require("helpers")
-local inspect = require("inspect")
 
 -- local input_file = "example/day8.txt"
 local input_file = "input/day8.txt"
@@ -38,24 +36,9 @@ local function unique_key(p1, p2)
 	return sorted[1].id .. "-" .. sorted[2].id
 end
 
-local function dbg_locals()
-	print("debugging locals!")
-	for i = 1, math.huge do
-		local name, value = debug.getlocal(2, i)
-		if not name then
-			break
-		end
-		print(i, inspect(name), inspect(value))
-	end
-end
-
 local function connect(box1, box2)
 	-- if already in same circuit, move on
-	local box1_circuit = box_to_circuit_lookup[box1.id]
-	local box2_circuit = box_to_circuit_lookup[box2.id]
-
-	if box1_circuit == box2_circuit then
-		-- print("DIDNT MAKE A CONNECTION")
+	if box_to_circuit_lookup[box1.id] == box_to_circuit_lookup[box2.id] then
 		return
 	end
 
@@ -67,13 +50,10 @@ local function connect(box1, box2)
 
 	local target_circuit_id = box_to_circuit_lookup[target.id]
 	local source_circuit_id = box_to_circuit_lookup[to_move.id]
-	local source_circuit = circuits[source_circuit_id]
-	local target_circuit = circuits[target_circuit_id]
-	-- dbg_locals()
 
-	for _, box_id in ipairs(source_circuit) do
+	for _, box_id in ipairs(circuits[source_circuit_id]) do
 		box_to_circuit_lookup[box_id] = target_circuit_id -- update the lookup
-		table.insert(target_circuit, box_id) -- add the new box id to the circuit
+		table.insert(circuits[target_circuit_id], box_id) -- add the new box id to the circuit
 	end
 
 	circuits[source_circuit_id] = nil -- remove the old circuit entirely
@@ -96,15 +76,9 @@ local function part1()
 		end
 	end
 
-	-- sort by distance
 	table.sort(distances_list, function(lhs, rhs)
 		return lhs.distance < rhs.distance
 	end)
-
-	-- print("INITIAL circuits")
-	-- for key, circuit in pairs(circuits) do
-	-- 	print(key, " => ", inspect(circuit))
-	-- end
 
 	-- traverse the pairs and make circuits
 	local CONNECTIONS_TO_MAKE = string.find(input_file, "example") and 10 or 1000
@@ -112,13 +86,8 @@ local function part1()
 		if i > CONNECTIONS_TO_MAKE then
 			break
 		end
-		-- print("loop", i)
 
 		connect(dist.p1, dist.p2)
-
-		-- for key, circuit in pairs(circuits) do
-		-- 	print(key, " => ", inspect(circuit))
-		-- end
 	end
 
 	local circuit_counts = {}
@@ -152,30 +121,19 @@ local function part2()
 		return lhs.distance < rhs.distance
 	end)
 
-	-- print("INITIAL circuits")
-	-- for key, circuit in pairs(circuits) do
-	-- 	print(key, " => ", inspect(circuit))
-	-- end
-
 	-- traverse the pairs and make circuits
 	local last = nil
 	for _, dist in ipairs(distances_list) do
 		if helpers.table_length(circuits) == 1 then
-			print("circuits unified")
-			-- print(inspect(last))
 			break
 		end
 
 		connect(dist.p1, dist.p2)
-
-		-- print("circuits")
-		-- for key, circuit in pairs(circuits) do
-		-- 	print(key, " => ", inspect(circuit))
-		-- end
 		last = dist
 	end
 
 	print("Part 2 answer", last.p1.x * last.p2.x)
 end
 
+part1()
 part2()

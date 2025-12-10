@@ -53,8 +53,8 @@ local function part_2()
 	local ranges = {}
 	local fresh = {}
 
-	-- local lines = io.lines("input/day5.txt")
-	local lines = io.lines("example/day5.txt")
+	local lines = io.lines("input/day5.txt")
+	-- local lines = io.lines("example/day5.txt")
 	for line in lines do
 		if line == "" then
 			break
@@ -86,15 +86,22 @@ local function part_2()
 			local next = ranges[i + 1]
 			-- print("LOOP " .. i .. " range " .. ranges[i].min .. " " .. ranges[i].max)
 
-			-- if in range, merge ranges
-			if next.min >= current.min and next.min <= current.max then -- TODO: Edge cases?
-				-- print("will update range on index " .. i .. "max from " .. ranges[i].max .. " to " .. next.max)
-				-- print("BEFORE", inspect(ranges[i]))
-				ranges[i].max = next.max -- TODO: Check if max is in range ? Actually don't think we need that validation
-				table.remove(ranges, i + 1)
-				-- print("AFTER", inspect(ranges[i]))
-				break -- restart the loop to try again since it has now changed
-				-- goto again
+			-- if current contains next in range, merge ranges
+			if next.min >= current.min and next.min <= current.max then
+				-- next is fully contained by current, can you just remove it
+				if next.max <= current.max then
+					table.remove(ranges, i + 1)
+					break
+				end
+				-- next starts within current but is bigger, so expand current and remove next
+				if next.max > current.max then
+					-- print("will update range on index " .. i .. "max from " .. ranges[i].max .. " to " .. next.max)
+					-- print("BEFORE", inspect(ranges[i]))
+					ranges[i].max = next.max
+					table.remove(ranges, i + 1)
+					-- print("AFTER", inspect(ranges[i]))
+					break -- restart the loop to try again since it has now changed
+				end
 			end
 		end
 	end
@@ -105,9 +112,6 @@ local function part_2()
 		answer = answer + (range.max - range.min) + 1
 	end
 	print("part 2 answer", helpers.long_print(answer))
-	-- 441990622241300 is too high
-	-- 422614199994505
-	-- 324853356712071 is too low
 end
 
 -- part_1()

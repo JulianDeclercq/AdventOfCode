@@ -1,7 +1,7 @@
 local helpers = require("helpers")
 local inspect = require("inspect")
 
-local function part_1()
+local function solve()
 	-- local lines = io.lines("example/day5.txt")
 	local lines = io.lines("input/day5.txt")
 	local pre_empty = true
@@ -23,39 +23,6 @@ local function part_1()
 			table.insert(ingredients, tonumber(line))
 		end
 		::continue::
-	end
-
-	local answer = 0
-	for _, range in ipairs(ranges) do
-		for _, ingredient in ipairs(ingredients) do
-			if ingredient >= range.min and ingredient <= range.max then
-				-- avoid double counting ingredients
-				if fresh[ingredient] == nil then
-					fresh[ingredient] = true
-					answer = answer + 1
-				end
-			end
-		end
-	end
-	print("part 1 answer", answer)
-end
-
-local function part_2()
-	local ranges = {}
-	local fresh = {}
-
-	-- local lines = io.lines("example/day5.txt")
-	local lines = io.lines("input/day5.txt")
-	for line in lines do
-		if line == "" then
-			break
-		end
-
-		local split = helpers.split(line, "-")
-		table.insert(ranges, {
-			min = tonumber(split[1]),
-			max = tonumber(split[2]),
-		})
 	end
 
 	-- sort the ranges by min so you can always compare "the next one with the previous one" instead of having to try in both directions
@@ -85,12 +52,22 @@ local function part_2()
 		end
 	end
 
-	local answer = 0
-	for _, range in ipairs(ranges) do
-		answer = answer + (range.max - range.min) + 1
+	local part_1_answer = 0
+	for _, ingredient in ipairs(ingredients) do
+		for _, range in ipairs(ranges) do
+			if ingredient >= range.min and ingredient <= range.max then
+				part_1_answer = part_1_answer + 1
+				break
+			end
+		end
 	end
-	print("part 2 answer", helpers.long_print(answer))
+	print("part 1 answer", helpers.long_print(part_1_answer))
+
+	local part_2_answer = 0
+	for _, range in ipairs(ranges) do
+		part_2_answer = part_2_answer + (range.max - range.min) + 1
+	end
+	print("part 2 answer", helpers.long_print(part_2_answer))
 end
 
-part_1()
-part_2()
+solve()

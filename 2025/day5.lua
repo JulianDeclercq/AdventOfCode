@@ -68,23 +68,16 @@ local function part_2()
 	end
 
 	-- sort the ranges by min so you can always compare "the next one with the previous one" instead of having to try in both directions
+	-- meaning you know that next.min is going to be greater than current.min
 	table.sort(ranges, function(lhs, rhs)
 		return lhs.min < rhs.min
 	end)
 
 	-- combine the ranges
-	local combined_ranges = {}
-
 	for loops = 1, 10000000 do -- TODO: Calculate instead
 		for i = 1, #ranges - 1 do
-			-- print("PRINTING RANGES")
-			-- for idx, r in ipairs(ranges) do
-			-- 	print(string.format("range %d: min=%d, max=%d", idx, r.min, r.max))
-			-- end
-
 			local current = ranges[i]
 			local next = ranges[i + 1]
-			-- print("LOOP " .. i .. " range " .. ranges[i].min .. " " .. ranges[i].max)
 
 			-- if current contains next in range, merge ranges
 			if next.min >= current.min and next.min <= current.max then
@@ -95,11 +88,8 @@ local function part_2()
 				end
 				-- next starts within current but is bigger, so expand current and remove next
 				if next.max > current.max then
-					-- print("will update range on index " .. i .. "max from " .. ranges[i].max .. " to " .. next.max)
-					-- print("BEFORE", inspect(ranges[i]))
 					ranges[i].max = next.max
 					table.remove(ranges, i + 1)
-					-- print("AFTER", inspect(ranges[i]))
 					break -- restart the loop to try again since it has now changed
 				end
 			end
@@ -108,7 +98,6 @@ local function part_2()
 
 	local answer = 0
 	for _, range in ipairs(ranges) do
-		-- print(inspect(range))
 		answer = answer + (range.max - range.min) + 1
 	end
 	print("part 2 answer", helpers.long_print(answer))

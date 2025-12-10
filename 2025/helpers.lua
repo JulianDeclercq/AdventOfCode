@@ -48,6 +48,11 @@ function helpers.debug_locals()
 	end
 end
 
+-- print a number in non-scientific notation
+function helpers.long_print(str)
+	return string.format("%.0f", str)
+end
+
 math.randomseed(os.time())
 local random = math.random
 function helpers.uuid()

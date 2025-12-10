@@ -1,9 +1,8 @@
-package.loaded["helpers"] = nil
 local helpers = require("helpers")
 local inspect = require("inspect")
---
--- local lines = io.lines("example/day5.txt")
+
 local function part_1()
+	-- local lines = io.lines("example/day5.txt")
 	local lines = io.lines("input/day5.txt")
 	local pre_empty = true
 	local ranges = {}
@@ -38,23 +37,15 @@ local function part_1()
 			end
 		end
 	end
-	print(answer)
-
-	-- for i, r in ipairs(ranges) do
-	-- 	print(string.format("range %d: min=%d, max=%d", i, r.min, r.max))
-	-- end
-
-	-- print(table.concat(ingredients, "\n"))
+	print("part 1 answer", answer)
 end
-
--- part_1()
 
 local function part_2()
 	local ranges = {}
 	local fresh = {}
 
-	local lines = io.lines("input/day5.txt")
 	-- local lines = io.lines("example/day5.txt")
+	local lines = io.lines("input/day5.txt")
 	for line in lines do
 		if line == "" then
 			break
@@ -73,25 +64,23 @@ local function part_2()
 		return lhs.min < rhs.min
 	end)
 
-	-- combine the ranges
-	for loops = 1, 10000000 do -- TODO: Calculate instead
-		for i = 1, #ranges - 1 do
-			local current = ranges[i]
-			local next = ranges[i + 1]
+	::again::
+	for i = 1, #ranges - 1 do
+		local current = ranges[i]
+		local next = ranges[i + 1]
 
-			-- if current contains next in range, merge ranges
-			if next.min >= current.min and next.min <= current.max then
-				-- next is fully contained by current, can you just remove it
-				if next.max <= current.max then
-					table.remove(ranges, i + 1)
-					break
-				end
-				-- next starts within current but is bigger, so expand current and remove next
-				if next.max > current.max then
-					ranges[i].max = next.max
-					table.remove(ranges, i + 1)
-					break -- restart the loop to try again since it has now changed
-				end
+		-- if current contains next in range, merge ranges
+		if next.min >= current.min and next.min <= current.max then
+			-- next is fully contained by current, can you just remove it
+			if next.max <= current.max then
+				table.remove(ranges, i + 1)
+				goto again -- restart the loop to try again since it has now changed
+			end
+			-- next starts within current but is bigger, so expand current and remove next
+			if next.max > current.max then
+				ranges[i].max = next.max
+				table.remove(ranges, i + 1)
+				goto again -- restart the loop to try again since it has now changed
 			end
 		end
 	end
@@ -103,5 +92,5 @@ local function part_2()
 	print("part 2 answer", helpers.long_print(answer))
 end
 
--- part_1()
+part_1()
 part_2()
